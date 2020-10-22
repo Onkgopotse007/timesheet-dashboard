@@ -1,21 +1,20 @@
-"""timesheet_dashboard URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
 from django.urls import path
+from edc_dashboard import UrlConfig
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-]
+from .patterns import order_number
+from .views import (HomeView, PurchaseOrderListboardView, )
+
+app_name = 'timesheet_dashboard'
+
+timesheet_listboard_url_config = UrlConfig(
+    url_name='timesheet_listboard_url',
+    view_class=PurchaseOrderListboardView,
+    label='timesheet_listboard',
+    identifier_label='order_number',
+    identifier_pattern=order_number)
+
+
+urlpatterns = []
+urlpatterns += [path('listboard/', HomeView.as_view(), name='procurement_url')]
+urlpatterns += purchase_order_listboard_url_config.listboard_urls
+urlpatterns += purchase_order_report_url_config.listboard_urls
