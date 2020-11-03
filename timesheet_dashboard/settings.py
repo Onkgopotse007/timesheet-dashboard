@@ -130,7 +130,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 DASHBOARD_URL_NAMES = {
-    'timesheet_listborad_url': 'timesheet_dashboard:timesheet_listboard_url',
+    'timesheet_listboard_url': 'timesheet_dashboard:timesheet_listboard_url',
 }
 
 DASHBOARD_BASE_TEMPLATES = {

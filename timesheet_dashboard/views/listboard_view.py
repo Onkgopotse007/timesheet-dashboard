@@ -14,16 +14,15 @@ from ..model_wrappers import MonthlyEntryModelWrapper
 class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
                     ListboardFilterViewMixin, SearchFormViewMixin,
                     ListboardView):
-
-    listboard_template = 'purchase_order_listboard_template'
-    listboard_url = 'purchase_order_listboard_url'
+    listboard_template = 'timesheet_listboard_template'
+    listboard_url = 'timesheet_listboard_url'
     listboard_panel_style = 'success'
     listboard_fa_icon = 'fa fa-list-alt'
 
-    model = 'procurement.purchaseorder'
+    model = 'timesheet.monthlyentry'
     model_wrapper_cls = MonthlyEntryModelWrapper
-    navbar_name = 'timesheet_listboard'
-    navbar_selected_item = 'employee_timesheet'
+    navbar_name = 'timesheet'
+    navbar_selected_item = 'timesheet_listboard'
     search_form_url = 'timesheet_listboard_url'
 
     @method_decorator(login_required)
