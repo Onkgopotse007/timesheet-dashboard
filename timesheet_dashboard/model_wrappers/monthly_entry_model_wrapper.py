@@ -9,8 +9,3 @@ class MonthlyEntryModelWrapper(ModelWrapper):
         'timesheet_listboard_url')
     next_url_attrs = ['employee_identifier']
     querystring_attrs = ['employee_identifier', ]
-    
-    
-    @property
-    def employee_identifier(self):
-        return self.object.employee.identifier

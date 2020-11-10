@@ -17,15 +17,37 @@
 
 
 {% block listboard_table_header %}
- 
+ <!-- begin results header -->
+    <th>#</th>
+    <th></th>
+    <th>Month</th>
+    <th>Employee</th>
+    <th>Duration</th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <!-- end results header -->
 {% endblock listboard_table_header %}
 
 
 {% block listboard_table_button_column %}
+<td style="white-space: nowrap">
+    <div class="btn-group">
+    <a title="Edit timesheet" role="button" 
+       class="btn btn-default btn-sm"
+           href="{{ result.href }}">
+        <i class="fa fa-pencil-alt fa-sm"></i>
+    </a>
+    </div>
+   </td>
    
 {% endblock listboard_table_button_column %}
 
 
 {% block listboard_table_columns %}
+	<td>{{ result.month }}</td>
+	<td>{{ result.object.employee }}</td>
+	<td></td>
 
 {% endblock listboard_table_columns %}

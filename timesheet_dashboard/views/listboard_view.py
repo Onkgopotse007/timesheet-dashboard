@@ -37,9 +37,9 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-        if kwargs.get('employee_identifier'):
-            options.update(
-                {'employee_identifier': kwargs.get('employee_identifier')})
+        
+        options.update(
+            {'user_created': request.user.username})
         return options
 
     def extra_search_options(self, search_term):
