@@ -26,7 +26,6 @@
     <th></th>
     <th></th>
     <th></th>
-    <th></th>
     <!-- end results header -->
 {% endblock listboard_table_header %}
 
@@ -48,6 +47,8 @@
 {% block listboard_table_columns %}
 	<td>{{ result.month }}</td>
 	<td>{{ result.object.employee }}</td>
-	<td></td>
+	<td>{{ result.object.total_hours }}</td>
+	<th></th>
+	<th></th>
 
 {% endblock listboard_table_columns %}
