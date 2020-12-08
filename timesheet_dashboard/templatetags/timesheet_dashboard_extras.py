@@ -2,11 +2,10 @@ from django import template
 
 register = template.Library()
 
-
-@register.inclusion_tag('timesheet_dashboard/buttons/timesheet_button.html')
-def timesheet_button(model_wrapper):
-    title = ['Edit timesheet.']
+@register.inclusion_tag('timesheet_dashboard/buttons/submit_timesheet_button.html')
+def submit_timesheet_button(model_wrapper):
+    title = ['Submit Timesheet']
     return dict(
-        identifier=model_wrapper.object.employee_identifier,
-        href=model_wrapper.href,
+        employee_id=model_wrapper.object.employee.identifier,
+        status=model_wrapper.object.status,
         title=' '.join(title))

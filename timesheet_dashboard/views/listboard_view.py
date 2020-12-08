@@ -1,5 +1,5 @@
 import re
-
+from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils.decorators import method_decorator
@@ -7,6 +7,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_dashboard.views import ListboardView
 from edc_navbar import NavbarViewMixin
+from django.contrib.auth import models
 
 from ..model_wrappers import MonthlyEntryModelWrapper
 
@@ -31,15 +32,29 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context.update(
+            groups=[g.name for g in self.request.user.groups.all()],
             timesheet_add_url=self.model_cls().get_absolute_url())
         return context
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-        
-        options.update(
+        usr_groups = [g.name for g in self.request.user.groups.all()]
+        if('HR' in usr_groups and request.GET.get('hr')):
+            return options
+        elif('Supervisor' in usr_groups and request.GET.get('email')):
+            supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
+            try:
+                supervisor_obj = supervisor_cls.objects.get(email=request.GET.get('email'))
+            except supervisor_cls.DoesNotExist:
+                options.update({'user_created': None})
+            else:
+                options.update({'supervisor': supervisor_obj})
+        else:
+            options.update(
             {'user_created': request.user.username})
+            
         return options
 
     def extra_search_options(self, search_term):

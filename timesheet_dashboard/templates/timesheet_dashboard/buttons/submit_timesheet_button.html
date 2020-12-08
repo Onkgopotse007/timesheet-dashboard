@@ -1,0 +1,13 @@
+{% if status == 'new' %}
+<a id="submit_timesheet_{{employee_id}}"  title="{{ title }}"  data-toggle="tooltip"
+	data-placement="right" href="#" class="btn btn-warning btn-sm" >
+	Submit
+</a>
+ 		
+{% else %}
+  <a id="submit_timesheet_{{employee_id}}"  title="{{ title }}"  data-toggle="tooltip"
+	data-placement="right" href="#" class="btn btn-warning btn-sm" >
+	Submitted
+</a>
+   		      	
+{% endif %}
