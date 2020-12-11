@@ -1,7 +1,7 @@
 from django.urls import path
 from edc_dashboard import UrlConfig
 from django.contrib.auth import get_user_model
-
+from .patterns import identifier
 from .views import ListboardView
 
 app_name = 'timesheet_dashboard'
@@ -12,8 +12,8 @@ timesheet_listboard_url_config = UrlConfig(
     url_name='timesheet_listboard_url',
     view_class=ListboardView,
     label='timesheet_listboard',
-    identifier_label='username',
-    identifier_pattern='')
+    identifier_label='employee_id',
+    identifier_pattern=identifier)
 
 
 urlpatterns = []

@@ -1,13 +1,26 @@
 {% if status == 'new' %}
-<a id="submit_timesheet_{{employee_id}}"  title="{{ title }}"  data-toggle="tooltip"
-	data-placement="right" href="#" class="btn btn-warning btn-sm" >
-	Submit
-</a>
+<form method='POST' id="new_post" action="{% url 'timesheet_dashboard:timesheet_listboard_url'  employee_id %}?month={{month}}" name="submit_timesheet">
+  	{% csrf_token %}
+  	 <input class="btn btn-warning btn-sm" type="submit" value="Submit">
+</form>
  		
 {% else %}
-  <a id="submit_timesheet_{{employee_id}}"  title="{{ title }}"  data-toggle="tooltip"
-	data-placement="right" href="#" class="btn btn-warning btn-sm" >
+  {% if status == 'submitted' %}
+  <div id="submit_timesheet_{{employee_id}}"  title="Timesheet Submitted"  data-toggle="tooltip"
+	data-placement="right" class="btn btn-success btn-sm">
 	Submitted
-</a>
-   		      	
+  </div>
+  {% else %}
+   {% if status == 'rejected' %}
+     <div id="rejected_timesheet_{{employee_id}}"  title="Timesheet Rejected"  data-toggle="tooltip"
+	   data-placement="right" class="btn btn-danger btn-sm">
+	   Rejected
+     </div>
+   {% else %}
+     <div id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
+	  data-placement="right" class="btn btn-primary btn-sm">
+	  Approved
+     </div>
+  {% endif %}
+ {% endif %} 	
 {% endif %}

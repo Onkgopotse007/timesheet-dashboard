@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -8,6 +9,8 @@ from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMi
 from edc_dashboard.views import ListboardView
 from edc_navbar import NavbarViewMixin
 from django.contrib.auth import models
+
+from django.http.response import HttpResponseRedirect
 
 from ..model_wrappers import MonthlyEntryModelWrapper
 
@@ -32,21 +35,44 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+#         import pdb; pdb.set_trace()
+
+        wrapped_cls = self.model_cls()
+        timesheet_add_url = None if self.request.GET else self.model_wrapper_cls(
+                                                                                 wrapped_cls).get_absolute_url()
 
         context.update(
             groups=[g.name for g in self.request.user.groups.all()],
-            timesheet_add_url=self.model_cls().get_absolute_url())
+            timesheet_add_url=timesheet_add_url)
         return context
+
+    def post(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            month_string = self.request.GET.get('month')
+            try:
+                monthly_entry_obj = self.model_cls.objects.get(
+                                                employee__identifier=self.kwargs['employee_id'],
+                                                month=datetime.strptime(month_string, '%b. %d, %Y').date())
+            except self.model_cls.DoesNotExist:
+                pass
+            else:
+                monthly_entry_obj.status = 'submitted'
+                monthly_entry_obj.save()
+         
+        return HttpResponseRedirect(self.request.path)
+
+               
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
+
         usr_groups = [g.name for g in self.request.user.groups.all()]
         if('HR' in usr_groups and request.GET.get('hr')):
-            return options
-        elif('Supervisor' in usr_groups and request.GET.get('email')):
+            options.update({'status': 'approved'})
+        elif('Supervisor' in usr_groups and request.GET.get('supervisor')):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
             try:
-                supervisor_obj = supervisor_cls.objects.get(email=request.GET.get('email'))
+                supervisor_obj = supervisor_cls.objects.get(email=self.request.user.email)
             except supervisor_cls.DoesNotExist:
                 options.update({'user_created': None})
             else:
@@ -56,6 +82,14 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             {'user_created': request.user.username})
             
         return options
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        usr_groups = [g.name for g in self.request.user.groups.all()]
+        if ('Supervisor' in usr_groups and self.request.GET.get('supervisor')):
+            qs = qs.filter(status__in=['rejected', 'approved', 'submitted'])
+        return qs
+        
 
     def extra_search_options(self, search_term):
         q = Q()

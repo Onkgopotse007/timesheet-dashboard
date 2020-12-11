@@ -23,14 +23,13 @@
     <!-- end search form -->
 
     {% block listboard_panel %}
-     <a id="timesheet_add" title="add monthly timesheet" class="btn btn-sm btn-default" role="button" 
+     {% if timesheet_add_url %}
+      <a id="timesheet_add" title="add monthly timesheet" class="btn btn-sm btn-default" role="button" 
         href="{{ timesheet_add_url }}?next={{ timesheet_listboard_url }}">
             <i class="fa fa-plus fa-sm"></i> Add Timesheet
-     </a>
-     <!-- <a id="return_to_home" title="go back" class="btn btn-sm btn-default" role="button" 
-        href="/">
-            <i class="fa fa-arrow-left fa-sm"></i> Go Back
-     </a> -->
+      </a>
+     {% endif %}
+     
     {% endblock listboard_panel %}
 
    </div> <!--end panel heading -->
@@ -62,11 +61,19 @@
 		 {% block listboard_table_button_column %}
 		   <td style="white-space: nowrap">
 		   <div class="btn-group">
+		   {% if timesheet_add_url %}
 			 <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{{ result.href }}">
 			   <i class="fa fa-pencil-alt fa-sm"></i>
 			 </a>
-			    
 			 {% submit_timesheet_button result %}
+		   {% else %}
+      
+		   <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
+			data-placement="right" href="{{ result.href }}&edc_readonly=1" class="btn btn-success btn-sm" >
+			View Timesheet
+			</a>
+		   {% endif %}
+
 		   </div>
 		   </td>
 		 {% endblock listboard_table_button_column %}
@@ -121,7 +128,7 @@
 			  </li>
 			  {% if 'Supervisor' in groups %}
 			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?email={{user.email}}" > Surbodinates Timesheets </a>
+			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?supervisor=True" > Surbodinates Timesheets </a>
 			   
 			  </li>
 			  {% endif %}
