@@ -38,17 +38,16 @@
    <div class="table table-responsive">
     <table class="table table-condensed table-hover small">
      <thead>
-
-      {% block listboard_table_header %}
-      <!-- begin results header -->
-       <th>#</th>
-       <th></th>
-       <th>Month</th>
-       <th>Employee</th>
-       <th>Duration</th>
-       <th>Status</th>
-       <!-- end results header -->
-	  {% endblock listboard_table_header %}
+       {% block listboard_table_header %}
+        <!-- begin results header -->
+         <th>#</th>
+         <th></th>
+         <th>Employee Code</th>
+         <th>Employee Name</th>
+         <th>Email</th>
+         <th>Job Title</th>
+		<!-- end results header -->
+	   {% endblock listboard_table_header %}
 
       </thead><tbody>
 
@@ -58,39 +57,26 @@
         <tr> 
         
          <td>{{ forloop.counter }}</td>
-		 {% block listboard_table_button_column %}
-		   <td style="white-space: nowrap">
-		   <div class="btn-group">
-		   {% if timesheet_add_url %}
-			 <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{{ result.href }}">
-			   <i class="fa fa-pencil-alt fa-sm"></i>
-			 </a>
-			 {% submit_timesheet_button result %}
-		   {% else %}
-      
-		   <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
-			data-placement="right" href="{{ result.href }}&edc_readonly=1" class="btn btn-success btn-sm" >
-			View Timesheet
-			</a>
-		   {% endif %}
 
-		   </div>
-		   </td>
-		 {% endblock listboard_table_button_column %}
-			
-		{% block listboard_table_columns %}
-		 <td >{{ result.month }}</td>
-		 <td>{{ result.object.employee }}</td>
-		 <td>{{ result.object.total_hours }}</td>
-		 <th>{{ result.timesheet_status }}</th>
-		 <th style="white-space: nowrap"></th>
-		 <th></th>
-		 <th></th>
-			
-		{% endblock listboard_table_columns %}
-		</tr>
-    
-     {% endfor %}
+{% block listboard_table_button_column %}
+    <td style="white-space: nowrap;">
+    <div class="btn-group">
+       {% timesheets_button result request.user%}
+    </div>
+    </td>
+{% endblock listboard_table_button_column %}
+
+
+{% block listboard_table_columns %}
+
+    <td>{{ result.identifier }} </td>
+    <td nowrap>{{ result.first_name }} {{ result.middle_name }} {{ result.last_name }}</td>
+    <td nowrap>{{ result.email }}</td>
+    <td nowrap>{{ result.job_title }}</td>
+
+{% endblock listboard_table_columns %}
+
+{% endfor %}
 
     {% endblock listboard_table_body %}
 
@@ -120,21 +106,21 @@
 <div id="div-home-right" class="col-md-3">
 
        <div class="panel panel-warning">
-       <div class="panel-heading">Timesheets</div>
+       <div class="panel-heading">Departments</div>
         <div class="panel-body"> 
         	<ul class="list-group">
 			  <li class="list-group-item">
-			   <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}" > My Timesheets </a>
+			   <a href="#" > DMC </a>
 			  </li>
 			  {% if 'Supervisor' in groups %}
 			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?supervisor=True" > Surbodinates Timesheets </a>
+			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?Supervisor=True" > Surbodinates Timesheets </a>
 			   
 			  </li>
 			  {% endif %}
 			  {% if 'HR' in groups %}
 			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?hr=True" > Employee Timesheets </a>
+			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?HR=True" > Employee Timesheets </a>
 			   
 			  </li>
 			  {% endif %}
@@ -144,3 +130,4 @@
    </div>
 
 {% endblock main %}
+

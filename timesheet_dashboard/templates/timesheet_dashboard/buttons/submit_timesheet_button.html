@@ -17,10 +17,17 @@
 	   Rejected
      </div>
    {% else %}
-     <div id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
-	  data-placement="right" class="btn btn-primary btn-sm">
-	  Approved
-     </div>
+   	{% if status == 'verified' %}
+	  <div id="verified_timesheet_{{employee_id}}"  title="Timesheet Verified"  data-toggle="tooltip"
+		data-placement="right" class="btn btn-success btn-sm">
+		Verified
+	  </div>
+	  {% else %}
+        <div id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
+	      data-placement="right" class="btn btn-primary btn-sm">
+	      Approved
+        </div>
+     {% endif %}
   {% endif %}
  {% endif %} 	
 {% endif %}

@@ -13,6 +13,7 @@ from django.contrib.auth import models
 from django.http.response import HttpResponseRedirect
 
 from ..model_wrappers import MonthlyEntryModelWrapper
+from .filters import ListboardViewFilters
 
 
 class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
@@ -25,6 +26,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
     model = 'timesheet.monthlyentry'
     model_wrapper_cls = MonthlyEntryModelWrapper
+    listboard_view_filters = ListboardViewFilters()
     navbar_name = 'timesheet'
     navbar_selected_item = 'timesheet_listboard'
     search_form_url = 'timesheet_listboard_url'
@@ -35,14 +37,19 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-#         import pdb; pdb.set_trace()
 
         wrapped_cls = self.model_cls()
-        timesheet_add_url = None if self.request.GET else self.model_wrapper_cls(
-                                                                                 wrapped_cls).get_absolute_url()
+        groups=[g.name for g in self.request.user.groups.all()]
 
+        timesheet_add_url = None
+        if not bool(self.request.GET) or (
+                        bool(self.request.GET) and any(
+                                map((lambda value: value not in groups), self.request.GET.keys()))):
+            timesheet_add_url = self.model_wrapper_cls(wrapped_cls).get_absolute_url()
+        
         context.update(
-            groups=[g.name for g in self.request.user.groups.all()],
+            groups=groups,
+            employee=self.request.GET.get('employee') or None,
             timesheet_add_url=timesheet_add_url)
         return context
 
@@ -67,9 +74,9 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         options = super().get_queryset_filter_options(request, *args, **kwargs)
 
         usr_groups = [g.name for g in self.request.user.groups.all()]
-        if('HR' in usr_groups and request.GET.get('hr')):
+        if('HR' in usr_groups and request.GET.get('HR')):
             options.update({'status': 'approved'})
-        elif('Supervisor' in usr_groups and request.GET.get('supervisor')):
+        elif('Supervisor' in usr_groups and request.GET.get('Supervisor')):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
             try:
                 supervisor_obj = supervisor_cls.objects.get(email=self.request.user.email)
@@ -86,7 +93,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
     def get_queryset(self):
         qs = super().get_queryset()
         usr_groups = [g.name for g in self.request.user.groups.all()]
-        if ('Supervisor' in usr_groups and self.request.GET.get('supervisor')):
+        if ('Supervisor' in usr_groups and self.request.GET.get('Supervisor')):
             qs = qs.filter(status__in=['rejected', 'approved', 'submitted'])
         return qs
         
