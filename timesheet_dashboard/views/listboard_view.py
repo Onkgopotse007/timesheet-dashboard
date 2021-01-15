@@ -14,6 +14,7 @@ from django.http.response import HttpResponseRedirect
 
 from ..model_wrappers import MonthlyEntryModelWrapper
 from .filters import ListboardViewFilters
+from pickle import NONE
 
 
 class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
@@ -39,16 +40,17 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         context = super().get_context_data(**kwargs)
 
         wrapped_cls = self.model_cls()
-        groups=[g.name for g in self.request.user.groups.all()]
+        groups = [g.name for g in self.request.user.groups.all()]
 
         timesheet_add_url = None
-        if not bool(self.request.GET) or (
-                        bool(self.request.GET) and any(
-                                map((lambda value: value not in groups), self.request.GET.keys()))):
+
+        if not bool(self.request.GET) or self.request.GET.get('p_role') not in groups:
             timesheet_add_url = self.model_wrapper_cls(wrapped_cls).get_absolute_url()
-        
+
         context.update(
+            p_role=self.request.GET.get('p_role'),
             groups=groups,
+            employee_id=self.employee_id,
             employee=self.request.GET.get('employee') or None,
             timesheet_add_url=timesheet_add_url)
         return context
@@ -65,18 +67,34 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             else:
                 monthly_entry_obj.status = 'submitted'
                 monthly_entry_obj.save()
-         
+
         return HttpResponseRedirect(self.request.path)
 
-               
+
+    @property
+    def employee_id(self):
+        employee_cls = django_apps.get_model('bhp_personnel.employee')
+
+        if self.kwargs.get('employee_id'):
+            return self.kwargs['employee_id']
+        elif not bool(self.request.GET):
+            try:
+                employee_obj = employee_cls.objects.get(email=self.request.user.email)
+            except employee_cls.DoesNotExist:
+                return None
+            except employee_cls.MultipleObjectsReturned:
+                return None
+            else:
+                return employee_obj.identifier
+        else:
+            return None
+
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
 
         usr_groups = [g.name for g in self.request.user.groups.all()]
-        if('HR' in usr_groups and request.GET.get('HR')):
-            options.update({'status': 'approved'})
-        elif('Supervisor' in usr_groups and request.GET.get('Supervisor')):
+        if('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
             try:
                 supervisor_obj = supervisor_cls.objects.get(email=self.request.user.email)
@@ -84,19 +102,20 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
                 options.update({'user_created': None})
             else:
                 options.update({'supervisor': supervisor_obj})
-        else:
+        elif not bool(self.request.GET):
             options.update(
             {'user_created': request.user.username})
-            
+
         return options
-    
+
     def get_queryset(self):
         qs = super().get_queryset()
         usr_groups = [g.name for g in self.request.user.groups.all()]
-        if ('Supervisor' in usr_groups and self.request.GET.get('Supervisor')):
-            qs = qs.filter(status__in=['rejected', 'approved', 'submitted'])
+        if (any(map((lambda value: value in usr_groups), ['Supervisor', 'HR']))
+                and self.request.GET.get('p_role') in ['Supervisor', 'HR']):
+            qs = qs.filter(status__in=['approved', 'verified', 'submitted'])
         return qs
-        
+
 
     def extra_search_options(self, search_term):
         q = Q()

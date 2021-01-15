@@ -61,7 +61,7 @@
 {% block listboard_table_button_column %}
     <td style="white-space: nowrap;">
     <div class="btn-group">
-       {% timesheets_button result request.user%}
+       {% timesheets_button result p_role request.user%}
     </div>
     </td>
 {% endblock listboard_table_button_column %}
@@ -114,13 +114,13 @@
 			  </li>
 			  {% if 'Supervisor' in groups %}
 			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?Supervisor=True" > Surbodinates Timesheets </a>
+			    <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Surbodinates Timesheets </a>
 			   
 			  </li>
 			  {% endif %}
 			  {% if 'HR' in groups %}
 			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?HR=True" > Employee Timesheets </a>
+			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
 			   
 			  </li>
 			  {% endif %}

@@ -34,7 +34,9 @@ class EmployeeListBoardView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        p_role = self.request.GET.get('p_role')
         context.update(
+            p_role=p_role,
             groups=[g.name for g in self.request.user.groups.all()],
             employee_add_url=self.model_cls().get_absolute_url())
         return context
@@ -44,7 +46,11 @@ class EmployeeListBoardView(
         if kwargs.get('subject_id'):
             options.update(
                 {'identifier': kwargs.get('subject_id')})
+        if self.request.GET.get('dept'):
+            options.update(
+                {'department': kwargs.get('dept')})
         return options
+
 
     def extra_search_options(self, search_term):
         q = Q()

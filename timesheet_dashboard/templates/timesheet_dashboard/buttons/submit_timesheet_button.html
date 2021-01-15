@@ -1,33 +1,27 @@
-{% if status == 'new' %}
+{% if status == 'new' or status == 'rejected' %}
 <form method='POST' id="new_post" action="{% url 'timesheet_dashboard:timesheet_listboard_url'  employee_id %}?month={{month}}" name="submit_timesheet">
   	{% csrf_token %}
   	 <input class="btn btn-warning btn-sm" type="submit" value="Submit">
 </form>
  		
-{% else %}
-  {% if status == 'submitted' %}
-  <div id="submit_timesheet_{{employee_id}}"  title="Timesheet Submitted"  data-toggle="tooltip"
+{% elif status == 'submitted' %}
+ <div id="submit_timesheet_{{employee_id}}"  title="Timesheet Submitted"  data-toggle="tooltip"
+data-placement="right" class="btn btn-info btn-sm">
+Submitted
+ </div>
+{% elif status == 'rejected' %}
+   <div id="rejected_timesheet_{{employee_id}}"  title="Timesheet Rejected"  data-toggle="tooltip"
+  data-placement="right" class="btn btn-danger btn-sm">
+  Rejected
+   </div>
+ {% elif status == 'verified' %}
+  <div id="verified_timesheet_{{employee_id}}"  title="Timesheet Verified"  data-toggle="tooltip"
 	data-placement="right" class="btn btn-success btn-sm">
-	Submitted
+	Verified
   </div>
-  {% else %}
-   {% if status == 'rejected' %}
-     <div id="rejected_timesheet_{{employee_id}}"  title="Timesheet Rejected"  data-toggle="tooltip"
-	   data-placement="right" class="btn btn-danger btn-sm">
-	   Rejected
-     </div>
-   {% else %}
-   	{% if status == 'verified' %}
-	  <div id="verified_timesheet_{{employee_id}}"  title="Timesheet Verified"  data-toggle="tooltip"
-		data-placement="right" class="btn btn-success btn-sm">
-		Verified
-	  </div>
-	  {% else %}
-        <div id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
-	      data-placement="right" class="btn btn-primary btn-sm">
-	      Approved
-        </div>
-     {% endif %}
-  {% endif %}
- {% endif %} 	
+{% else %}
+   <div id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
+      data-placement="right" class="btn btn-success btn-sm">
+      Approved
+   </div>
 {% endif %}

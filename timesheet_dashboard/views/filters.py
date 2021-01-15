@@ -10,20 +10,25 @@ class ListboardViewFilters(ListboardViewFilters):
 
     new = ListboardFilter(
         label='New',
-        position=10,
+        position=1,
         lookup={'status': 'new'})
+
+    submitted = ListboardFilter(
+        label='Submitted',
+        position=2,
+        lookup={'status': 'submitted'})
 
     approved = ListboardFilter(
         label='Approved',
-        position=11,
+        position=3,
         lookup={'status': 'approved'})
 
     verified = ListboardFilter(
         label='Verified',
-        position=20,
+        position=4,
         lookup={'status': 'verified'})
 
     rejected = ListboardFilter(
         label='Rejected',
-        position=21,
+        position=5,
         lookup={'status': 'rejecetd'})

@@ -45,7 +45,6 @@
        <th>#</th>
        <th></th>
        <th>Month</th>
-       <th>Employee</th>
        <th>Duration</th>
        <th>Status</th>
        <!-- end results header -->
@@ -63,26 +62,24 @@
 		   <td style="white-space: nowrap">
 		   <div class="btn-group">
 		   {% if timesheet_add_url %}
-		     {% if result.status != 'approved' and  result.status != 'verified' %}
-			    <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{{ result.href }}">
-			      <i class="fa fa-pencil-alt fa-sm"></i>
-			    </a>
-			 {% endif %}
-			 {% submit_timesheet_button result %}
-		   {% else %}
-		    {% if 'HR' in groups %}
-			  <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
-				data-placement="right" class="btn btn-success btn-sm" href="{{ result.href }}&HR=True&edc_readonly='1'" > 
-				View Timesheet</a>
-			{% else %} 
-			  {% if 'Supervisor' in groups %} 
-			  		<a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
-				data-placement="right" class="btn btn-success btn-sm" href="{{ result.href }}&Supervisor=True&edc_readonly='1'" > 
-				View Timesheet</a>
-			  {% endif %}
+			  <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{{ result.href }}">
+			     <i class="fa fa-pencil-alt fa-sm"></i>
+			  </a>
+			     {% submit_timesheet_button result %}
 			{% endif %}
-				
-				
+
+		   {% if p_role == 'HR' or p_role == 'Supervisor' %}
+		   	  {% if result.status == 'rejected' %}
+		   	  	  <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
+				    data-placement="right" class="btn btn-danger btn-sm" href="{{ result.href }}&p_role={{p_role}}" >
+			  {% elif result.status == 'submitted' %}
+			      <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
+				    data-placement="right" class="btn btn-info btn-sm" href="{{ result.href }}&p_role={{p_role}}" >
+			  {% else %}
+		   	    <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
+				  data-placement="right" class="btn btn-success btn-sm" href="{{ result.href }}&p_role={{p_role}}" >
+			  {% endif %} 
+				View Timesheet</a>
 		   {% endif %}
 
 		   </div>
@@ -91,7 +88,6 @@
 			
 		{% block listboard_table_columns %}
 		 <td >{{ result.month }}</td>
-		 <td>{{ result.object.employee }}</td>
 		 <td>{{ result.object.total_hours }}</td>
 		 <th>{{ result.timesheet_status }}</th>
 		 <th style="white-space: nowrap"></th>
@@ -127,9 +123,20 @@
 
 </div>
 
+ <div class="col-md-3">
 
-<div id="div-home-right" class="col-md-3">
+    {% block side_bar %}
 
+	    {% include 'timesheet_dashboard/sidebar.html' %}
+
+    {% endblock side_bar %}
+
+</div> <!-- col-md-3 -->
+
+
+
+<!-- <div id="div-home-right" class="col-md-3">
+<div class="panel-group" id="accordion">
        <div class="panel panel-warning">
        <div class="panel-heading">Timesheets</div>
         <div class="panel-body"> 
@@ -139,19 +146,31 @@
 			  </li>
 			  {% if 'Supervisor' in groups %}
 			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?Supervisor=True" > Surbodinates Timesheets </a>
+			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Surbodinates Timesheets </a>
 			   
 			  </li>
 			  {% endif %}
 			  {% if 'HR' in groups %}
 			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?HR=True" > Employee Timesheets </a>
+			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
 			   
 			  </li>
 			  {% endif %}
 			 </ul>
         </div>
        </div>
-   </div>
+
+     <div class="panel panel-default">
+      <div class="panel-heading">
+          <h6 class="panel-title">
+              <a id="special-forms-panel-title" data-toggle="collapse" data-parent="#accordion" href="#special-forms-panel">Special Forms <span class="caret"></span></a>
+          </h6>
+      </div>
+      <div id="special-forms-panel" class="panel-collapse collapse collapse">
+         
+      </div> 
+	</div>
+</div>
+</div> -->
 
 {% endblock main %}
