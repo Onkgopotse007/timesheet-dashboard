@@ -14,7 +14,6 @@ from django.http.response import HttpResponseRedirect
 
 from ..model_wrappers import MonthlyEntryModelWrapper
 from .filters import ListboardViewFilters
-from pickle import NONE
 
 
 class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
@@ -39,20 +38,24 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        wrapped_cls = self.model_cls()
+        if self.get_employee:
+            model_obj = self.model_cls(employee=self.get_employee,
+                                       supervisor=self.get_employee.supervisor)
+        else:
+            model_obj = self.model_cls()
+
         groups = [g.name for g in self.request.user.groups.all()]
 
-        timesheet_add_url = None
-
         if not bool(self.request.GET) or self.request.GET.get('p_role') not in groups:
-            timesheet_add_url = self.model_wrapper_cls(wrapped_cls).get_absolute_url()
+            timesheet_add_url = self.model_wrapper_cls(model_obj=model_obj).href
 
         context.update(
             p_role=self.request.GET.get('p_role'),
             groups=groups,
-            employee_id=self.employee_id,
-            employee=self.request.GET.get('employee') or None,
-            timesheet_add_url=timesheet_add_url)
+            departments=self.departments,
+            employee_id=self.kwargs.get('employee_id'),
+            employee=self.get_employee,
+            timesheet_add_url=timesheet_add_url or None)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -72,29 +75,35 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
 
     @property
-    def employee_id(self):
+    def get_employee(self):
         employee_cls = django_apps.get_model('bhp_personnel.employee')
 
-        if self.kwargs.get('employee_id'):
-            return self.kwargs['employee_id']
-        elif not bool(self.request.GET):
-            try:
-                employee_obj = employee_cls.objects.get(email=self.request.user.email)
-            except employee_cls.DoesNotExist:
-                return None
-            except employee_cls.MultipleObjectsReturned:
-                return None
-            else:
-                return employee_obj.identifier
-        else:
+        try:
+            employee_obj = employee_cls.objects.get(email=self.request.user.email)
+        except employee_cls.DoesNotExist:
             return None
+        except employee_cls.MultipleObjectsReturned:
+            return None
+        else:
+            return employee_obj
+
+
+
+    @property
+    def departments(self):
+        department_cls = django_apps.get_model('bhp_personnel.department')
+
+        return [dept.dept_name for dept in department_cls.objects.all()]
 
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-
         usr_groups = [g.name for g in self.request.user.groups.all()]
-        if('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
+
+        if self.kwargs.get('employee_id'):
+            options.update({'employee__identifier': self.kwargs.get('employee_id')})
+
+        elif('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
             try:
                 supervisor_obj = supervisor_cls.objects.get(email=self.request.user.email)
@@ -102,9 +111,9 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
                 options.update({'user_created': None})
             else:
                 options.update({'supervisor': supervisor_obj})
-        elif not bool(self.request.GET):
-            options.update(
-            {'user_created': request.user.username})
+#         elif not bool(self.request.GET) or request.GET.get('employee_id'):
+#             options.update(
+#             {'user_created': request.user.username})
 
         return options
 

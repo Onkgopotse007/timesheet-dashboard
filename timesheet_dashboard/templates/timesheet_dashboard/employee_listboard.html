@@ -69,7 +69,7 @@
 
 {% block listboard_table_columns %}
 
-    <td>{{ result.identifier }} </td>
+    <td>{{ result.employee_code }} </td>
     <td nowrap>{{ result.first_name }} {{ result.middle_name }} {{ result.last_name }}</td>
     <td nowrap>{{ result.email }}</td>
     <td nowrap>{{ result.job_title }}</td>
@@ -105,29 +105,58 @@
 
 <div id="div-home-right" class="col-md-3">
 
-       <div class="panel panel-warning">
-       <div class="panel-heading">Departments</div>
-        <div class="panel-body"> 
-        	<ul class="list-group">
-			  <li class="list-group-item">
-			   <a href="#" > DMC </a>
-			  </li>
-			  {% if 'Supervisor' in groups %}
-			  <li class="list-group-item">
-			    <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Surbodinates Timesheets </a>
-			   
-			  </li>
-			  {% endif %}
-			  {% if 'HR' in groups %}
-			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
-			   
-			  </li>
-			  {% endif %}
-			 </ul>
-        </div>
-       </div>
-   </div>
+	<div class="panel-group" id="accordion">
+
+ 	  {% if 'HR' in groups %}
+ 		<div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
+	          </h6>
+	      </div>
+	               
+	    </div>
+	    {% endif %}
+	
+		{% if 'Supervisor' in groups %}
+		<div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Surbodinates Timesheets </a>
+	          </h6>
+	      </div>
+	               
+	    </div>
+       
+       	{% endif %}
+       	
+       	{% if 'HR' in groups %}
+       	  <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a id="departments-panel-title" data-toggle="collapse" data-parent="#accordion" href="#departments-panel">Departments <span class="caret"></span></a>
+	          </h6>
+	      </div>
+	      <div id="departments-panel" class="panel-collapse collapse">
+	      		<ul>
+	      		{% for dept in departments %}
+	      		   <li> <a href="{% url 'timesheet_dashboard:timesheet_employee_listboard_url' %}?dept={{dept}}&p_role=HR" > {{dept}} </a> </li>
+	      		
+	      		{% endfor %}
+	      		</ul>
+	      </div> 
+	      </div>     
+	    {% endif %}
+	     <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?employee_id={{employee_id}}" > My Timesheets </a>
+	          </h6>
+	      </div>
+	   </div>
+       
+</div>
+</div>
 
 {% endblock main %}
 

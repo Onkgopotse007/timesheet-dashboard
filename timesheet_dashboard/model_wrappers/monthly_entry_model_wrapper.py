@@ -8,8 +8,7 @@ class MonthlyEntryModelWrapper(ModelWrapper):
     model = 'timesheet.monthlyentry'
     next_url_name = settings.DASHBOARD_URL_NAMES.get(
         'timesheet_listboard_url')
-    next_url_attrs = ['employee']
-    querystring_attrs = ['employee', 'month']
+    next_url_attrs = ['employee', 'supervisor']
 
 
     @property
@@ -23,21 +22,20 @@ class MonthlyEntryModelWrapper(ModelWrapper):
         try:
             return self.monthly_entry_cls.objects.get(
                 **self.monthly_entry_options)
-        except self.monthly_entry_cls.ObjectDoesNotExist:
+        except self.monthly_entry_cls.DoesNotExist:
             return None
 
     @property
     def monthly_entry(self):
         """Returns a wrapped saved or unsaved monthly entry.
         """
-        import pdb; pdb.set_trace()
         model_obj = self.monthly_entry_model_obj or self.monthly_entry_cls(
             **self.monthly_entry_options)
         return self(model_obj=model_obj)
 
     @property
     def monthly_entry_cls(self):
-        return django_apps.get_model('potlako_subject.monthlyentry')
+        return django_apps.get_model('timesheet.monthlyentry')
 
     @property
     def monthly_entry_options(self):
@@ -45,18 +43,7 @@ class MonthlyEntryModelWrapper(ModelWrapper):
         verbal consent model instance.
         """
         options = dict(
-            employee_id=self.employee.id)
+            employee=self.object.employee,
+            supervisor=self.object.employee.supervisor,
+            month=None)
         return options
-
-    @property
-    def employee(self):
-        employee_cls = django_apps.get_model('bhp_personnel.employee')
-        try:
-            employee_obj = employee_cls.objects.get(email=self.request.user.email)
-        except employee_cls.DoesNotExist:
-            employee_obj = None
-        return employee_obj
-
-
-
-

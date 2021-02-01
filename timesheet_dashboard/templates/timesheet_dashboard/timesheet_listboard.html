@@ -23,13 +23,22 @@
     <!-- end search form -->
 
     {% block listboard_panel %}
-    {% if not employee %}
-     {% if timesheet_add_url %}
+    {% if employee and timesheet_add_url%}
       <a id="timesheet_add" title="add monthly timesheet" class="btn btn-sm btn-default" role="button" 
-        href="{{ timesheet_add_url }}?next={{ timesheet_listboard_url }}">
+        href="{{ timesheet_add_url }}??next={{ timesheet_listboard_url }}">
             <i class="fa fa-plus fa-sm"></i> Add Timesheet
       </a>
-     {% endif %}
+    {% endif %}
+    {% if p_role == 'HR' %}
+    	<a id="back_employee" title="view_employees" class="btn btn-sm btn-default" role="button" 
+        href="{% url  'timesheet_dashboard:timesheet_employee_listboard_url' %}?p_role=HR">
+        <i class="fa fa-reply fa-sm"></i> Employees
+         </a>
+    {% elif p_role == 'Supervisor' %}
+    	<a id="back_employee" title="view_employees" class="btn btn-sm btn-default" role="button" 
+        href="{% url  'timesheet_dashboard:timesheet_employee_listboard_url' %}?p_role=Supervisor">
+        <i class="fa fa-reply fa-sm"></i> Surbodinates
+         </a>
     {% endif %}
     {% endblock listboard_panel %}
 
@@ -44,6 +53,9 @@
       <!-- begin results header -->
        <th>#</th>
        <th></th>
+       {% if p_role == 'HR' or p_role == 'Supervisor' %}
+       <th>Name </th>
+       {% endif %}
        <th>Month</th>
        <th>Duration</th>
        <th>Status</th>
@@ -87,6 +99,9 @@
 		 {% endblock listboard_table_button_column %}
 			
 		{% block listboard_table_columns %}
+		{% if p_role == 'HR' or p_role == 'Supervisor' %}
+         <td>{{result.object.employee.first_name}} {{result.object.employee.last_name}}</td>
+         {% endif %}
 		 <td >{{ result.month }}</td>
 		 <td>{{ result.object.total_hours }}</td>
 		 <th>{{ result.timesheet_status }}</th>
@@ -123,54 +138,85 @@
 
 </div>
 
- <div class="col-md-3">
+ <div id="div-home-right" class="col-md-3">
+ 	
+ 	
+ 	<div class="panel-group" id="accordion">
+	   
+	   
+	   </div>
 
-    {% block side_bar %}
+	<div class="panel-group" id="accordion">
+		
+		{% if employee_id %}
+		<div class="panel panel-default">
+	      <div class="panel-heading">
+	      	<h6 class="panel-title">
+	              <a id="demoraphicss-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">Demographics {{employee_id}}<span class="caret"></span></a>
+	          </h6>
+	      </div>
+	      <div id="demographics-panel" class="panel-collapse collapse in">
+	      		<!-- {% include 'timesheet_dashboard/demographics.html' %} -->
+	      		{% demographics employee %}
+	      		
+	      </div> 
+	   </div>
+	   {% endif %}
+	   
+	   
 
-	    {% include 'timesheet_dashboard/sidebar.html' %}
+ 	  {% if 'HR' in groups %}
+ 		<div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
+	          </h6>
+	      </div>
+	               
+	    </div>
+	    {% endif %}
+	
+		{% if 'Supervisor' in groups %}
+		<div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Surbodinates Timesheets </a>
+	          </h6>
+	      </div>
+	               
+	    </div>
+       
+       	{% endif %}
+       	
+       	{% if 'HR' in groups %}
+       	  <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a id="departments-panel-title" data-toggle="collapse" data-parent="#accordion" href="#departments-panel">Departments <span class="caret"></span></a>
+	          </h6>
+	      </div>
+	      <div id="departments-panel" class="panel-collapse collapse">
+	      		<ul>
+	      		{% for dept in departments %}
+	      		   <li> <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?dept={{dept}}&p_role=HR" > {{dept}} </a> </li>
+	      		
+	      		{% endfor %}
+	      		</ul>
+	      </div> 
+	      </div>
+	      
+	          
+	    {% endif %}
+	    <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?employee_id={{employee_id}}" > My Timesheets </a>
+	          </h6>
+	      </div>
+	   </div>
+       
 
-    {% endblock side_bar %}
-
-</div> <!-- col-md-3 -->
-
-
-
-<!-- <div id="div-home-right" class="col-md-3">
-<div class="panel-group" id="accordion">
-       <div class="panel panel-warning">
-       <div class="panel-heading">Timesheets</div>
-        <div class="panel-body"> 
-        	<ul class="list-group">
-			  <li class="list-group-item">
-			   <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}" > My Timesheets </a>
-			  </li>
-			  {% if 'Supervisor' in groups %}
-			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Surbodinates Timesheets </a>
-			   
-			  </li>
-			  {% endif %}
-			  {% if 'HR' in groups %}
-			  <li class="list-group-item">
-			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
-			   
-			  </li>
-			  {% endif %}
-			 </ul>
-        </div>
-       </div>
-
-     <div class="panel panel-default">
-      <div class="panel-heading">
-          <h6 class="panel-title">
-              <a id="special-forms-panel-title" data-toggle="collapse" data-parent="#accordion" href="#special-forms-panel">Special Forms <span class="caret"></span></a>
-          </h6>
-      </div>
-      <div id="special-forms-panel" class="panel-collapse collapse collapse">
-         
-      </div> 
-	</div>
 </div>
-</div> -->
+</div>
 
 {% endblock main %}

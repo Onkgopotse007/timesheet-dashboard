@@ -1,29 +1,5 @@
 {% load timesheet_dashboard_extras %}
 
-<div class="panel-group" id="accordion">
-
-
-
-    <div class="panel panel-default">
-      <div class="panel-heading">
-          <h6 class="panel-title">
-              <i class="{% if gender == MALE %}fa fa-male{% else %}fa fa-female{% endif %} fa-lg fa-fw"></i>
-              <a id="demographics-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">{{ employee_id }} <span class="caret"></span></a>
-          </h6>
-      </div>
-      <div id="demographics-panel" class="panel-collapse collapse in">
-          {% block demographics %}{% endblock demographics %}           
-      </div>           
-    </div>
-
-    <div class="panel panel-default">
-      <div class="panel-heading">
-          <h6 class="panel-title">
-              <a id="departments-panel-title" data-toggle="collapse" data-parent="#accordion" href="#departments-panel">Departments <span class="caret"></span></a>
-          </h6>
-      </div>
-      <div id="departments-panel-panel" class="panel-collapse collapse collapse">
-      	{% departments %}
           {% if departments %}
 
 			<table class="table table-condensed">
@@ -39,7 +15,4 @@
 			</table>
 			
 			{% endif %}
-      </div>           
-    </div>
 
-</div>

@@ -1,4 +1,5 @@
 from edc_dashboard.listboard_filter import ListboardFilter, ListboardViewFilters
+from django.apps import apps as django_apps
 
 
 class ListboardViewFilters(ListboardViewFilters):

@@ -34,6 +34,20 @@ def timesheets_button(model_wrapper, p_role, user):
         p_role=p_role,
         title=' '.join(title))
 
+@register.inclusion_tag('timesheet_dashboard/demographics.html')
+def demographics(employee):
+    title = ['View Employee Timesheets.']
+    if employee:
+        return dict(
+            employee_id=employee.employee_code,
+            job_title=employee.job_title,
+            supervisor=employee.supervisor.first_name + " " + employee.supervisor.last_name,
+            first_name=employee.first_name,
+            last_name=employee.last_name,
+            initials=employee.first_name[0] + employee.last_name[0],
+            title=' '.join(title))
+    return None
+
 
 @register.simple_tag(takes_context=True)
 def departments(context):
