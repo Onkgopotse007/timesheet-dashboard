@@ -1,0 +1,82 @@
+{% extends 'edc_base/base.html' %}
+{% load procurement_dashboard_extras %}
+{% load static %}
+
+{% block extra-styles %}
+	<link type="text/css" rel="stylesheet" href="{% static 'timesheet_dashboard/css/calendar_table.css' %}">
+{% endblock extra-styles %}
+{% block extra-scripts %}
+	<script type="text/javascript" charset="utf8" src="{% static 'timesheet_dashboard/js/calendar_table.js' %}"></script>
+{% endblock %}
+
+{% block main %}
+	<div class="row">
+		<div class="row controls" style="display:inline">
+			<div class="buttons" style="float:left">
+				<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></button>
+				<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></button>
+			</div>
+			<div id="currentDate" style="float:left">
+				<p>Here</p>
+			</div>
+		</div>
+		<table class="table" id="calendarTable">
+		  <thead>
+		    <tr id="table-header">
+		    </tr>
+		  </thead>
+		  <tbody style="background-color:#fff;">
+			  <tr>
+			  </tr>
+		  </tbody>
+		  <tfoot>
+		  	<tr>
+	        	<td>
+	        		<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addModal">
+					  	<i class="glyphicon glyphicon-plus"></i> New Row
+					</button>
+	        		<a class="btn btn-success save-record" >
+	        			<i class="glyphicon glyphicon-save"></i> Save
+	        		</a>
+	        	</td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+				<td></td>
+	        	<td></td>
+	        	<td></td>
+	      	</tr>
+		  </tfoot>
+		</table>
+		
+		<!-- Modal -->
+		<div id="addModal" class="modal fade" role="dialog">
+	  		<div class="modal-dialog">
+	
+			    <!-- content-->
+			    <div class="modal-content">
+			    	<div class="modal-header">
+			    		<h5 class="modal-title">Add Row</h5>
+			        </div>
+			        <form>
+					<div class="modal-body">
+			            <div class="form-group col-md-12">
+							<input name="task" id="task" type="text" class="form-control" placeholder="Task" required />
+			            </div>
+		            	<div class="clearfix"></div>
+		        	</div>
+		        	<div class="modal-footer">
+		            	<input type="button" class="btn btn-success" id="add-row" value="Add Row" />
+		            	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		        	</div>
+			        </form>
+			   </div>
+	 		</div>
+		</div>
+	</div>
+</div>
+
+{% endblock main %}

@@ -48,12 +48,11 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
         if not bool(self.request.GET) or self.request.GET.get('p_role') not in groups:
             timesheet_add_url = self.model_wrapper_cls(model_obj=model_obj).href
-
         context.update(
             p_role=self.request.GET.get('p_role'),
             groups=groups,
             departments=self.departments,
-            employee_id=self.kwargs.get('employee_id'),
+            employee_id=self.request.GET.get('employee_id'),
             employee=self.get_employee,
             timesheet_add_url=timesheet_add_url or None)
         return context
@@ -87,14 +86,11 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         else:
             return employee_obj
 
-
-
     @property
     def departments(self):
         department_cls = django_apps.get_model('bhp_personnel.department')
 
         return [dept.dept_name for dept in department_cls.objects.all()]
-
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
@@ -124,7 +120,6 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
                 and self.request.GET.get('p_role') in ['Supervisor', 'HR']):
             qs = qs.filter(status__in=['approved', 'verified', 'submitted'])
         return qs
-
 
     def extra_search_options(self, search_term):
         q = Q()

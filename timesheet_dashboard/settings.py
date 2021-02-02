@@ -132,6 +132,7 @@ STATIC_URL = '/static/'
 DASHBOARD_URL_NAMES = {
     'timesheet_listboard_url': 'timesheet_dashboard:timesheet_listboard_url',
     'timesheet_employee_listboard_url': 'timesheet_dashboard:timesheet_employee_listboard_url',
+    'timesheet_calendar_table_url': 'timesheet_dashboard:timesheet_calendar_table_url',
 }
 
 DASHBOARD_BASE_TEMPLATES = {
