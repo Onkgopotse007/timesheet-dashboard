@@ -8,8 +8,15 @@ class MonthlyEntryModelWrapper(ModelWrapper):
     model = 'timesheet.monthlyentry'
     next_url_name = settings.DASHBOARD_URL_NAMES.get(
         'timesheet_listboard_url')
-    next_url_attrs = ['employee', 'supervisor']
+    querystring_attrs = ['employee', 'supervisor']
 
+    @property
+    def employee(self):
+        return self.object.employee
+
+    @property
+    def supervisor(self):
+        return self.object.employee.supervisor
 
     @property
     def timesheet_status(self):
