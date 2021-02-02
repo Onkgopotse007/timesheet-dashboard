@@ -22,7 +22,12 @@
 		</div>
 		<table class="table" id="calendarTable">
 		  <thead>
-		    <tr id="table-header">
+		   <tr>
+			  		{% for day in weeks.0 %}
+			  			<th>
+			  			
+			  			{{day.0}} {{month}}</th>
+			  		{% endfor %}
 		    </tr>
 		  </thead>
 		  <tbody style="background-color:#fff;">
