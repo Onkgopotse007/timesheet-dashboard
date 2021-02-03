@@ -34,13 +34,20 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+    
+#     def get_success_url(self, **kwargs):
+#         return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_calendar_table_url', 
+#                                             kwargs={'employee_id': kwargs.get('employee_id'),
+#                                                     'year': kwargs.get('year'),
+#                                                     'month': kwargs.get('month'),
+#                                                     'day': kwargs.get('day')}))
 
     def post(self, request, *args, **kwargs):
         # if this is a POST request we need to process the form data
         if request.method == 'POST':
             self.add_daily_entries(request, kwargs)
 
-        return HttpResponseRedirect(reverse(self.success_url, 
+        return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_calendar_table_url', 
                                             kwargs={'employee_id': kwargs.get('employee_id'),
                                                     'year': kwargs.get('year'),
                                                     'month': kwargs.get('month'),
@@ -61,17 +68,29 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
                                                   daily_entry_cls,
-                                                  fields=('day', 'duration', 'entry_type'))
+                                                  form=DailyEntryForm,
+                                                  fields=['day', 'duration', 'entry_type'],
+                                                  can_delete=True)
        
         for k in data:
             if '-day' in k:
                 data[k] = datetime.strptime(data[k], '%Y-%m-%d')
                 
         formset = DailyEntryFormSet(data=data, instance=monthly_entry)
-        
+        import pdb; pdb.set_trace()
         if formset.is_valid():
             monthly_entry.save()
             formset.save()
+    
+    def get_monthly_obj(self, month):
+        
+        monthly_cls = django_apps.get_model('timesheet.monthlyentry')
+        
+        try:
+            monthly_obj =  monthly_cls.objects.get(month=month)
+        except monthly_cls.DoesNotExist:
+            monthly_obj = None
+        return monthly_obj
             
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -93,11 +112,16 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             start_date = currDate
         if start_date:
             weeks = self.get_weekdays(start_date)
+        
+        count=0
+        if self.get_monthly_obj(curr_month):
+            count = len(self.get_monthly_obj(curr_month).dailyentry_set.all())
 
         context.update(employee_id=employee_id,
                        weeks=weeks,
                        curr_month=curr_month,
-                       currDate=str_date)
+                       currDate=str_date,
+                       count=count)
         return context
 
     def filter_options(self, **kwargs):

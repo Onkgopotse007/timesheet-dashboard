@@ -99,8 +99,9 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         usr_groups = [g.name for g in self.request.user.groups.all()]
 
-        if self.kwargs.get('employee_id'):
-            options.update({'employee__identifier': self.kwargs.get('employee_id')})
+        if self.kwargs.get('employee_id') or self.request.GET.get('employee_id'):
+
+            options.update({'employee__identifier': self.kwargs.get('employee_id' or self.request.GET.get('employee_id'))})
 
         elif('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
