@@ -14,6 +14,7 @@ from django.urls.base import reverse
 from edc_navbar import NavbarViewMixin
 from timesheet.forms import MonthlyEntryForm, DailyEntryForm
 from django.forms import inlineformset_factory
+from django.forms import formset_factory
 
 from calendar import Calendar
 from django.shortcuts import redirect
@@ -53,6 +54,15 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                                                     'month': kwargs.get('month'),
                                                     'day': kwargs.get('day')}))
 
+    def clean_data(self, data):
+
+        for i in range(0, 31):
+            if 'dailyentry_set-'+str(i)+'-duration' in data.keys():
+                if not data.get('dailyentry_set-' + str(i) + '-duration'):
+                    data.pop('dailyentry_set-' + str(i) + '-duration')
+                    data.pop('dailyentry_set-' + str(i) + '-entry_type')
+                    data.pop('dailyentry_set-' + str(i) + '-day')
+        return data
 
     def add_daily_entries(self, request, *args, **kwargs):
         monthly_entry_cls = django_apps.get_model(self.model)
