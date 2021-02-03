@@ -10,7 +10,7 @@ $(document).ready(function(){
         				"<td> <input id='dailyentry_set-4-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-4-duration'/></td>"+
         				"<td> <input id='dailyentry_set-5-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-5-duration'/></td>"+
         				"<td> <input id='dailyentry_set-6-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-6-duration'/></td>"+
-        				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='1' name='dailyentry_set-TOTAL_FORMS'/> </td>"+
+        				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='7' name='dailyentry_set-TOTAL_FORMS'/> </td>"+
 		                "<td> <input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/></td>"+
 		                "<td> <input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/> </td>"+
 		                "<td> <input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/></td>"+
