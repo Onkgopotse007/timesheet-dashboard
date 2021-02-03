@@ -57,8 +57,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
                                           supervisor=self.get_employee.supervisor,
-                                        month=datetime.strptime(data.get('month'), '%Y-%m-%d')
-                                          )
+                                          month=datetime.strptime(data.get('month'), '%Y-%m-%d'))
 
         DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
                                                   daily_entry_cls,
@@ -70,9 +69,9 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                 
         formset = DailyEntryFormSet(data=data, instance=monthly_entry)
         
-#         if formset.is_valid():
-#             monthly_entry.save()
-#             formset.save()
+        if formset.is_valid():
+            monthly_entry.save()
+            formset.save()
             
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

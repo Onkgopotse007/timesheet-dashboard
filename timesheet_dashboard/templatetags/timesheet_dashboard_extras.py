@@ -35,18 +35,23 @@ def timesheets_button(model_wrapper, p_role, user):
         title=' '.join(title))
 
 @register.inclusion_tag('timesheet_dashboard/demographics.html')
-def demographics(employee):
+def demographics(employee_id):
     title = ['View Employee Timesheets.']
-    if employee:
+    employee_cls = django_apps.get_model('bhp_personnel.employee')
+
+    try:
+        employee_obj = employee_cls.objects.get(identifier=employee_id)
+    except employee_cls.DoesNotExist:
+        return None
+    else:
         return dict(
-            employee_id=employee.employee_code,
-            job_title=employee.job_title,
-            supervisor=employee.supervisor.first_name + " " + employee.supervisor.last_name,
-            first_name=employee.first_name,
-            last_name=employee.last_name,
-            initials=employee.first_name[0] + employee.last_name[0],
+            employee_id=employee_obj.employee_code,
+            job_title=employee_obj.job_title,
+            supervisor=employee_obj.supervisor.first_name + " " + employee_obj.supervisor.last_name,
+            first_name=employee_obj.first_name,
+            last_name=employee_obj.last_name,
+            initials=employee_obj.first_name[0] + employee_obj.last_name[0],
             title=' '.join(title))
-    return None
 
 
 @register.simple_tag(takes_context=True)
