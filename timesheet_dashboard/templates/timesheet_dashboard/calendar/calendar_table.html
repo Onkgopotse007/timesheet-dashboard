@@ -25,6 +25,8 @@
 				<p>Week: {{weeks.0 | date:"d" }} - {{weeks|last | date:"d M Y" }}</p>
 			</div>
 		</div>
+		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}" name="timesheet">
+		  		{% csrf_token %}
 		<table class="table" id="calendarTable">
 		  <thead>
 		   <tr>
@@ -36,34 +38,39 @@
 			  		{% endfor %}
 			 <th>Total</th>
 			 <th></th>
+
 		    </tr>
 		  </thead>
+		   
 		  <tbody style="background-color:#fff;">
-			  <tr>
-			  </tr>
+			  {% for day in weeks %}
+			  	{{ forloop.counter0 }}
+			  	<td> <input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{day}}' name='dailyentry_set-{{forloop.counter0}}-day'/> </td>
+			  {% endfor %}
 		  </tbody>
+		   
 		  <tfoot>
+		 
 		  	<tr>
 	        	<td>
 	        		<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addModal">
 					  	<i class="glyphicon glyphicon-plus"></i> New Row
 					</button>
 	        		<a class="btn btn-success save-record" >
-	        			<i class="glyphicon glyphicon-save"></i> Save
+	        			<i class="glyphicon glyphicon-save"> <input id="save_timesheet" class="btn btn-success" type="submit" value="Save"></i>
 	        		</a>
 	        	</td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
 	        	<td></td>
 				<td></td>
 	        	<td></td>
 	        	<td></td>
 	      	</tr>
+	      	
+        
 		  </tfoot>
+
 		</table>
+	</form>
 		
 		<!-- Modal -->
 		<div id="addModal" class="modal fade" role="dialog">
@@ -90,6 +97,6 @@
 	 		</div>
 		</div>
 	</div>
-</div>
+
 
 {% endblock main %}

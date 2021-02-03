@@ -2,11 +2,18 @@ from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
+from django.apps import apps as django_apps
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
+from django.urls.base import reverse
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import TemplateRequestContextMixin
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from edc_navbar import NavbarViewMixin
+from timesheet.forms import MonthlyEntryForm, DailyEntryForm
+from django.forms import inlineformset_factory
 
 from calendar import Calendar
 from django.shortcuts import redirect
@@ -15,7 +22,6 @@ from django.shortcuts import redirect
 class CalendarViewError(Exception):
     pass
 
-
 class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                    TemplateRequestContextMixin, TemplateView):
 
@@ -23,10 +29,36 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     model = 'timesheet.monthlyentry'
     navbar_name = 'timesheet'
     navbar_selected_item = ''
+    success_url = 'timesheet_dashboard:timesheet_calendar_table_url'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # if this is a POST request we need to process the form data
+        if request.method == 'POST':
+            self.add_daily_entries(request)
+
+        return HttpResponseRedirect(reverse(self.success_url))
+
+
+    def add_daily_entries(self, request):
+        monthly_entry_cls = django_apps.get_model(self.model)
+
+        daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
+
+        monthly_entry = monthly_entry_cls()
+
+        DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
+                                                  daily_entry_cls,
+                                                  fields=('day', 'duration', 'entry_type'))
+
+        formset = DailyEntryFormSet(request.POST, instance=monthly_entry)
+        import pdb; pdb.set_trace()
+        if formset.is_valid():
+            monthly_entry.save()
+            formset.save()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

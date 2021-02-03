@@ -2,20 +2,26 @@ $(document).ready(function(){
     $("#add-row").click(function(){
         var task = $("#task").val();
         var markup = "<tr>"+
-        				"<td><input type='text' class='form-control form-control-sm' name='tasks[]' value='" + task + "' readonly /></td>"+
-        				"<td><input type='time' class='form-control form-control-sm' name='time1[]'></td>"+
-        				"<td><input type='time' class='form-control form-control-sm' name='time2[]'></td>"+
-        				"<td><input type='time' class='form-control form-control-sm' name='time3[]'></td>"+
-        				"<td><input type='time' class='form-control form-control-sm' name='time4[]'></td>"+
-        				"<td><input type='time' class='form-control form-control-sm' name='time5[]'></td>"+
-        				"<td><input type='time' class='form-control form-control-sm' name='time6[]'></td>"+
-        				"<td><input type='time' class='form-control form-control-sm' name='time7[]'></td>"+
+        				"<td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' value='" + task + "' readonly /></td>"+
+        				"<td> <input id='dailyentry_set-0-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-0-duration'/> </td>"+
+        				"<td> <input id='dailyentry_set-1-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-1-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-2-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-2-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-3-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-3-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-4-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-4-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-5-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-5-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-6-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-6-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='1' name='dailyentry_set-TOTAL_FORMS'/> </td>"+
+		                "<td> <input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/></td>"+
+		                "<td> <input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/> </td>"+
+		                "<td> <input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/></td>"+
+		                "<td> <input id='dailyentry_set-0-id' type='hidden' name='item_set-0-id'/> </td>"+
         				"<td>0</td>"+
         				"<td><a class='btn btn-default btn-sm remove'><i class='glyphicon glyphicon-remove'></i></a></td>"
         				"</tr>";
         $("table tbody").append(markup);
         $("#addModal").modal('hide');
     });
+    
 });
 
 $(document).on('click', '.remove', function() {
