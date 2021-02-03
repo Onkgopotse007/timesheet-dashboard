@@ -25,12 +25,12 @@
 				<p>Week: {{weeks.0 | date:"d" }} - {{weeks|last | date:"d M Y" }}</p>
 			</div>
 		</div>
-		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}" name="timesheet">
+		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  %}{{currDate}}" name="timesheet">
 		  		{% csrf_token %}
 		<table class="table" id="calendarTable">
 		  <thead>
 		   <tr>
-		   <th>Task/Project</th>
+		   <th>Task/Project </th>
 			  		{% for day in weeks %}
 			  			<th style="text-align:center; color:#808080">			
 			  				{{day | date:"D" }} <br/> {{day | date:"d M" }}
@@ -38,15 +38,21 @@
 			  		{% endfor %}
 			 <th>Total</th>
 			 <th></th>
+			 <th></th>
+			 <th></th>
+			 <th></th>
+			 <th></th>
+			 <th></th>
 
 		    </tr>
 		  </thead>
 		   
 		  <tbody style="background-color:#fff;">
 			  {% for day in weeks %}
-			  	{{ forloop.counter0 }}
-			  	<td> <input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{day}}' name='dailyentry_set-{{forloop.counter0}}-day'/> </td>
+			  	<td> <input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{day | date:"Y-m-d"}}' name='dailyentry_set-{{forloop.counter0}}-day'/> </td>
+			  	<td> <input id='dailyentry_set-{{forloop.counter0}}-entry_type' type='hidden' value='reg_hours' name='dailyentry_set-{{forloop.counter0}}-entry_type'/> </td>
 			  {% endfor %}
+			  <td> <input id='month' type='hidden' value='{{curr_month | date:"Y-m-d"}}' name='month'/> </td>
 		  </tbody>
 		   
 		  <tfoot>
@@ -62,6 +68,16 @@
 	        	</td>
 	        	<td></td>
 				<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
+	        	<td></td>
 	        	<td></td>
 	        	<td></td>
 	      	</tr>
