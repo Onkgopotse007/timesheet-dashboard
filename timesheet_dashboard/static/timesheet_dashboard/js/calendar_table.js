@@ -23,52 +23,47 @@ $(document).on('click', '.remove', function() {
    	$(this).closest("tr").remove();
 });
 
-function getISOWeekDates(isoWeekNum = 1, year = new Date().getFullYear()) {
-  let d = moment().isoWeek(1).startOf('isoWeek').add(isoWeekNum - 1, 'weeks');
-  for (var dates=[], i=0; i < 7; i++) {
-    dates.push(d.format('ddd DD MMM YYYY'));
-    d.add(1, 'day');
-  }
-  return dates;
-}
-
-console.log(getISOWeekDates())
-
-function getThisWeekDates() {
-	var weekDays = [];
-	var weekDates= []; 
-	var currentDate = moment();
-	var weekStart = currentDate.clone().startOf('week');
-	var weekEnd = currentDate.clone().endOf('week');
-
-	for (var i = 1; i <= 7; i++) {
-		weekDates.push(moment().day(i).format('dd') + '\n' + moment().day(i).format('DD MMM')); 
-	}
-
-  return weekDates; 
-}
-
-const thisWeekDates = getThisWeekDates();
-
-function createNewTableHeader(headerTitle){
-	const temp = document.createElement('th');
-	temp.style.textAlign = "center";
-	temp.style.color = "#808080";
-	temp.appendChild(document.createTextNode(headerTitle));
-	return temp
-}
-
-function addHeader() {
-	var tableHeaderPlaceHolder = document.getElementById('table-header');
-	tableHeaderPlaceHolder.appendChild(createNewTableHeader('Project/Task'));
-	for (var i=0; i<thisWeekDates.length; i++) {
-		tableHeaderPlaceHolder.appendChild(createNewTableHeader(thisWeekDates[i]));
-		tableHeaderPlaceHolder.style = "white-space: pre;"	
-	}
-	tableHeaderPlaceHolder.appendChild(createNewTableHeader('Total'));
-	tableHeaderPlaceHolder.appendChild(createNewTableHeader(''));
-}
-
-document.addEventListener("DOMContentLoaded", function(event) { 
-	addHeader();
+$(document).on('click', '#nextWeek', function() {
+	$('#controlForm').submit();
 });
+
+$('#controlForm').on('submit', function (e) {
+ e.preventDefault();
+ var url = nextWeek();
+console.log(url);
+ $.ajax({
+ 		url: url,
+      type: "POST",
+      data: $('form').serialize(),
+      success : function(json) {
+        alert("Successfully sent the URL to Django");
+      },
+      error : function(xhr,errmsg,err) {
+        alert("Could not send URL to Django. Error: " + xhr.status + ": " + xhr.responseText);
+      }
+	});
+});
+
+function nextWeek(){
+	var js_variable = JSON.parse(document.getElementById('currDate').textContent);
+	var date = new Date(js_variable);
+	var nextWeekStart = date.getDate() - date.getDay() + 8;
+	var nextWeekFrom = new Date(date.setDate(nextWeekStart));
+	
+    var id = JSON.parse(document.getElementById('employee_id').textContent);
+    return "{% url 'timesheet_dashboard:timesheet_calendar_table_url' 123 %}".replace('123', id) + "/" + convertDate(nextWeekFrom);
+}
+
+Date.prototype.getNextWeekDay = function(d) {
+  if (d) {
+    var next = this;
+    next.setDate(this.getDate() - this.getDay() + 7 + d);
+    return next;
+  }
+}
+
+function convertDate(inputFormat) {
+  function pad(s) { return (s < 10) ? '0' + s : s; }
+  var d = new Date(inputFormat)
+  return [d.getFullYear(), pad(d.getMonth()+1), pad(d.getDate())].join('/')
+}

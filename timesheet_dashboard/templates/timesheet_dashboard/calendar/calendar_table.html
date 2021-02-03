@@ -13,21 +13,29 @@
 	<div class="row">
 		<div class="row controls" style="display:inline">
 			<div class="buttons" style="float:left">
-				<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></button>
-				<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></button>
+				{{currDate|json_script:"currDate"}}
+				{{employee_id|json_script:"employee_id"}}
+				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}" name="timesheet">
+					{% csrf_token %}
+					<a href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}{{currDate}}?prev=True" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></a>
+					<a id="nextWeek" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></a>
+				</form>
 			</div>
 			<div id="currentDate" style="float:left">
-				<p>Here</p>
+				<p>Week: {{weeks.0 | date:"d" }} - {{weeks|last | date:"d M Y" }}</p>
 			</div>
 		</div>
 		<table class="table" id="calendarTable">
 		  <thead>
 		   <tr>
-			  		{% for day in weeks.0 %}
-			  			<th>
-			  			
-			  			{{day.0}} {{month}}</th>
+		   <th>Task/Project</th>
+			  		{% for day in weeks %}
+			  			<th style="text-align:center; color:#808080">			
+			  				{{day | date:"D" }} <br/> {{day | date:"d M" }}
+			  			</th>
 			  		{% endfor %}
+			 <th>Total</th>
+			 <th></th>
 		    </tr>
 		  </thead>
 		  <tbody style="background-color:#fff;">

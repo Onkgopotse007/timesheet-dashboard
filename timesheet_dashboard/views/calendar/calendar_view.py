@@ -1,7 +1,7 @@
+from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
-import datetime
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import TemplateRequestContextMixin
 from django.http.response import HttpResponseRedirect
@@ -9,6 +9,7 @@ from django.urls.base import reverse
 from edc_navbar import NavbarViewMixin
 
 from calendar import Calendar
+from django.shortcuts import redirect
 
 
 class CalendarViewError(Exception):
@@ -19,7 +20,6 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                    TemplateRequestContextMixin, TemplateView):
 
     template_name = 'timesheet_dashboard/calendar/calendar_table.html'
-    calendar_template = 'purchase_order_report_template'
     model = 'timesheet.monthlyentry'
     navbar_name = 'timesheet'
     navbar_selected_item = ''
@@ -31,27 +31,25 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         employee_id = kwargs.get('employee_id', None)
-        cal = Calendar()
+        year = kwargs.get('year', '')
+        month = kwargs.get('month', '')
+        day = kwargs.get('day', '')
+        str_date = f'{year}/{month}/{day}'
+        currDate = datetime.strptime(str_date, '%Y/%m/%d')
+        start_date = None
 
-        after_day = self.request.GET.get('day__gte', None)
-        if not after_day:
-            d = datetime.date.today()
+        if self.request.GET.get('prev'):
+            start_date = currDate - timedelta(weeks=1)
+        elif self.request.GET.get('next'):
+            start_date = currDate + timedelta(weeks=1)
         else:
-            try:
-                split_after_day = after_day.split('-')
-                d = datetime.date(year=int(split_after_day[0]), month=int(split_after_day[1]), day=1)
-            except:
-                d = datetime.date.today()
-        weeks = cal.monthdays2calendar(d.year, d.month)
-        week_names = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+            start_date = currDate
+        if start_date:
+            weeks = self.get_weekdays(start_date)
 
-        datetime_object = datetime.datetime.strptime(str(d.month), "%m")
-        month_name = datetime_object.strftime("%b")
         context.update(employee_id=employee_id,
-                       month=month_name,
                        weeks=weeks,
-                       week_name=week_names
-                       )
+                       currDate=str_date)
         return context
 
     def filter_options(self, **kwargs):
@@ -64,3 +62,8 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     @property
     def pdf_template(self):
         return self.get_template_from_context(self.calendar_template)
+
+    def get_weekdays(self, currDate=None):
+        dates = [(currDate + timedelta(days=i)) for i in range(0 - currDate.weekday(), 7 - currDate.weekday())]
+        return dates
+
