@@ -13,11 +13,10 @@
 	<div class="row">
 		<div class="row controls" style="display:inline">
 			<div class="buttons" style="float:left">
-				{{currDate|json_script:"currDate"}}
-				{{employee_id|json_script:"employee_id"}}
-				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}" name="timesheet">
+				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}{{currDate}}" name="timesheet">
 					{% csrf_token %}
-					<a href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}{{currDate}}?prev=True" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></a>
+					<input id='controller' type='hidden' name='controller'/>
+					<a id="prevWeek" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></a>
 					<a id="nextWeek" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></a>
 				</form>
 			</div>
@@ -30,7 +29,10 @@
 		<table class="table" id="calendarTable">
 		  <thead>
 		   <tr>
-		   <th>Task/Project </th>
+		   <th>Week(s)</th>
+		   		{% with weeks|join:"," as str_weeks %}
+			  		{{ str_weeks|json_script:"weeks" }}
+			  	{% endwith %}
 			  		{% for day in weeks %}
 			  			<th style="text-align:center; color:#808080">			
 			  				{{day | date:"D" }} <br/> {{day | date:"d M" }}
@@ -46,8 +48,16 @@
 
 		    </tr>
 		  </thead>
-		   
 		  <tbody style="background-color:#fff;">
+		  	<td></td>
+		  		{% if week_entries %}
+			  		<tr>
+			  			<td></td>
+			  			{% for entry in week_entries %}
+			  				<td><input id='dailyentry_set-0-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-{{forloop.counter0}}-duration' value="{{entry}}"/></td>
+			  			{% endfor %}
+			  		</tr>
+		  		{% endif %}
 			  {% for day in weeks %}
 			  	<td> <input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{day | date:"Y-m-d"}}' name='dailyentry_set-{{forloop.counter0}}-day'/> </td>
 			  	<td> <input id='dailyentry_set-{{forloop.counter0}}-entry_type' type='hidden' value='reg_hours' name='dailyentry_set-{{forloop.counter0}}-entry_type'/> </td>
@@ -59,7 +69,7 @@
 		 
 		  	<tr>
 	        	<td>
-	        		<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addModal">
+	        		<button type="button" class="btn btn-default" id="add-row">
 					  	<i class="glyphicon glyphicon-plus"></i> New Row
 					</button>
 	        		<a class="btn btn-success save-record" >
@@ -104,7 +114,7 @@
 		            	<div class="clearfix"></div>
 		        	</div>
 		        	<div class="modal-footer">
-		            	<input type="button" class="btn btn-success" id="add-row" value="Add Row" />
+		            	<input type="button" class="btn btn-success" value="Add Row" />
 		            	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 		        	</div>
 			        </form>
