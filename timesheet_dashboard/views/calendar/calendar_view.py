@@ -14,6 +14,7 @@ from django.urls.base import reverse
 from edc_navbar import NavbarViewMixin
 from timesheet.forms import MonthlyEntryForm, DailyEntryForm
 from django.forms import inlineformset_factory
+from django.forms import formset_factory
 
 
 class CalendarViewError(Exception):
@@ -33,6 +34,13 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+#     def get_success_url(self, **kwargs):
+#         return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_calendar_table_url', 
+#                                             kwargs={'employee_id': kwargs.get('employee_id'),
+#                                                     'year': kwargs.get('year'),
+#                                                     'month': kwargs.get('month'),
+#                                                     'day': kwargs.get('day')}))
+
     def post(self, request, *args, **kwargs):
         # if this is a POST request we need to process the form data
         year = kwargs.get('year')
@@ -47,7 +55,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             else:
                 self.add_daily_entries(request, kwargs)
 
-        return HttpResponseRedirect(reverse(self.success_url,
+        return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_calendar_table_url', 
                                             kwargs={'employee_id': kwargs.get('employee_id'),
                                                     'year': year,
                                                     'month': month,
@@ -62,6 +70,16 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         return start_date.year, str(start_date.month).zfill(2), str(start_date.day).zfill(2)
 
+    def clean_data(self, data):
+
+        for i in range(0, 31):
+            if 'dailyentry_set-'+str(i)+'-duration' in data.keys():
+                if not data.get('dailyentry_set-' + str(i) + '-duration'):
+                    data.pop('dailyentry_set-' + str(i) + '-duration')
+                    data.pop('dailyentry_set-' + str(i) + '-entry_type')
+                    data.pop('dailyentry_set-' + str(i) + '-day')
+        return data
+
     def add_daily_entries(self, request, *args, **kwargs):
         monthly_entry_cls = django_apps.get_model(self.model)
 
@@ -75,16 +93,29 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
                                                   daily_entry_cls,
-                                                  fields=('day', 'duration', 'entry_type'))
+                                                  form=DailyEntryForm,
+                                                  fields=['day', 'duration', 'entry_type'],
+                                                  can_delete=True)
 
         for k in data:
             if '-day' in k:
                 data[k] = datetime.strptime(data[k], '%Y-%m-%d')
 
         formset = DailyEntryFormSet(data=data, instance=monthly_entry)
+
         if formset.is_valid():
             monthly_entry.save()
             formset.save()
+
+    def get_monthly_obj(self, month):
+
+        monthly_cls = django_apps.get_model('timesheet.monthlyentry')
+
+        try:
+            monthly_obj = monthly_cls.objects.get(month=month)
+        except monthly_cls.DoesNotExist:
+            monthly_obj = None
+        return monthly_obj
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -102,11 +133,25 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         week_entries = self.get_dailyentries(weeks)
 
+        if self.request.GET.get('prev'):
+            start_date = currDate - timedelta(weeks=1)
+        elif self.request.GET.get('next'):
+            start_date = currDate + timedelta(weeks=1)
+        else:
+            start_date = currDate
+        if start_date:
+            weeks = self.get_weekdays(start_date)
+
+        count=0
+        if self.get_monthly_obj(curr_month):
+            count = len(self.get_monthly_obj(curr_month).dailyentry_set.all())
+
         context.update(employee_id=employee_id,
                        weeks=weeks,
                        curr_month=curr_month,
                        currDate=str_date,
-                       week_entries=week_entries)
+                       week_entries=week_entries,
+                       count=count)
         return context
 
     def filter_options(self, **kwargs):

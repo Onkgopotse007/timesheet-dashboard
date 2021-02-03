@@ -29,7 +29,7 @@
 		<table class="table" id="calendarTable">
 		  <thead>
 		   <tr>
-		   <th>Week(s)</th>
+		   <th></th>
 		   		{% with weeks|join:"," as str_weeks %}
 			  		{{ str_weeks|json_script:"weeks" }}
 			  	{% endwith %}

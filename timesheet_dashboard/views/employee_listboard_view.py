@@ -41,8 +41,22 @@ class EmployeeListBoardView(
             p_role=p_role,
             departments=self.departments,
             groups=[g.name for g in self.request.user.groups.all()],
-            employee_add_url=self.model_cls().get_absolute_url())
+            employee_add_url=self.model_cls().get_absolute_url(),
+            user_id=self.get_employee.identifier)
         return context
+
+    @property
+    def get_employee(self):
+        employee_cls = django_apps.get_model('bhp_personnel.employee')
+
+        try:
+            employee_obj = employee_cls.objects.get(email=self.request.user.email)
+        except employee_cls.DoesNotExist:
+            return None
+        except employee_cls.MultipleObjectsReturned:
+            return None
+        else:
+            return employee_obj
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
