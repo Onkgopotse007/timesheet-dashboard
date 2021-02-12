@@ -78,6 +78,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                     data.pop('dailyentry_set-' + str(i) + '-duration')
                     data.pop('dailyentry_set-' + str(i) + '-entry_type')
                     data.pop('dailyentry_set-' + str(i) + '-day')
+                    data['dailyentry_set-TOTAL_FORMS'] = int(data.get('dailyentry_set-TOTAL_FORMS'))-1
         return data
 
     def add_daily_entries(self, request, *args, **kwargs):
@@ -86,10 +87,13 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
 
         data = request.POST.dict()
-
+        year = self.kwargs.get('year', '')
+        month = self.kwargs.get('month', '')
+        day = self.kwargs.get('day', '')
+        
         monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
                                           supervisor=self.get_employee.supervisor,
-                                          month=datetime.strptime(data.get('month'), '%Y-%m-%d'))
+                                          month=datetime.strptime(f'{year}-{month}-{day}', '%Y-%m-%d'))
 
         DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
                                                   daily_entry_cls,
@@ -100,10 +104,11 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         for k in data:
             if '-day' in k:
                 data[k] = datetime.strptime(data[k], '%Y-%m-%d')
+        data = self.clean_data(data)
 
         formset = DailyEntryFormSet(data=data, instance=monthly_entry)
-
         if formset.is_valid():
+            monthly_entry.status = 'submitted'
             monthly_entry.save()
             formset.save()
 
@@ -145,13 +150,20 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         count=0
         if self.get_monthly_obj(curr_month):
             count = len(self.get_monthly_obj(curr_month).dailyentry_set.all())
-
+        
+        extra_context = {}   
+        if (self.request.GET.get('p_role') == 'Supervisor'):
+            extra_context = {'review': True}
+        if (self.request.GET.get('p_role')=='HR'):
+            extra_context = {'verify': True}
+            
         context.update(employee_id=employee_id,
                        weeks=weeks,
                        curr_month=curr_month,
                        currDate=str_date,
                        week_entries=week_entries,
-                       count=count)
+                       count=count,
+                       **extra_context)
         return context
 
     def filter_options(self, **kwargs):

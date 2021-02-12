@@ -1,15 +1,17 @@
 $(document).ready(function(){
     $("#add-row").click(function(){
         var task = $("#task").val();
+        var day_count = $("#day_count").val()
+
         var markup = "<tr>"+
         				"<td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' value='" + task + "' readonly /></td>"+
-        				"<td> <input id='dailyentry_set-0-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-0-duration'/> </td>"+
-        				"<td> <input id='dailyentry_set-1-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-1-duration'/></td>"+
-        				"<td> <input id='dailyentry_set-2-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-2-duration'/></td>"+
-        				"<td> <input id='dailyentry_set-3-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-3-duration'/></td>"+
-        				"<td> <input id='dailyentry_set-4-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-4-duration'/></td>"+
-        				"<td> <input id='dailyentry_set-5-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-5-duration'/></td>"+
-        				"<td> <input id='dailyentry_set-6-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-6-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-'+(day_count)+-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-0-duration'/> </td>"+
+        				"<td> <input id='dailyentry_set-'+(day_count+1)+'-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-1-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-'+(day_count+2)+'-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-2-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-'+(day_count+3)+'-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-3-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-'+(day_count+4)+'-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-4-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-'+(day_count+5)+'-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-5-duration'/></td>"+
+        				"<td> <input id='dailyentry_set-'+(day_count+6)+'-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-6-duration'/></td>"+
         				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='7' name='dailyentry_set-TOTAL_FORMS'/> </td>"+
 		                "<td> <input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/></td>"+
 		                "<td> <input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/> </td>"+

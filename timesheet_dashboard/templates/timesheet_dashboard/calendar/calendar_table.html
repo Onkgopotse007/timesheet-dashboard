@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block main %}
+
 	<div class="row">
 		<div class="row controls" style="display:inline">
 			<div class="buttons" style="float:left">
@@ -68,6 +69,33 @@
 		  <tfoot>
 		 
 		  	<tr>
+		  		{% if review %}
+		  			<td>
+		  			  <a class="btn btn-primary approve-record" >
+	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" class="btn btn-primary" type="submit" value="Approve"></i>
+	        		 </a>
+		  			</td>
+		  			
+		  			<td>
+		  			  <a class="btn btn-default reject-record" >
+	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" class="btn btn-default" type="submit" value="Reject"></i>
+	        		 </a>
+		  			</td>
+
+				{% elif verify %}
+					  <td>
+		  			  <a class="btn btn-primary verify-record" >
+	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" class="btn btn-primary" type="submit" value="Verify"></i>
+	        		 </a>
+		  			</td>
+		  			
+		  			<td>
+		  			  <a class="btn btn-default reject-record" >
+	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" class="btn btn-default" type="submit" value="Reject"></i>
+	        		 </a>
+		  			</td>
+				  {% else %}
+				  
 	        	<td>
 	        		<button type="button" class="btn btn-default" id="add-row">
 					  	<i class="glyphicon glyphicon-plus"></i> New Row
@@ -76,6 +104,7 @@
 	        			<i class="glyphicon glyphicon-save"> <input id="save_timesheet" class="btn btn-success" type="submit" value="Save"></i>
 	        		</a>
 	        	</td>
+	        	{% endif %}
 	        	<td></td>
 				<td></td>
 	        	<td></td>
@@ -110,6 +139,7 @@
 					<div class="modal-body">
 			            <div class="form-group col-md-12">
 							<input name="task" id="task" type="text" class="form-control" placeholder="Task" required />
+							<input name="day_count" id="day_count" type="hidden" value={{count}}/>
 			            </div>
 		            	<div class="clearfix"></div>
 		        	</div>
@@ -122,6 +152,7 @@
 	 		</div>
 		</div>
 	</div>
+
 
 
 {% endblock main %}

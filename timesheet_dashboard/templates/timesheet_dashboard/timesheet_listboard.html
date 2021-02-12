@@ -28,7 +28,14 @@
         href="{{ timesheet_add_url }}">
             <i class="fa fa-plus fa-sm"></i> Add Timesheet
       </a>
+      
     {% endif %}
+    {% if employee_id %}
+    <a id="btn-dashboard" class="btn btn-default" role="button"
+     		title="Add Timesheet" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}{{currDate}}">
+     		<i class="fa fa-plus fa-sm"></i> Add Timesheet
+     	</a>
+     {% endif %}
     {% if p_role == 'HR' %}
     	<a id="back_employee" title="view_employees" class="btn btn-sm btn-default" role="button" 
         href="{% url  'timesheet_dashboard:timesheet_employee_listboard_url' %}?p_role=HR">
@@ -40,12 +47,7 @@
         <i class="fa fa-reply fa-sm"></i> Surbodinates
          </a>
     {% endif %}
-    {% if employee_id %}
-    <a id="btn-dashboard" class="btn btn-success btn-sm" role="button"
-     		title="Add Timesheet" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}{{currDate}}">
-     		<i class="fa fa-reply"></i> Add Timesheet
-     	</a>
-     {% endif %}
+    
     	
     {% endblock listboard_panel %}
 
