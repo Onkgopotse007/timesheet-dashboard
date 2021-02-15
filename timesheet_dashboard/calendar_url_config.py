@@ -21,13 +21,13 @@ class UrlConfig:
         urlpatterns = [
             re_path(r'^' + f'{self.label}/'
                     f'(?P<{self.identifier_label}>{self.identifier_pattern})/'
-                    '(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})',
+                    '(?P<year>\d{4})/(?P<month>\d{1,2})/',
                     self.view_class.as_view(), name=self.url_name),
             re_path(r'^' + f'{self.label}/'
                     f'(?P<{self.identifier_label}>{self.identifier_pattern})/',
                     self.view_class.as_view(), name=self.url_name),
             re_path(r'^' + f'{self.label}/' +
-                    '(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})',
+                    '(?P<year>\d{4})/(?P<month>\d{1,2})/',
                     self.view_class.as_view(), name=self.url_name),
             re_path(r'^' + f'{self.label}/',
                     self.view_class.as_view(), name=self.url_name)]

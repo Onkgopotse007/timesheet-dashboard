@@ -1,3 +1,4 @@
+import calendar
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -8,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.urls.base import reverse
 from edc_base.view_mixins import EdcBaseViewMixin
+from edc_base.utils import get_utcnow
 from edc_dashboard.view_mixins import TemplateRequestContextMixin
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
@@ -29,6 +31,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     navbar_name = 'timesheet'
     navbar_selected_item = ''
     success_url = 'timesheet_dashboard:timesheet_calendar_table_url'
+    calendar_obj = calendar.Calendar(firstweekday=0)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -45,30 +48,26 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         # if this is a POST request we need to process the form data
         year = kwargs.get('year')
         month = kwargs.get('month')
-        day = kwargs.get('day')
 
         if request.method == 'POST':
             controller = request.POST.get('controller', '')
             if controller:
-                str_date = f'{year}/{month}/{day}'
-                year, month, day = self.navigate_table(controller, str_date)
+                year, month = self.navigate_table(controller, year, month)
             else:
                 self.add_daily_entries(request, kwargs)
 
         return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_calendar_table_url', 
                                             kwargs={'employee_id': kwargs.get('employee_id'),
                                                     'year': year,
-                                                    'month': month,
-                                                    'day': day}))
+                                                    'month': month}))
 
-    def navigate_table(self, controller, str_date):
-        currDate = datetime.strptime(str_date, '%Y/%m/%d')
-        if controller == 'next':
-            start_date = currDate + timedelta(weeks=1)
-        elif controller == 'prev':
-            start_date = currDate - timedelta(weeks=1)
+    def navigate_table(self, controller, year, month):
+        if controller == 'next' and month != '12':
+            month = int(month) + 1
+        elif controller == 'prev' and month != '1':
+            month = int(month) - 1
 
-        return start_date.year, str(start_date.month).zfill(2), str(start_date.day).zfill(2)
+        return year, month
 
     def clean_data(self, data):
 
@@ -89,11 +88,10 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         data = request.POST.dict()
         year = self.kwargs.get('year', '')
         month = self.kwargs.get('month', '')
-        day = self.kwargs.get('day', '')
         
         monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
                                           supervisor=self.get_employee.supervisor,
-                                          month=datetime.strptime(f'{year}-{month}-{day}', '%Y-%m-%d'))
+                                          month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
 
         DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
                                                   daily_entry_cls,
@@ -124,32 +122,14 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
         employee_id = kwargs.get('employee_id', None)
         year = kwargs.get('year', '')
         month = kwargs.get('month', '')
-        day = kwargs.get('day', '')
-        str_date = f'{year}/{month}/{day}'
-        currDate = datetime.strptime(str_date, '%Y/%m/%d')
-#         curr_month = f'{year}/{month}/1'
-        curr_month = datetime.strptime(f'{year}/{month}/1', '%Y/%m/%d')
-
-        if currDate:
-            weeks = self.get_weekdays(currDate)
-
-        week_entries = self.get_dailyentries(weeks)
-
-        if self.request.GET.get('prev'):
-            start_date = currDate - timedelta(weeks=1)
-        elif self.request.GET.get('next'):
-            start_date = currDate + timedelta(weeks=1)
-        else:
-            start_date = currDate
-        if start_date:
-            weeks = self.get_weekdays(start_date)
 
         count=0
-        if self.get_monthly_obj(curr_month):
-            count = len(self.get_monthly_obj(curr_month).dailyentry_set.all())
+#         if self.get_monthly_obj(curr_month):
+#             count = len(self.get_monthly_obj(curr_month).dailyentry_set.all())
         
         extra_context = {}   
         if (self.request.GET.get('p_role') == 'Supervisor'):
@@ -157,15 +137,20 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         if (self.request.GET.get('p_role')=='HR'):
             extra_context = {'verify': True}
             
+        month_name=calendar.month_name[int(month)]
+        
         context.update(employee_id=employee_id,
-                       weeks=weeks,
-                       curr_month=curr_month,
-                       currDate=str_date,
-                       week_entries=week_entries,
+                       week_titles=calendar.day_abbr,
+                       month_name = month_name,
+                       curr_month=month,
+                       year = year,
+#                        calender_days = self.get_calender_days(year, month),
+#                        blank_days = blank_days,
+                       no_of_weeks=self.get_number_of_weeks(int(year), int(month)),
                        count=count,
                        **extra_context)
         return context
-
+    
     def filter_options(self, **kwargs):
         options = super().filter_options(**kwargs)
         if kwargs.get('employee_id'):
@@ -176,10 +161,52 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     @property
     def pdf_template(self):
         return self.get_template_from_context(self.calendar_template)
+    
+#     def get_calender_days(self, year, month):
+#    
+#         calendar_days = self.calendar_obj.monthdayscalendar(year, int(month))
+#         
+#         
+#         blank_days = 0
+#         
+#         for i in calendar_days[0]:
+#             if i==0:
+#                 blank_days += 1
+#                 
+#         formatted_calendar_days = []
+#         for week in calendar_days:
+#             formatted_calendar_days
+#         return blank_days, calendar_days
+    
+    def get_number_of_weeks(self, year, month):
+        return len(calendar.monthcalendar(year,month))
 
     def get_weekdays(self, currDate=None):
         dates = [(currDate + timedelta(days=i)) for i in range(0 - currDate.weekday(), 7 - currDate.weekday())]
         return dates
+    
+    def get_dailyentries(self, year, month):
+        daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
+        daily_entry_cls.objects.filter(day__year=year, day__month=month, entry_type='reg_hours').order_by('day')
+        
+#         self.get_calender_days(year, month)
+        
+        calendar_days = self.calendar_obj.monthdayscalendar(year, month)
+        import pdb; pdb.set_trace()
+        
+#         blank_days = 0
+#         
+#         for i in calendar_days[0]:
+#             if i==0:
+#                 blank_days += 1
+#                 
+#         formatted_calendar_days = []
+#         for week in calendar_days:
+#             
+#         for day in blank_days:
+#             
+#             formatted_calendar_days.append([0,0,0])
+    
 
     @property
     def get_employee(self):
@@ -191,13 +218,13 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             return None
         return employee_obj
 
-    def get_dailyentries(self, weeks):
-        daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
-        hours = []
-        for day in weeks:
-            entries = daily_entry_cls.objects.filter(day=day, entry_type='reg_hours')
-            if entries:
-                hours.append(entries[0].duration)
-            else:
-                continue
-        return hours
+#     def get_dailyentries(self, weeks):
+#         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
+#         hours = []
+#         for day in weeks:
+#             entries = daily_entry_cls.objects.filter(day=day, entry_type='reg_hours')
+#             if entries:
+#                 hours.append(entries[0].duration)
+#             else:
+#                 continue
+#         return hours

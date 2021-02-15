@@ -1,9 +1,11 @@
+import calendar
 import re
 from datetime import datetime
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils.decorators import method_decorator
+from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_dashboard.views import ListboardView
@@ -49,7 +51,6 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         if not bool(self.request.GET) or self.request.GET.get('p_role') not in groups:
             timesheet_add_url = self.model_wrapper_cls(model_obj=model_obj).href
 
-        today = datetime.today().strftime('%Y/%m/%d')
         context.update(
             p_role=self.request.GET.get('p_role'),
             groups=groups,
@@ -57,7 +58,8 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             employee_id=self.request.GET.get('employee_id') or self.kwargs.get('employee_id'),
             employee=self.get_employee,
             timesheet_add_url=timesheet_add_url,
-            currDate=today)
+            curr_year=get_utcnow().year,
+            curr_month=get_utcnow().month)
         return context
 
     def post(self, request, *args, **kwargs):

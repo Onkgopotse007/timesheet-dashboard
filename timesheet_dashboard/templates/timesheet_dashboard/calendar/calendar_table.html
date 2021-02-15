@@ -14,56 +14,43 @@
 	<div class="row">
 		<div class="row controls" style="display:inline">
 			<div class="buttons" style="float:left">
-				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id %}{{currDate}}" name="timesheet">
+				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id year curr_month%}" name="timesheet">
 					{% csrf_token %}
 					<input id='controller' type='hidden' name='controller'/>
-					<a id="prevWeek" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></a>
-					<a id="nextWeek" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></a>
+					<a id="prevMonth" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></a>
+					<kbd>{{month_name}} </kbd>
+					<a id="nextMonth" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></a>
 				</form>
 			</div>
-			<div id="currentDate" style="float:left">
-				<p>Week: {{weeks.0 | date:"d" }} - {{weeks|last | date:"d M Y" }}</p>
-			</div>
+			
 		</div>
-		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  %}{{currDate}}" name="timesheet">
+		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id   year curr_month%}" name="timesheet">
 		  		{% csrf_token %}
-		<table class="table" id="calendarTable">
+		<table class="table table-striped" id="calendarTable">
 		  <thead>
 		   <tr>
 		   <th></th>
-		   		{% with weeks|join:"," as str_weeks %}
-			  		{{ str_weeks|json_script:"weeks" }}
-			  	{% endwith %}
-			  		{% for day in weeks %}
-			  			<th style="text-align:center; color:#808080">			
-			  				{{day | date:"D" }} <br/> {{day | date:"d M" }}
-			  			</th>
-			  		{% endfor %}
-			 <th>Total</th>
-			 <th></th>
-			 <th></th>
-			 <th></th>
-			 <th></th>
-			 <th></th>
-			 <th></th>
+		  		{% for title in week_titles %}
+		  			<th style="text-align:center; color:#808080">			
+		  				{{title}} <br/>
+		  			</th>
+		  		{% endfor %}
+			 <th colspan="18">Total</th>
 
 		    </tr>
 		  </thead>
 		  <tbody style="background-color:#fff;">
-		  	<td></td>
-		  		{% if week_entries %}
+		  		{% if day_entries %}
 			  		<tr>
 			  			<td></td>
-			  			{% for entry in week_entries %}
+			  			{% for entry in day_entries %}
 			  				<td><input id='dailyentry_set-0-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-{{forloop.counter0}}-duration' value="{{entry}}"/></td>
+			  				<td> <input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{day | date:"Y-m-d"}}' name='dailyentry_set-{{forloop.counter0}}-day'/> </td>
+			  				<td> <input id='dailyentry_set-{{forloop.counter0}}-entry_type' type='hidden' value='reg_hours' name='dailyentry_set-{{forloop.counter0}}-entry_type'/> </td>
 			  			{% endfor %}
+			  			<td colspan="17"> <input id='month' type='hidden' value='{{curr_month | date:"Y-m-d"}}' name='month'/> </td>
 			  		</tr>
 		  		{% endif %}
-			  {% for day in weeks %}
-			  	<td> <input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{day | date:"Y-m-d"}}' name='dailyentry_set-{{forloop.counter0}}-day'/> </td>
-			  	<td> <input id='dailyentry_set-{{forloop.counter0}}-entry_type' type='hidden' value='reg_hours' name='dailyentry_set-{{forloop.counter0}}-entry_type'/> </td>
-			  {% endfor %}
-			  <td> <input id='month' type='hidden' value='{{curr_month | date:"Y-m-d"}}' name='month'/> </td>
 		  </tbody>
 		   
 		  <tfoot>
@@ -99,26 +86,21 @@
 	        	<td>
 	        		<button type="button" class="btn btn-default" id="add-row">
 					  	<i class="glyphicon glyphicon-plus"></i> New Row
+					  	<input name="no_of_weeks" id="no_of_weeks" type="hidden" value={{no_of_weeks}}/>
+					  	<input name="calendar_days" id="no_of_weeks" type="hidden" value={{calendar_days}}/>
 					</button>
-	        		<a class="btn btn-success save-record" >
+					<button type="button" class="btn btn-default" id="auto_fill">
+					  	<i class="glyphicon glyphicon-plus"></i> Autofill
+					</button>
+					
+	        		<a type="button" class="btn btn-default" id="save-record">
 	        			<i class="glyphicon glyphicon-save"> <input id="save_timesheet" class="btn btn-success" type="submit" value="Save"></i>
 	        		</a>
+	        		<td colspan="15"></td>
 	        	</td>
 	        	{% endif %}
-	        	<td></td>
-				<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
-	        	<td></td>
+	        	
+				
 	      	</tr>
         
 		  </tfoot>
@@ -140,6 +122,7 @@
 			            <div class="form-group col-md-12">
 							<input name="task" id="task" type="text" class="form-control" placeholder="Task" required />
 							<input name="day_count" id="day_count" type="hidden" value={{count}}/>
+							
 			            </div>
 		            	<div class="clearfix"></div>
 		        	</div>
