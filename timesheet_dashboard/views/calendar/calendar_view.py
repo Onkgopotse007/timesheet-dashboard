@@ -84,12 +84,12 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         monthly_entry_cls = django_apps.get_model(self.model)
 
         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
-        
+
 
         data = request.POST.dict()
         year = self.kwargs.get('year', '')
         month = self.kwargs.get('month', '')
-        
+
         monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
                                           supervisor=self.get_employee.supervisor,
                                           month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
@@ -125,7 +125,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         employee_id = kwargs.get('employee_id', None)
         year = kwargs.get('year', '')
         month = kwargs.get('month', '')
@@ -147,8 +147,9 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        month_name = month_name,
                        curr_month=month,
                        year = year,
+                       daily_entries = self.get_dailyentries(int(year),int(month)),
 #                        calender_days = self.get_calender_days(year, month),
-#                        blank_days = blank_days,
+                       blank_days=self.get_blank_days(int(year),int(month)),
                        no_of_weeks=self.get_number_of_weeks(int(year), int(month)),
                        count=count,
                        **extra_context)
@@ -164,20 +165,6 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     @property
     def pdf_template(self):
         return self.get_template_from_context(self.calendar_template)
-    
-#     def get_calender_days(self, year, month):
-#    
-#         calendar_days = self.calendar_obj.monthdayscalendar(year, int(month))
-
-#         blank_days = 0
-#
-#         for i in calendar_days[0]:
-#             if i==0:
-#                 blank_days += 1
-#         formatted_calendar_days = []
-#         for week in calendar_days:
-#             formatted_calendar_days
-#         return blank_days, calendar_days
 
     def get_number_of_weeks(self, year, month):
         return len(calendar.monthcalendar(year,month))
@@ -187,27 +174,28 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         return dates
 
     def get_dailyentries(self, year, month):
-        daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
-        daily_entry_cls.objects.filter(day__year=year, day__month=month, entry_type='reg_hours').order_by('day')
+        daily_entry_cls = django_apps.get_model('timesheet.monthlyentry')
 
-#         self.get_calender_days(year, month)
+        try:
+            daily_entry_obj = daily_entry_cls.objects.get(
+                        employee=self.get_employee,
+                        month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
+        except daily_entry_cls.DoesNotExist:
+            return None
+        else:
+            daily_entries = daily_entry_obj.dailyentry_set.all().order_by('day')
+        return daily_entries
 
+    def get_blank_days(self, year, month):
         calendar_days = self.calendar_obj.monthdayscalendar(year, month)
-        import pdb; pdb.set_trace()
 
-#         blank_days = 0
-#         
-#         for i in calendar_days[0]:
-#             if i==0:
-#                 blank_days += 1
-#                 
-#         formatted_calendar_days = []
-#         for week in calendar_days:
-#             
-#         for day in blank_days:
-#             
-#             formatted_calendar_days.append([0,0,0])
-    
+        blank_days = 0
+ 
+        for i in calendar_days[0]:
+            if i==0:
+                blank_days += 1
+        return blank_days
+
 
     @property
     def get_employee(self):
@@ -218,14 +206,3 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         except employee_cls.DoesNotExist:
             return None
         return employee_obj
-
-#     def get_dailyentries(self, weeks):
-#         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
-#         hours = []
-#         for day in weeks:
-#             entries = daily_entry_cls.objects.filter(day=day, entry_type='reg_hours')
-#             if entries:
-#                 hours.append(entries[0].duration)
-#             else:
-#                 continue
-#         return hours

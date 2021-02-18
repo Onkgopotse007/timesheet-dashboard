@@ -1,4 +1,5 @@
-var row_count = 1;
+var row_count =1;
+var blank_days = 0;
 var indexes = 0;
 var markup = '';
 var header_markup = '';
@@ -6,19 +7,31 @@ var year = parseInt($("#year").val());
 var curr_month = parseInt($("#curr_month").val());
 
 $(document).ready(function(){
+	
 
     $("#add-row").click(function(){
         var task = $("#task").val();
 		var no_of_weeks = parseInt($("#no_of_weeks").val());
 		header_markup = '';
 		markup = '';
+		spaces = 7;
+		
+		header_markup = "<tr> <td>  </td>";
 
-		if (row_count <=  no_of_weeks){
+	    markup = "<tr> <td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' value='" + task + "' readonly /></td>";
 
-			header_markup = "<tr> <td>  </td>";
+		if (row_count <= no_of_weeks){
+			if(row_count == 1){
+				spaces = spaces - blank_days;
+				count = blank_days;
+				while(count != 0){
+					header_markup += "<td>  </td>";
+					markup += "<td class='blank_cells' type = 'hidden' value='' colspan='1'></td>";
+					count --;
+				}
+			}
 
-	        markup = "<tr> <td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' value='" + task + "' readonly /></td>";
-			indexes = Array(7).fill().map((x,i)=>(i + (7*(row_count-1))))
+			indexes = Array(spaces).fill().map((x,i)=>(i + (spaces*(row_count-1))))
 
 			indexes.forEach(tableRows);
 
@@ -36,6 +49,7 @@ $(document).ready(function(){
 
 });
 
+
 function tableRows(value){
 
 	markup += "<td> "+
@@ -49,10 +63,10 @@ function tableRows(value){
 
 $(document).on('click', '#save-record', function() {
 	var extras ="<tr>"+
-				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='7' name='dailyentry_set-TOTAL_FORMS'/> </td>"+
-			    "<td> <input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/></td>"+
-			    "<td> <input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/> </td>"+
-			    "<td> <input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/></td>"+
+				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='7' name='dailyentry_set-TOTAL_FORMS'/>"+
+			    "<input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/>"+
+			    "<input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/>"+
+			    "<input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/></td>"+
 				"</tr>";
 	$("table tbody").append(extras);
 });
