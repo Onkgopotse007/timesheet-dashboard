@@ -1,4 +1,5 @@
 import calendar
+import math
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -90,22 +91,47 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         year = self.kwargs.get('year', '')
         month = self.kwargs.get('month', '')
 
-        monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
+        try:
+           monthly_entry = monthly_entry_cls.objects.get(employee=self.get_employee,
                                           supervisor=self.get_employee.supervisor,
                                           month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
+        except monthly_entry_cls.DoesNotExist:
+            monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
+                                              supervisor=self.get_employee.supervisor,
+                                              month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
 
         DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
                                                   daily_entry_cls,
                                                   form=DailyEntryForm,
-                                                  fields=['day', 'duration', 'entry_type'],
+                                                  fields=['day', 'duration', 'entry_type', 'row'],
                                                   can_delete=True)
 
-        for k in data:
-            if '-day' in k:
-                day = int(data[k]) +1
+        for i in range(int(data.get('dailyentry_set-TOTAL_FORMS'))):
+            index = str(i)
+            day = data.get('dailyentry_set-'+ index +'-day')
+            if '-' not in day:
                 day = f'{year}-{month}-'+ str(day)
-                data[k] = datetime.strptime(day, '%Y-%m-%d')
-        data = self.clean_data(data)
+            day_date = datetime.strptime(day, '%Y-%m-%d')
+            data['dailyentry_set-'+ index +'-day'] = day_date
+
+            try:
+                daily_entry_obj = daily_entry_cls.objects.get(day=day_date)
+            except daily_entry_cls.DoesNotExist:
+                pass
+            else:
+                duration = int(data.get('dailyentry_set-' + index + '-duration'))
+                entry_type = data.get('dailyentry_set-' + index + '-entry_type')
+                if (daily_entry_obj.duration != duration
+                        or daily_entry_obj.entry_type != entry_type):
+
+                    daily_entry_obj.duration = duration
+                    daily_entry_obj.entry_type = entry_type
+                    daily_entry_obj.save()
+                data.pop('dailyentry_set-' + index + '-duration')
+                data.pop('dailyentry_set-' + index + '-entry_type')
+                data.pop('dailyentry_set-' + index + '-day')
+                data.pop('dailyentry_set-' + index + '-row')
+                data['dailyentry_set-TOTAL_FORMS'] = int(data.get('dailyentry_set-TOTAL_FORMS'))-1
 
         formset = DailyEntryFormSet(data=data, instance=monthly_entry)
         if formset.is_valid():
@@ -141,16 +167,20 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             extra_context = {'verify': True}
 
         month_name=calendar.month_name[int(month)]
+        daily_entries_dict = self.get_dailyentries(int(year),int(month))
+        blank_days = self.get_blank_days(int(year),int(month))
+        no_of_weeks=self.get_number_of_weeks(int(year), int(month))
 
         context.update(employee_id=employee_id,
                        week_titles=calendar.day_abbr,
                        month_name = month_name,
                        curr_month=month,
                        year = year,
-                       daily_entries = self.get_dailyentries(int(year),int(month)),
-#                        calender_days = self.get_calender_days(year, month),
-                       blank_days=self.get_blank_days(int(year),int(month)),
-                       no_of_weeks=self.get_number_of_weeks(int(year), int(month)),
+                       daily_entries_dict = daily_entries_dict,
+                       prefilled_rows=len(daily_entries_dict.keys()),
+                       blank_days_range=range(blank_days),
+                       blank_days=str(blank_days),
+                       no_of_weeks=no_of_weeks,
                        count=count,
                        **extra_context)
         return context
@@ -174,17 +204,25 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         return dates
 
     def get_dailyentries(self, year, month):
-        daily_entry_cls = django_apps.get_model('timesheet.monthlyentry')
-
+        monthly_entry_cls = django_apps.get_model('timesheet.monthlyentry')
+        entries_dict = {}
         try:
-            daily_entry_obj = daily_entry_cls.objects.get(
+            monthly_entry_obj = monthly_entry_cls.objects.get(
                         employee=self.get_employee,
                         month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
-        except daily_entry_cls.DoesNotExist:
+        except monthly_entry_cls.DoesNotExist:
             return None
         else:
-            daily_entries = daily_entry_obj.dailyentry_set.all().order_by('day')
-        return daily_entries
+            daily_entries = monthly_entry_obj.dailyentry_set.all()
+            
+            if daily_entries:
+                daily_entries = daily_entries.order_by('day')
+                rows = math.ceil(daily_entries.count()/7)
+                
+                entries_dict = {}
+                for i in range(rows):
+                    entries_dict[i] = list(daily_entries.filter(row=i))
+        return entries_dict
 
     def get_blank_days(self, year, month):
         calendar_days = self.calendar_obj.monthdayscalendar(year, month)

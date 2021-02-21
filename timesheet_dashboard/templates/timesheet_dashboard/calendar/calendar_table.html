@@ -26,8 +26,7 @@
 		</div>
 		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id   year curr_month %}" name="timesheet">
 		  		{% csrf_token %}
-		<table class="table table-striped" id="calendarTable">
-		  <thead>
+		<table class="table table-striped" id="calendarTable"><thead>
 		   <tr>
 		   <th></th>
 		  		{% for title in week_titles %}
@@ -40,21 +39,25 @@
 		    </tr>
 		  </thead>
 		  <tbody style="background-color:#fff;">
-		  		<tr>
-		  		{% if daily_entries %}
-			  		<tr>
-			  		    
-			  			<td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' readonly /></td>
-			  			{% for entry in daily_entries %}
-			  				<td><input id='dailyentry_set-0-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-{{forloop.counter0}}-duration' value="{{entry.duration}}"/>
-			  				<input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{entry.day | date:"Y-m-d"}}' name='dailyentry_set-{{forloop.counter0}}-day'/>
-			  				 <input id='dailyentry_set-{{forloop.counter0}}-entry_type' type='hidden' value={{entry.entry_type}} name='dailyentry_set-{{forloop.counter0}}-entry_type'/> </td>
-			  			{% endfor %}
-			  			<td colspan="17"></td>
+		  		{% for key, values in daily_entries_dict.items %}
+		  		 <tr>
+		  		  <td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' readonly /></td>
+		  		   {% if forloop.first %}
+		  		     {% for b in blank_days_range %}
+		  		       <td> <input class='blank_cells' type='hidden' value=''/></td>
+		  		     {% endfor %}
 
-			  		
-		  		{% endif %}
-		  		</tr>
+		  		   {% endif %}
+		  		   {% for entry in values %}
+		  				<td> <h5 style='text-align:center;'> {{entry.day |date:'j'}}</h5>
+		  				<input id='dailyentry_set-0-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-{{forloop.counter0}}-duration' value="{{entry.duration}}"/>
+		  				<input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='dailyentry_set-{{forloop.counter0}}-day'/>
+		  				 <input id='dailyentry_set-{{forloop.counter0}}-entry_type' type='hidden' value={{entry.entry_type}} name='dailyentry_set-{{forloop.counter0}}-entry_type'/>
+		  				 <input id='dailyentry_set-{{forloop.counter0}}-row' type='hidden' value={{entry.row}} name='dailyentry_set-{{forloop.counter0}}-row'/> </td>
+		  			{% endfor %}
+		  			<td colspan="17"></td>
+		  		  </tr>
+		  		{% endfor %}
 		  </tbody>
 
 		  <tfoot>
@@ -88,6 +91,12 @@
 				  {% else %}
 
 	        	<td>
+	        		<input name="curr_month" id="curr_month" type="hidden" value="{{curr_month}}"/>
+		        	<input name="year" id="year" type="hidden" value="{{year}}"/>
+		            <input name="no_of_weeks" id="no_of_weeks" type="hidden" value="{{no_of_weeks}}"/>
+				  	<input name=prefilled_rows id="prefilled_rows" type="hidden" value="{{prefilled_rows}}"/>
+				  	<input name="blank_days" id="blank_days" type="hidden" value="{{blank_days}}"/>
+
 	        		<button type="button" class="btn btn-default" id="add-row">
 					  	<i class="glyphicon glyphicon-plus"></i> New Row
 					</button>
@@ -101,14 +110,7 @@
 
 	        	</td>
 	        	{% endif %}
-	        	<td colspan="18" > <input name="curr_month" id="curr_month" type="hidden" value={{curr_month}}/>
-	        	 <input name="year" id="year" type="hidden" value={{year}}/>
-	        	 <input name="no_of_weeks" id="no_of_weeks" type="hidden" value={{no_of_weeks}}/>
-			  	<input name="day_count" id="day_count" type="hidden" value={{curr_month}}/>
-			  	<input name="blank_days" id="blank_days" type="hidden" value={{blank_days}}/>
-	        	 
-	        	</td>
-
+	        	<td colspan="18" ></td>
 
 		  </tfoot>
 
