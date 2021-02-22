@@ -4,6 +4,7 @@ $(document).ready(function(){
 	var last_day = parseInt($("#last_day").val());
 	var indexes = 0;
 	var markup = '';
+	var total_forms = 0;
 	var header_markup = '';
 	var blank_days = parseInt($("#blank_days").val());
 
@@ -55,7 +56,7 @@ function tableRows(value){
 	if(prefilled_rows != 0){
 		day = (((prefilled_rows-1) * 7)+spaces) + (value+1);
 	}
-	if(day < last_day){
+	if(day <= last_day){
 		markup += "<td> "+
 				 "<input id='dailyentry_set-"+value+"-day' type='hidden' value="+day+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-day'/>" +
 				 "<input id='dailyentry_set-"+value+"-entry_type' type='hidden' value='reg_hours' class='form-control form-control-sm' name='dailyentry_set-"+value+"-entry_type'/>" +
@@ -63,14 +64,14 @@ function tableRows(value){
 				"<input id='dailyentry_set-"+value+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-row'/></td>";
 
 		header_markup += "<td style='text-align:center;''> "+ day +"</td>";
+		total_forms ++;
 	}
 
 }
 
 $(document).on('click', '#save-record', function() {
-	var cols = (((row_count-1) * 7) + (7-blank_days));
 	var extras ="<tr>"+
-				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='"+cols+"' name='dailyentry_set-TOTAL_FORMS'/>"+
+				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='"+total_forms+"' name='dailyentry_set-TOTAL_FORMS'/>"+
 			    "<input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/>"+
 			    "<input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/>"+
 			    "<input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/></td>"+

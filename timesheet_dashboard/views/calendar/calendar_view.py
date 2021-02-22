@@ -121,15 +121,16 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                                                   can_delete=True)
 
         if daily_entries:
-             data['dailyentry_set-TOTAL_FORMS'] = int(data.get('dailyentry_set-TOTAL_FORMS')) - daily_entries.count()
              self.clean_data(data, daily_entries.count())
 
         total_forms = int(data.get('dailyentry_set-TOTAL_FORMS'))
 
         for i in range(total_forms):
             index = str(i)
-
+            
             day = data.get('dailyentry_set-'+ index +'-day')
+            if not day:
+                import pdb;pdb.set_trace()
             day = f'{year}-{month}-'+ str(day)
             day_date = datetime.strptime(day, '%Y-%m-%d')
             data['dailyentry_set-'+ index +'-day'] = day_date
