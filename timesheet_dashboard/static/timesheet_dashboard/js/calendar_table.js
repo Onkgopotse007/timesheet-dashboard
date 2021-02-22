@@ -33,6 +33,10 @@ $(document).ready(function(){
 			}
 			else{
 				var cols = (((row_count-prefilled_rows) * 7));
+				if(prefilled_rows==0){
+					cols = (((row_count-1) * 7)+spaces);
+				}
+
 				indexes = Array(7).fill().map((x,i)=>(i + cols));
 			}
 			indexes.forEach(tableRows);
