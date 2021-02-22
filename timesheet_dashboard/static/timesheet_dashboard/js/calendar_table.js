@@ -1,12 +1,13 @@
 $(document).ready(function(){
-	var row_count = parseInt($("#prefilled_rows").val());
+	var prefilled_rows = parseInt($("#prefilled_rows").val());
+	var row_count = prefilled_rows;
+	var last_day = parseInt($("#last_day").val());
 	var indexes = 0;
 	var markup = '';
 	var header_markup = '';
 	var blank_days = parseInt($("#blank_days").val());
 
     $("#add-row").click(function(){
-        var task = $("#task").val();
 		var no_of_weeks = parseInt($("#no_of_weeks").val());
 		header_markup = '';
 		markup = '';
@@ -14,26 +15,25 @@ $(document).ready(function(){
 
 		header_markup = "<tr> <td>  </td>";
 
-	    markup = "<tr> <td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' value='" + task + "' readonly /></td>";
-
-		if (row_count < no_of_weeks){
+	    markup = "<tr> <td>  </td> ";
+		
+		if (row_count  < no_of_weeks){
 			spaces = spaces - blank_days;
 
 			if(row_count == 0){
-				
+
 				count = blank_days;
 				while(count != 0){
 					header_markup += "<td>  </td>";
 					markup += "<td class='blank_cells' type = 'hidden' value='' colspan='1'></td>";
 					count --;
 				}
-				indexes = Array(spaces).fill().map((x,i)=>(i + spaces));
+				indexes = Array(spaces).fill().map((x,i)=>(i));
 			}
 			else{
-				var cols = (((row_count-1) * 7) + spaces);
-				indexes = Array(7).fill().map((x,i)=>((i+1) + cols));
+				var cols = (((row_count-prefilled_rows) * 7));
+				indexes = Array(7).fill().map((x,i)=>(i + cols));
 			}
-
 			indexes.forEach(tableRows);
 
 			header_markup += "<td colspan=\"17\"></td> </tr>";
@@ -51,18 +51,24 @@ $(document).ready(function(){
 
 
 function tableRows(value){
-	markup += "<td> "+
-			 "<input id='dailyentry_set-"+(value-1)+"-day' type='hidden' value="+value+" class='form-control form-control-sm' name='dailyentry_set-"+(value-1)+"-day'/>" +
-			 "<input id='dailyentry_set-"+(value-1)+"-entry_type' type='hidden' value='reg_hours' class='form-control form-control-sm' name='dailyentry_set-"+(value-1)+"-entry_type'/>" +
-			"<input id='dailyentry_set-"+(value-1)+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+(value-1)+"-duration'/>"+
-			"<input id='dailyentry_set-"+(value-1)+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+(value-1)+"-row'/></td>";
-	
-	header_markup += "<td style='text-align:center;''> "+ value +"</td>";
+	var day = value+1;
+	if(prefilled_rows != 0){
+		day = (((prefilled_rows-1) * 7)+spaces) + (value+1);
+	}
+	if(day < last_day){
+		markup += "<td> "+
+				 "<input id='dailyentry_set-"+value+"-day' type='hidden' value="+day+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-day'/>" +
+				 "<input id='dailyentry_set-"+value+"-entry_type' type='hidden' value='reg_hours' class='form-control form-control-sm' name='dailyentry_set-"+value+"-entry_type'/>" +
+				"<input id='dailyentry_set-"+value+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration'/>"+
+				"<input id='dailyentry_set-"+value+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-row'/></td>";
+
+		header_markup += "<td style='text-align:center;''> "+ day +"</td>";
+	}
 
 }
 
 $(document).on('click', '#save-record', function() {
-	var cols = ((row_count-1 * 7) + (7-blank_days));
+	var cols = (((row_count-1) * 7) + (7-blank_days));
 	var extras ="<tr>"+
 				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='"+cols+"' name='dailyentry_set-TOTAL_FORMS'/>"+
 			    "<input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/>"+
@@ -92,7 +98,7 @@ $(document).on('click', '#auto_fill', function() {
 	var cols = (((row_count-1) * 7) + (7-blank_days));
 
 	tableIndex = Array(cols).fill().map((x,i)=>i);
-	alert(tableIndex)
+	
 	
 	tableIndex.forEach(function(entry){
 

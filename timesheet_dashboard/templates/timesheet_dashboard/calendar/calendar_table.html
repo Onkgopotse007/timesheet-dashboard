@@ -41,7 +41,8 @@
 		  <tbody style="background-color:#fff;">
 		  		{% for key, values in daily_entries_dict.items %}
 		  		 <tr>
-		  		  <td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' readonly /></td>
+		  		 <td></td>
+		  		  <!--   <td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' readonly /></td> -->
 		  		   {% if forloop.first %}
 		  		     {% for b in blank_days_range %}
 		  		       <td> <input class='blank_cells' type='hidden' value=''/></td>
@@ -49,11 +50,11 @@
 
 		  		   {% endif %}
 		  		   {% for entry in values %}
-		  				<td> <h5 style='text-align:center;'> {{entry.day |date:'j'}}</h5>
-		  				<input id='dailyentry_set-0-duration' type='number' class='form-control form-control-sm' name='dailyentry_set-{{forloop.counter0}}-duration' value="{{entry.duration}}"/>
-		  				<input id='dailyentry_set-{{forloop.counter0}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='dailyentry_set-{{forloop.counter0}}-day'/>
-		  				 <input id='dailyentry_set-{{forloop.counter0}}-entry_type' type='hidden' value={{entry.entry_type}} name='dailyentry_set-{{forloop.counter0}}-entry_type'/>
-		  				 <input id='dailyentry_set-{{forloop.counter0}}-row' type='hidden' value={{entry.row}} name='dailyentry_set-{{forloop.counter0}}-row'/> </td>
+		  				<td> <h5 style='text-align:center;'> {{entry.day |date:'j'}} </h5>
+		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}"/>
+		  				<input id='{{entry.day |date:"j"}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='{{entry.day |date:"j"}}-day'/>
+		  				 <input id='{{entry.day |date:"j"}}-entry_type' type='hidden' value={{entry.entry_type}} name='{{entry.day |date:"j"}}-entry_type'/>
+		  				 <input id='{{entry.day |date:"j"}}-row' type='hidden' value={{entry.row}} name='{{entry.day |date:"j"}}-row'/> </td>
 		  			{% endfor %}
 		  			<td colspan="17"></td>
 		  		  </tr>
@@ -93,6 +94,7 @@
 	        	<td>
 	        		<input name="curr_month" id="curr_month" type="hidden" value="{{curr_month}}"/>
 		        	<input name="year" id="year" type="hidden" value="{{year}}"/>
+		        	<input name="last_day" id="last_day" type="hidden" value={{last_day}}/>
 		            <input name="no_of_weeks" id="no_of_weeks" type="hidden" value="{{no_of_weeks}}"/>
 				  	<input name=prefilled_rows id="prefilled_rows" type="hidden" value="{{prefilled_rows}}"/>
 				  	<input name="blank_days" id="blank_days" type="hidden" value="{{blank_days}}"/>

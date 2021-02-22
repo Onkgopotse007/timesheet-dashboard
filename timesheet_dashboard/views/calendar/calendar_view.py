@@ -33,6 +33,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     navbar_selected_item = ''
     success_url = 'timesheet_dashboard:timesheet_calendar_table_url'
     calendar_obj = calendar.Calendar(firstweekday=0)
+    daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -70,26 +71,37 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         return year, month
 
-    def clean_data(self, data):
+    def clean_data(self, data, daily_entries_count):
 
-        for i in range(0, 31):
-            if 'dailyentry_set-'+str(i)+'-duration' in data.keys():
-                if not data.get('dailyentry_set-' + str(i) + '-duration'):
-                    data.pop('dailyentry_set-' + str(i) + '-duration')
-                    data.pop('dailyentry_set-' + str(i) + '-entry_type')
-                    data.pop('dailyentry_set-' + str(i) + '-day')
-                    data['dailyentry_set-TOTAL_FORMS'] = int(data.get('dailyentry_set-TOTAL_FORMS'))-1
-        return data
+        for i in range(daily_entries_count):
+            index = str(i+1)
+            day = data.get(index+'-day')
+            day_date = datetime.strptime(day, '%Y-%m-%d')
+            try:
+                daily_entry_obj = self.daily_entry_cls.objects.get(day=day_date)
+            except self.daily_entry_cls.DoesNotExist:
+                pass
+            else:
+                duration = int(data.get(index + '-duration'))
+                entry_type = data.get(index + '-entry_type')
+                if (daily_entry_obj.duration != duration
+                        or daily_entry_obj.entry_type != entry_type):
+
+                    daily_entry_obj.duration = duration
+                    daily_entry_obj.entry_type = entry_type
+                    daily_entry_obj.save()
+                data.pop(index + '-duration')
+                data.pop(index + '-entry_type')
+                data.pop(index + '-row')
+                data.pop(index + '-day')
 
     def add_daily_entries(self, request, *args, **kwargs):
         monthly_entry_cls = django_apps.get_model(self.model)
 
-        daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
-
-
         data = request.POST.dict()
         year = self.kwargs.get('year', '')
         month = self.kwargs.get('month', '')
+        daily_entries = None
 
         try:
            monthly_entry = monthly_entry_cls.objects.get(employee=self.get_employee,
@@ -99,41 +111,31 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
                                               supervisor=self.get_employee.supervisor,
                                               month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
+        else:
+            daily_entries = self.daily_entry_cls.objects.filter(monthly_entry=monthly_entry)
 
         DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
-                                                  daily_entry_cls,
+                                                  self.daily_entry_cls,
                                                   form=DailyEntryForm,
                                                   fields=['day', 'duration', 'entry_type', 'row'],
                                                   can_delete=True)
 
-        for i in range(int(data.get('dailyentry_set-TOTAL_FORMS'))):
+        if daily_entries:
+             data['dailyentry_set-TOTAL_FORMS'] = int(data.get('dailyentry_set-TOTAL_FORMS')) - daily_entries.count()
+             self.clean_data(data, daily_entries.count())
+
+        total_forms = int(data.get('dailyentry_set-TOTAL_FORMS'))
+
+        for i in range(total_forms):
             index = str(i)
+
             day = data.get('dailyentry_set-'+ index +'-day')
-            if '-' not in day:
-                day = f'{year}-{month}-'+ str(day)
+            day = f'{year}-{month}-'+ str(day)
             day_date = datetime.strptime(day, '%Y-%m-%d')
             data['dailyentry_set-'+ index +'-day'] = day_date
 
-            try:
-                daily_entry_obj = daily_entry_cls.objects.get(day=day_date)
-            except daily_entry_cls.DoesNotExist:
-                pass
-            else:
-                duration = int(data.get('dailyentry_set-' + index + '-duration'))
-                entry_type = data.get('dailyentry_set-' + index + '-entry_type')
-                if (daily_entry_obj.duration != duration
-                        or daily_entry_obj.entry_type != entry_type):
+        formset = DailyEntryFormSet(data=data, instance=monthly_entry)#, initial=daily_entries.__dict__)
 
-                    daily_entry_obj.duration = duration
-                    daily_entry_obj.entry_type = entry_type
-                    daily_entry_obj.save()
-                data.pop('dailyentry_set-' + index + '-duration')
-                data.pop('dailyentry_set-' + index + '-entry_type')
-                data.pop('dailyentry_set-' + index + '-day')
-                data.pop('dailyentry_set-' + index + '-row')
-                data['dailyentry_set-TOTAL_FORMS'] = int(data.get('dailyentry_set-TOTAL_FORMS'))-1
-
-        formset = DailyEntryFormSet(data=data, instance=monthly_entry)
         if formset.is_valid():
             monthly_entry.status = 'submitted'
             monthly_entry.save()
@@ -156,11 +158,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         year = kwargs.get('year', '')
         month = kwargs.get('month', '')
 
-        count=0
-#         if self.get_monthly_obj(curr_month):
-#             count = len(self.get_monthly_obj(curr_month).dailyentry_set.all())
-
-        extra_context = {}   
+        extra_context = {}
         if (self.request.GET.get('p_role') == 'Supervisor'):
             extra_context = {'review': True}
         if (self.request.GET.get('p_role')=='HR'):
@@ -177,11 +175,11 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        curr_month=month,
                        year = year,
                        daily_entries_dict = daily_entries_dict,
-                       prefilled_rows=len(daily_entries_dict.keys()),
+                       prefilled_rows=len(daily_entries_dict.keys()) if daily_entries_dict else 0,
                        blank_days_range=range(blank_days),
                        blank_days=str(blank_days),
+                       last_day=calendar.monthrange(int(year), int(month))[1],
                        no_of_weeks=no_of_weeks,
-                       count=count,
                        **extra_context)
         return context
 
