@@ -70,6 +70,10 @@ function tableRows(value){
 		header_markup += "<td style='text-align:center;''> "+ day +"</td>";
 		total_forms ++;
 	}
+	else{
+		markup += "<td> </td>";
+		header_markup += "<td style='text-align:center;''> </td>";
+	}
 
 }
 

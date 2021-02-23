@@ -24,7 +24,7 @@
 
     {% block listboard_panel %}
 
-    {% if employee_id %}
+    {% if timesheet_add_url %}
     <a id="btn-dashboard" class="btn btn-sm btn-default" role="button"
      		title="Add Timesheet" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  curr_year curr_month%}">
      		<i class="fa fa-plus fa-sm"></i> Add Timesheet
@@ -77,10 +77,12 @@
 		 {% block listboard_table_button_column %}
 		   <td style="white-space: nowrap">
 		   <div class="btn-group">
-		   {% if employee_id %}
-			  <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  result.year result.month %}">
-			     <i class="fa fa-pencil-alt fa-sm"></i> 
-			  </a>
+		   {% if timesheet_add_url %}
+		      {% if result.status == 'new' or result.status == 'rejected' %}
+				  <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  result.year result.month %}">
+				     <i class="fa fa-pencil-alt fa-sm"></i> 
+				  </a>
+			  {% endif %}
 			     {% submit_timesheet_button result %}
 			{% endif %}
 

@@ -59,7 +59,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             employee=self.get_employee,
             timesheet_add_url=timesheet_add_url,
             curr_year=get_utcnow().year,
-            curr_month=get_utcnow().month)
+            curr_month=get_utcnow().month,)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -126,7 +126,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             qs = qs.filter(status__in=['approved', 'verified', 'submitted'])
         elif 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
             qs = qs.filter(status__in=['approved', 'verified'])
-        return qs
+        return qs.order_by('-modified')
 
     def extra_search_options(self, search_term):
         q = Q()

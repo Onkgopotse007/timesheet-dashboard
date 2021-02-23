@@ -57,9 +57,9 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                 year, month = self.navigate_table(controller, year, month)
             elif request.POST.get('read_only') == '1':
                 self.add_daily_entries(request, status=request.POST.get('approve_timesheet'))
-#                 import pdb; pdb.set_trace()
                 return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_listboard_url', 
-                                            kwargs={'employee_id': kwargs.get('employee_id')}))
+                                            kwargs={'employee_id': kwargs.get('employee_id')})
+                                            +'?p_role='+request.GET.get('p_role'))
             else:
                 self.add_daily_entries(request, kwargs)
 
@@ -116,7 +116,6 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             except monthly_entry_cls.DoesNotExist:
                 pass #raise exception
             else:
-#                 import pdb; pdb.set_trace()
                 monthly_entry.status = status
                 monthly_entry.save()
         else:
@@ -146,8 +145,6 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                 index = str(i)
                 
                 day = data.get('dailyentry_set-'+ index +'-day')
-                if not day:
-                    import pdb;pdb.set_trace()
                 day = f'{year}-{month}-'+ str(day)
                 day_date = datetime.strptime(day, '%Y-%m-%d')
                 data['dailyentry_set-'+ index +'-day'] = day_date
@@ -178,9 +175,15 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         extra_context = {}
         if (self.request.GET.get('p_role') == 'Supervisor'):
-            extra_context = {'review': True}
+            extra_context = {'review': True,
+                             'p_role': 'Supervisor'}
         if (self.request.GET.get('p_role')=='HR'):
-            extra_context = {'verify': True}
+            extra_context = {'verify': True,
+                             'p_role': 'HR'}
+        monthly_obj = self.get_monthly_obj(datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
+        if (monthly_obj and monthly_obj.status in ['approved', 'verified']):
+            extra_context = {'read_only': True,
+                             'timesheet_status': monthly_obj.get_status_display()}
 
         month_name=calendar.month_name[int(month)]
         daily_entries_dict = self.get_dailyentries(int(year),int(month))
