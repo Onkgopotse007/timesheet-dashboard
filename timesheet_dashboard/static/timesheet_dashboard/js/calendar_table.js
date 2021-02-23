@@ -8,6 +8,9 @@ $(document).ready(function(){
 	var header_markup = '';
 	var blank_days = parseInt($("#blank_days").val());
 
+	var entry_types = JSON.parse(document.getElementById('entry_types').textContent);
+    var select = document.createElement("select");
+
     $("#add-row").click(function(){
 		var no_of_weeks = parseInt($("#no_of_weeks").val());
 		header_markup = '';
@@ -67,7 +70,18 @@ function tableRows(value){
 				"<input id='dailyentry_set-"+value+"-duration' type='time' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration max='24'/>"+
 				"<input id='dailyentry_set-"+value+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-row'/></td>";
 
-		header_markup += "<td style='text-align:center;''> "+ day +"</td>";
+		header_markup += "<td style='text-align:center;''>"+day+" <select name='dailyentry_set-"+value+"-entry_type+' id='dailyentry_set-"+value+"-entry_type' >";
+						for (var i = 0; i < entry_types.length; i++){
+							var scnd = '';
+							entry_lbl = entry_types[i][1].split(' ');
+							if (entry_lbl[1] !== undefined) {
+								scnd = entry_lbl[1];
+							}
+							header_markup += "<option value='"+entry_types[i][0]+"'>"+entry_lbl[0].charAt(0)+""+scnd.charAt(0).toUpperCase()+"</option>";
+						}
+		header_markup += "</select>";
+		header_markup += "</td>";
+
 		total_forms ++;
 	}
 	else{
@@ -95,6 +109,10 @@ $(document).on('click', '#nextMonth', function() {
 $(document).on('click', '#prevMonth', function() {
 	document.getElementById("controller").value = "prev";
 	$('#controlForm').submit();
+});
+
+$(document).on('click', '#save-record', function() {
+	$('#timesheet_form').submit();
 });
 
 $(document).on('click', '.remove', function() {
