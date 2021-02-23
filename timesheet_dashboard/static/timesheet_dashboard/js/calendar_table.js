@@ -17,7 +17,7 @@ $(document).ready(function(){
 		header_markup = "<tr> <td>  </td>";
 
 	    markup = "<tr> <td>  </td> ";
-		
+
 		if (row_count  < no_of_weeks){
 			spaces = spaces - blank_days;
 

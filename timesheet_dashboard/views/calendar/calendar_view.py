@@ -55,6 +55,11 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             controller = request.POST.get('controller', '')
             if controller:
                 year, month = self.navigate_table(controller, year, month)
+            elif request.POST.get('read_only') == '1':
+                self.add_daily_entries(request, status=request.POST.get('approve_timesheet'))
+#                 import pdb; pdb.set_trace()
+                return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_listboard_url', 
+                                            kwargs={'employee_id': kwargs.get('employee_id')}))
             else:
                 self.add_daily_entries(request, kwargs)
 
@@ -95,52 +100,64 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                 data.pop(index + '-row')
                 data.pop(index + '-day')
 
-    def add_daily_entries(self, request, *args, **kwargs):
+    def add_daily_entries(self, request, status, *args, **kwargs):
         monthly_entry_cls = django_apps.get_model(self.model)
-
         data = request.POST.dict()
         year = self.kwargs.get('year', '')
         month = self.kwargs.get('month', '')
         daily_entries = None
-
-        try:
-           monthly_entry = monthly_entry_cls.objects.get(employee=self.get_employee,
-                                          supervisor=self.get_employee.supervisor,
-                                          month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
-        except monthly_entry_cls.DoesNotExist:
-            monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
+        
+        
+        if status:
+            try:
+               monthly_entry = monthly_entry_cls.objects.get(employee=self.get_employee,
                                               supervisor=self.get_employee.supervisor,
                                               month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
+            except monthly_entry_cls.DoesNotExist:
+                pass #raise exception
+            else:
+#                 import pdb; pdb.set_trace()
+                monthly_entry.status = status
+                monthly_entry.save()
         else:
-            daily_entries = self.daily_entry_cls.objects.filter(monthly_entry=monthly_entry)
-
-        DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
-                                                  self.daily_entry_cls,
-                                                  form=DailyEntryForm,
-                                                  fields=['day', 'duration', 'entry_type', 'row'],
-                                                  can_delete=True)
-
-        if daily_entries:
-             self.clean_data(data, daily_entries.count())
-
-        total_forms = int(data.get('dailyentry_set-TOTAL_FORMS'))
-
-        for i in range(total_forms):
-            index = str(i)
-            
-            day = data.get('dailyentry_set-'+ index +'-day')
-            if not day:
-                import pdb;pdb.set_trace()
-            day = f'{year}-{month}-'+ str(day)
-            day_date = datetime.strptime(day, '%Y-%m-%d')
-            data['dailyentry_set-'+ index +'-day'] = day_date
-
-        formset = DailyEntryFormSet(data=data, instance=monthly_entry)#, initial=daily_entries.__dict__)
-
-        if formset.is_valid():
-            monthly_entry.status = 'submitted'
-            monthly_entry.save()
-            formset.save()
+            try:
+               monthly_entry = monthly_entry_cls.objects.get(employee=self.get_employee,
+                                              supervisor=self.get_employee.supervisor,
+                                              month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
+            except monthly_entry_cls.DoesNotExist:
+                monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
+                                                  supervisor=self.get_employee.supervisor,
+                                                  month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
+            else:
+                daily_entries = self.daily_entry_cls.objects.filter(monthly_entry=monthly_entry)
+    
+            DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
+                                                      self.daily_entry_cls,
+                                                      form=DailyEntryForm,
+                                                      fields=['day', 'duration', 'entry_type', 'row'],
+                                                      can_delete=True)
+    
+            if daily_entries:
+                 self.clean_data(data, daily_entries.count())
+    
+            total_forms = int(data.get('dailyentry_set-TOTAL_FORMS'))
+    
+            for i in range(total_forms):
+                index = str(i)
+                
+                day = data.get('dailyentry_set-'+ index +'-day')
+                if not day:
+                    import pdb;pdb.set_trace()
+                day = f'{year}-{month}-'+ str(day)
+                day_date = datetime.strptime(day, '%Y-%m-%d')
+                data['dailyentry_set-'+ index +'-day'] = day_date
+    
+            formset = DailyEntryFormSet(data=data, instance=monthly_entry)#, initial=daily_entries.__dict__)
+    
+            if formset.is_valid():
+                monthly_entry.status = 'submitted'
+                monthly_entry.save()
+                formset.save()
 
     def get_monthly_obj(self, month):
 
@@ -169,6 +186,8 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         daily_entries_dict = self.get_dailyentries(int(year),int(month))
         blank_days = self.get_blank_days(int(year),int(month))
         no_of_weeks=self.get_number_of_weeks(int(year), int(month))
+
+
 
         context.update(employee_id=employee_id,
                        week_titles=calendar.day_abbr,

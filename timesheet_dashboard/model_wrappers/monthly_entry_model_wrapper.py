@@ -8,7 +8,7 @@ class MonthlyEntryModelWrapper(ModelWrapper):
     model = 'timesheet.monthlyentry'
     next_url_name = settings.DASHBOARD_URL_NAMES.get(
         'timesheet_listboard_url')
-    querystring_attrs = ['employee', 'supervisor']
+    querystring_attrs = ['employee', 'year', 'month', 'supervisor']
 
     @property
     def employee(self):
@@ -41,16 +41,30 @@ class MonthlyEntryModelWrapper(ModelWrapper):
         return self(model_obj=model_obj)
 
     @property
+    def month(self):
+        if self.monthly_entry_model_obj:
+            return self.monthly_entry_model_obj.month.month
+        else:
+            None
+
+    @property
+    def year(self):
+        if self.monthly_entry_model_obj:
+            return self.monthly_entry_model_obj.month.year
+        else:
+            None
+
+    @property
     def monthly_entry_cls(self):
         return django_apps.get_model('timesheet.monthlyentry')
 
     @property
     def monthly_entry_options(self):
         """Returns a dictionary of options to get an existing
-        verbal consent model instance.
+        monthly entry model instance.
         """
         options = dict(
             employee=self.object.employee,
             supervisor=self.object.employee.supervisor,
-            month=None)
+            month=self.object.month)
         return options

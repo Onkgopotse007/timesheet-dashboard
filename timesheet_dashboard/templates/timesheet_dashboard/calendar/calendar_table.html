@@ -1,6 +1,8 @@
 {% extends 'edc_base/base.html' %}
 {% load procurement_dashboard_extras %}
 {% load static %}
+{% load edc_base_extras edc_admin_modify %}
+{% load i18n admin_urls %}
 
 {% block extra-styles %}
 	<link type="text/css" rel="stylesheet" href="{% static 'timesheet_dashboard/css/calendar_table.css' %}">
@@ -51,7 +53,8 @@
 		  		   {% endif %}
 		  		   {% for entry in values %}
 		  				<td> <h5 style='text-align:center;'> {{entry.day |date:'j'}} </h5>
-		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}"/>
+		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}" 
+		  				{% if review or verify %} readonly {% endif %} />
 		  				<input id='{{entry.day |date:"j"}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='{{entry.day |date:"j"}}-day'/>
 		  				 <input id='{{entry.day |date:"j"}}-entry_type' type='hidden' value={{entry.entry_type}} name='{{entry.day |date:"j"}}-entry_type'/>
 		  				 <input id='{{entry.day |date:"j"}}-row' type='hidden' value={{entry.row}} name='{{entry.day |date:"j"}}-row'/> </td>
@@ -65,28 +68,31 @@
 
 		  	<tr>
 		  		{% if review %}
+		  			
 		  			<td>
+		  				<input name="read_only" id="read_only" type="hidden" value="1"/>
 		  			  <a class="btn btn-primary approve-record" >
-	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" class="btn btn-primary" type="submit" value="Approve"></i>
+	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-primary" type="submit" value="approved"></i>
 	        		 </a>
 		  			</td>
 
 		  			<td>
 		  			  <a class="btn btn-default reject-record" >
-	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" class="btn btn-default" type="submit" value="Reject"></i>
+	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-default" type="submit" value="rejected"></i>
 	        		 </a>
 		  			</td>
 
 				{% elif verify %}
 					  <td>
+					  <input name="read_only" id="read_only" type="hidden" value="1"/>
 		  			  <a class="btn btn-primary verify-record" >
-	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" class="btn btn-primary" type="submit" value="Verify"></i>
+	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-primary" type="submit" value="verified"></i>
 	        		 </a>
 		  			</td>
 
 		  			<td>
 		  			  <a class="btn btn-default reject-record" >
-	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" class="btn btn-default" type="submit" value="Reject"></i>
+	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-default" type="submit" value="rejected"></i>
 	        		 </a>
 		  			</td>
 				  {% else %}
@@ -112,7 +118,7 @@
 
 	        	</td>
 	        	{% endif %}
-	        	<td colspan="18" ></td>
+	        	<td colspan="15" ></td>
 
 		  </tfoot>
 

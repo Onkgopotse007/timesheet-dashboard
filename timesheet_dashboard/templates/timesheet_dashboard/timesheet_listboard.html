@@ -23,15 +23,9 @@
     <!-- end search form -->
 
     {% block listboard_panel %}
-    {% if employee and timesheet_add_url%}
-      <a id="timesheet_add" title="add monthly timesheet" class="btn btn-sm btn-default" role="button" 
-        href="{{ timesheet_add_url }}">
-            <i class="fa fa-plus fa-sm"></i> Add Timesheet
-      </a>
-      
-    {% endif %}
+
     {% if employee_id %}
-    <a id="btn-dashboard" class="btn btn-default" role="button"
+    <a id="btn-dashboard" class="btn btn-sm btn-default" role="button"
      		title="Add Timesheet" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  curr_year curr_month%}">
      		<i class="fa fa-plus fa-sm"></i> Add Timesheet
      	</a>
@@ -44,7 +38,7 @@
     {% elif p_role == 'Supervisor' %}
     	<a id="back_employee" title="view_employees" class="btn btn-sm btn-default" role="button" 
         href="{% url  'timesheet_dashboard:timesheet_employee_listboard_url' %}?p_role=Supervisor">
-        <i class="fa fa-reply fa-sm"></i> Surbodinates
+        <i class="fa fa-reply fa-sm"></i> Supervisees
          </a>
     {% endif %}
     
@@ -66,6 +60,7 @@
        <th>Name </th>
        {% endif %}
        <th>Month</th>
+       <th>Year</th>
        <th>Duration</th>
        <th>Status</th>
        <!-- end results header -->
@@ -82,9 +77,9 @@
 		 {% block listboard_table_button_column %}
 		   <td style="white-space: nowrap">
 		   <div class="btn-group">
-		   {% if timesheet_add_url %}
-			  <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{{ result.href }}">
-			     <i class="fa fa-pencil-alt fa-sm"></i>
+		   {% if employee_id %}
+			  <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  result.year result.month %}">
+			     <i class="fa fa-pencil-alt fa-sm"></i> 
 			  </a>
 			     {% submit_timesheet_button result %}
 			{% endif %}
@@ -92,13 +87,13 @@
 		   {% if p_role == 'HR' or p_role == 'Supervisor' %}
 		   	  {% if result.status == 'rejected' %}
 		   	  	  <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
-				    data-placement="right" class="btn btn-danger btn-sm" href="{{ result.href }}&p_role={{p_role}}" >
+				    data-placement="right" class="btn btn-danger btn-sm" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' result.employee.identifier  result.year result.month %}?p_role={{p_role}}" >
 			  {% elif result.status == 'submitted' %}
 			      <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
-				    data-placement="right" class="btn btn-info btn-sm" href="{{ result.href }}&p_role={{p_role}}" >
+				    data-placement="right" class="btn btn-info btn-sm" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' result.employee.identifier  result.year result.month %}?p_role={{p_role}}" >
 			  {% else %}
 		   	    <a id="submit_timesheet_{{employee_id}}"  title="View Timesheet"  data-toggle="tooltip"
-				  data-placement="right" class="btn btn-success btn-sm" href="{{ result.href }}&p_role={{p_role}}" >
+				  data-placement="right" class="btn btn-success btn-sm" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' result.employee.identifier  result.year result.month %}?p_role={{p_role}}" >
 			  {% endif %} 
 				View Timesheet</a>
 		   {% endif %}
@@ -112,6 +107,7 @@
          <td>{{result.object.employee.first_name}} {{result.object.employee.last_name}}</td>
          {% endif %}
 		 <td >{{ result.month }}</td>
+		 <td >{{ result.year }}</td>
 		 <td>{{ result.object.total_hours }}</td>
 		 <th>{{ result.timesheet_status }}</th>
 		 <th style="white-space: nowrap"></th>
@@ -148,15 +144,13 @@
 </div>
 
  <div id="div-home-right" class="col-md-3">
- 	
- 	
+
  	<div class="panel-group" id="accordion">
-	   
-	   
+
 	   </div>
 
 	<div class="panel-group" id="accordion">
-		
+
 		{% if employee_id %}
 		<div class="panel panel-default">
 	      <div class="panel-heading">
@@ -167,12 +161,10 @@
 	      <div id="demographics-panel" class="panel-collapse collapse in">
 	      		<!-- {% include 'timesheet_dashboard/demographics.html' %} -->
 	      		{% demographics employee_id %}
-	      		
+
 	      </div> 
 	   </div>
 	   {% endif %}
-	   
-	   
 
  	  {% if 'HR' in groups %}
  		<div class="panel panel-default">
@@ -181,22 +173,22 @@
 	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
 	          </h6>
 	      </div>
-	               
+
 	    </div>
 	    {% endif %}
-	
+
 		{% if 'Supervisor' in groups %}
 		<div class="panel panel-default">
 	      <div class="panel-heading">
 	          <h6 class="panel-title">
-	              <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Surbodinates Timesheets </a>
+	              <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Supervisees Timesheets </a>
 	          </h6>
 	      </div>
-	               
+
 	    </div>
-       
+
        	{% endif %}
-       	
+
        	{% if 'HR' in groups %}
        	  <div class="panel panel-default">
 	      <div class="panel-heading">
@@ -208,13 +200,11 @@
 	      		<ul>
 	      		{% for dept in departments %}
 	      		   <li> <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?dept={{dept}}&p_role=HR" > {{dept}} </a> </li>
-	      		
 	      		{% endfor %}
 	      		</ul>
 	      </div> 
 	      </div>
-	      
-	          
+
 	    {% endif %}
 	    <div class="panel panel-default">
 	      <div class="panel-heading">
@@ -223,7 +213,7 @@
 	          </h6>
 	      </div>
 	   </div>
-       
+
 
 </div>
 </div>
