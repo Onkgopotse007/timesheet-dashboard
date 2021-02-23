@@ -99,11 +99,24 @@ $(document).on('click', '#prevMonth', function() {
 
 $(document).on('click', '.remove', function() {
 	row_count --;
+	total_forms -= 7;
 	var parent = $(this).parent().parent();  // parent <tr> of the anchor tag
 	var previous = parent.prev();        // <tr> before the parent <tr>
 
 	parent.remove();
 	previous.remove();
+});
+
+ $(document).on('click', '#save-submit-record', function() {
+	var extras ="<tr>"+
+				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='"+total_forms+"' name='dailyentry_set-TOTAL_FORMS'/>"+
+			    "<input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/>"+
+			    "<input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/>"+
+			    "<input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/>"+
+				"<input name='save_submit' type='hidden' value='1'/></td>"+
+				"</tr>";
+	$("table tbody").append(extras);
+	$('#timesheet_form').submit();
 });
 
 

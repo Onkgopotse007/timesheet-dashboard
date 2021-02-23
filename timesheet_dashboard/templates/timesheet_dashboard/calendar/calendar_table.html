@@ -13,7 +13,7 @@
 
 {% block main %}
 
-		{% if not review and verify and read_only %}
+		{% if not review and not verify and not read_only %}
 		<div class="row controls" style="display:inline">
 			<div class="buttons" style="float:left">
 				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id year curr_month %}?p_role={{p_role}}" name="timesheet">
@@ -69,74 +69,77 @@
 		  	<tr>
 		  		{% if review %}
 		  			
-		  			<td>
+		  			<td colspan="25">
+		  			 <div class="buttons" style="float:right">
 		  				<input name="read_only" id="read_only" type="hidden" value="1"/>
 		  			  <a class="btn btn-primary approve-record" >
 	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-primary" type="submit" value="approved"></i>
 	        		 </a>
-		  			</td>
 
-		  			<td>
 		  			  <a class="btn btn-default reject-record" >
 	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-default" type="submit" value="rejected"></i>
-	        		 </a>
+		  			</a>
+		  			</div>
 		  			</td>
 
 				{% elif verify %}
-					  <td>
+					  <td colspan="25">
+					  <div class="buttons" style="float:right">
 					  <input name="read_only" id="read_only" type="hidden" value="1"/>
+					  <button type="button" class="btn btn-primary" id="add-row">
+					      <i class="glyphicon glyphicon-ok"></i> New Row
+					   </button>
 		  			  <a class="btn btn-primary verify-record" >
-	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-primary" type="submit" value="verified"></i>
+	        			<i class="glyphicon glyphicon-ok"> </i>
 	        		 </a>
-		  			</td>
-
-		  			<td>
 		  			  <a class="btn btn-default reject-record" >
 	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-default" type="submit" value="rejected"></i>
 	        		 </a>
+	        		 </div>
 		  			</td>
+		  			
 				  {% else %}
 
-	        	<td>
+	        	<td colspan="25">
 	        		<input name="curr_month" id="curr_month" type="hidden" value="{{curr_month}}"/>
 		        	<input name="year" id="year" type="hidden" value="{{year}}"/>
 		        	<input name="last_day" id="last_day" type="hidden" value={{last_day}}/>
 		            <input name="no_of_weeks" id="no_of_weeks" type="hidden" value="{{no_of_weeks}}"/>
 				  	<input name=prefilled_rows id="prefilled_rows" type="hidden" value="{{prefilled_rows}}"/>
 				  	<input name="blank_days" id="blank_days" type="hidden" value="{{blank_days}}"/>
-					
+				  	
+				  	<div class="buttons" style="float:right">
 					{% if not read_only %}
-		        		<button type="button" class="btn btn-default" id="add-row">
-						  	<i class="glyphicon glyphicon-plus"></i> New Row
-						</button>
-						<button type="button" class="btn btn-default" id="auto_fill">
-						  	<i class="glyphicon glyphicon-plus"></i> Autofill
-						</button>
-	
-		        		<a type="submit" class="btn btn-success" id="save-record">
-		        			<i class="glyphicon glyphicon-save"></i> Save
-		        		</a>
-		        		
-		        		<a type="submit" class="btn btn-success" id="save-submit-record">
-		        			<i class="glyphicon glyphicon-save"></i> Save and Submit
-		        		</a>
-		        	{% else %}
-		        		<a type="button" class="btn btn-success" id="save-record" disabled>
-		        			{{timesheet_status}}
-		        		</a>
-	        		{% endif %}
-
+					   <button type="button" class="btn btn-info" id="add-row">
+					      <i class="glyphicon glyphicon-plus"></i> New Row
+					   </button>
+					   <button type="button" class="btn btn-info" id="auto_fill">
+					      <i class="glyphicon glyphicon-plus"></i> Autofill
+					   </button>
+			          <button type="submit" class="btn btn-info" id="save-record" onclick="document.getElementById('timesheet_form').submit();">
+			             <i class="glyphicon glyphicon-save"></i> Save
+			          </button>
+			          <button type="button" class="btn btn-info" id="save-submit-record" >
+			             <i class="glyphicon glyphicon-save"></i> Save and Submit
+			          </button>
+			       	{% else %}
+			          <a type="button" class="btn btn-success" disabled>
+			             {{timesheet_status}}
+			          </a>
+			          {% endif %}
+         			</div>
 	        	</td>
 	        	{% endif %}
-	        	<td colspan="15" ></td>
 
 		  </tfoot>
 
 		</table>
 	</form> 
    </div>
-   <div class="col-md-3" style="padding-left:0;">
-	<div class="panel panel-default" style="float:right; ">
+   <div class="col-md-3" style="float:right; " >
+   
+   <div class="panel-group" id="accordion">
+	<div class="panel panel-default" >
 	      <div class="panel-heading">
 	      	<h6 class="panel-title">
 	              <a id="demoraphicss-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">Demographics {{employee_id}}<span class="caret"></span></a>
@@ -149,7 +152,38 @@
 	      </div> 
 	   
 	   </div>
+	 {% if 'HR' in groups %}
+ 		<div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
+	          </h6>
+	      </div>
+
+	    </div>
+	    {% endif %}
+
+		{% if 'Supervisor' in groups %}
+		<div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Supervisees Timesheets </a>
+	          </h6>
+	      </div>
+
+	    </div>
+
+       	{% endif %}
+
+	    <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?employee_id={{employee_id}}" > My Timesheets </a>
+	          </h6>
+	      </div>
 	   </div>
+	 </div>
+</div>
 
 
 {% endblock main %}

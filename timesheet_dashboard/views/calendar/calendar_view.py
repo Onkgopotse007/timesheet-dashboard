@@ -152,7 +152,8 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             formset = DailyEntryFormSet(data=data, instance=monthly_entry)#, initial=daily_entries.__dict__)
     
             if formset.is_valid():
-                monthly_entry.status = 'submitted'
+                if request.POST.get('save_submit') == '1':
+                    monthly_entry.status = 'submitted'
                 monthly_entry.save()
                 formset.save()
 
@@ -189,7 +190,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         daily_entries_dict = self.get_dailyentries(int(year),int(month))
         blank_days = self.get_blank_days(int(year),int(month))
         no_of_weeks=self.get_number_of_weeks(int(year), int(month))
-
+        groups = [g.name for g in self.request.user.groups.all()]
 
 
         context.update(employee_id=employee_id,
@@ -203,6 +204,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        blank_days=str(blank_days),
                        last_day=calendar.monthrange(int(year), int(month))[1],
                        no_of_weeks=no_of_weeks,
+                       groups=groups,
                        **extra_context)
         return context
 
