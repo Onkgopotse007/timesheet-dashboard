@@ -1,2 +1,3 @@
 include AUTHORS CHANGES README.md LICENCE
 recursive-include timesheet_dashboard/templates *
+recursive-include timesheet_dashboard/static *
