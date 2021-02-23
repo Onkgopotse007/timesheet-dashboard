@@ -38,6 +38,7 @@ $(document).ready(function(){
 
 				indexes = Array(7).fill().map((x,i)=>(i + cols));
 			}
+
 			indexes.forEach(tableRows);
 
 			header_markup += "<td colspan=\"17\"></td> </tr>";
@@ -97,7 +98,12 @@ $(document).on('click', '#prevMonth', function() {
 });
 
 $(document).on('click', '.remove', function() {
-   	$(this).closest("tr").remove();
+	row_count --;
+	var parent = $(this).parent().parent();  // parent <tr> of the anchor tag
+	var previous = parent.prev();        // <tr> before the parent <tr>
+
+	parent.remove();
+	previous.remove();
 });
 
 
