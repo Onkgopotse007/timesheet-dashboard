@@ -13,7 +13,7 @@
 
 {% block main %}
 
-	<div class="row">
+		{% if not review and verify and read_only %}
 		<div class="row controls" style="display:inline">
 			<div class="buttons" style="float:left">
 				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id year curr_month %}?p_role={{p_role}}" name="timesheet">
@@ -26,11 +26,12 @@
 			</div>
 
 		</div>
+		{% endif %}
+		<div class="col-md-9" style="padding-right:0;">
 		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id   year curr_month %}?p_role={{p_role}}" name="timesheet">
 		  		{% csrf_token %}
-		<table class="table table-striped" id="calendarTable"><thead>
+		<table class="table table-striped" id="calendarTable" ><thead>
 		   <tr>
-		   <th></th>
 		  		{% for title in week_titles %}
 		  			<th style="text-align:center; color:#808080">
 		  				{{title}} <br/>
@@ -132,35 +133,23 @@
 		  </tfoot>
 
 		</table>
-	</form>
+	</form> 
+   </div>
+   <div class="col-md-3" style="padding-left:0;">
+	<div class="panel panel-default" style="float:right; ">
+	      <div class="panel-heading">
+	      	<h6 class="panel-title">
+	              <a id="demoraphicss-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">Demographics {{employee_id}}<span class="caret"></span></a>
+	          </h6>
+	      </div>
+	      <div id="demographics-panel" class="panel-collapse collapse in">
+	      		<!-- {% include 'timesheet_dashboard/demographics.html' %} -->
+	      		{% demographics employee_id %}
 
-		<!-- Modal -->
-		<div id="addModal" class="modal fade" role="dialog">
-	  		<div class="modal-dialog">
-
-			    <!-- content-->
-			    <div class="modal-content">
-			    	<div class="modal-header">
-			    		<h5 class="modal-title">Add Row</h5>
-			        </div>
-			        <form>
-					<div class="modal-body">
-			            <div class="form-group col-md-12">
-							<input name="task" id="task" type="text" class="form-control" placeholder="Task" required />
-
-			            </div>
-		            	<div class="clearfix"></div>
-		        	</div>
-		        	<div class="modal-footer">
-		            	<input type="button" class="btn btn-success" value="Add Row" />
-		            	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-		        	</div>
-			        </form>
-			   </div>
-	 		</div>
-		</div>
-	</div>
-
+	      </div> 
+	   
+	   </div>
+	   </div>
 
 
 {% endblock main %}

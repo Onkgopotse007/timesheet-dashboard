@@ -14,15 +14,14 @@ $(document).ready(function(){
 		markup = '';
 		spaces = 7;
 
-		header_markup = "<tr> <td>  </td>";
+		header_markup = "<tr> ";
 
-	    markup = "<tr> <td>  </td> ";
+	    markup = "<tr> ";
 
 		if (row_count  < no_of_weeks){
 			spaces = spaces - blank_days;
 
-			if(row_count == 0){
-
+			if(prefilled_rows==0 && row_count == 0){
 				count = blank_days;
 				while(count != 0){
 					header_markup += "<td>  </td>";
@@ -71,7 +70,7 @@ function tableRows(value){
 		total_forms ++;
 	}
 	else{
-		markup += "";
+		markup += "<td> </td>";
 		header_markup += "<td style='text-align:center;''> </td>";
 	}
 
