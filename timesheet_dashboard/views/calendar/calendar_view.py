@@ -1,7 +1,10 @@
 import calendar
 import math
 from datetime import datetime, timedelta
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.apps import apps as django_apps
@@ -18,6 +21,7 @@ from edc_navbar import NavbarViewMixin
 from timesheet.forms import MonthlyEntryForm, DailyEntryForm
 from django.forms import inlineformset_factory
 from django.forms import formset_factory
+from smtplib import SMTPException
 
 
 class CalendarViewError(Exception):
@@ -55,7 +59,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             controller = request.POST.get('controller', '')
             if controller:
                 year, month = self.navigate_table(controller, year, month)
-            elif request.POST.get('read_only') == '1':
+            elif request.POST.get('read_only') == '1' or request.POST.get('timesheet_review'):
                 self.add_daily_entries(request, kwargs)
                 return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_listboard_url', 
                                             kwargs={'employee_id': kwargs.get('employee_id')})
@@ -108,7 +112,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         daily_entries = None
         
         
-        if request.POST.get('approve_timesheet'):
+        if request.POST.get('timesheet_review'):
             try:
                monthly_entry = monthly_entry_cls.objects.get(employee=self.get_employee,
                                               supervisor=self.get_employee.supervisor,
@@ -116,8 +120,19 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             except monthly_entry_cls.DoesNotExist:
                 pass #raise exception
             else:
-                monthly_entry.status = request.POST.get('approve_timesheet')
+                monthly_entry.status = request.POST.get('timesheet_review')
                 monthly_entry.save()
+                if request.POST.get('timesheet_review') in ['rejected', 'verified']:
+                    subject = f'Timesheet for {monthly_entry.month}'
+                    message = (f'Dear {monthly_entry.employee.first_name}, Your timesheet '
+                               f'for {monthly_entry.month} has been {monthly_entry.status}')
+                    from_email = settings.EMAIL_HOST_USER
+                    user = monthly_entry.employee.email
+                    try:
+                        send_mail(subject, message, from_email, [user, ], fail_silently=False)
+                    except SMTPException as e:
+                        raise ValidationError(
+                            f'There was an error sending an email: {e}')
         else:
             try:
                monthly_entry = monthly_entry_cls.objects.get(employee=self.get_employee,

@@ -53,7 +53,7 @@
 		  		   {% endif %}
 		  		   {% for entry in values %}
 		  				<td> <h5 style='text-align:center;'> {{entry.day |date:'j'}} </h5>
-		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}" 
+		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}" max='24'
 		  				{% if review or verify or read_only %} readonly {% endif %} />
 		  				<input id='{{entry.day |date:"j"}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='{{entry.day |date:"j"}}-day'/>
 		  				 <input id='{{entry.day |date:"j"}}-entry_type' type='hidden' value={{entry.entry_type}} name='{{entry.day |date:"j"}}-entry_type'/>
@@ -71,30 +71,24 @@
 		  			
 		  			<td colspan="25">
 		  			 <div class="buttons" style="float:right">
-		  				<input name="read_only" id="read_only" type="hidden" value="1"/>
-		  			  <a class="btn btn-primary approve-record" >
-	        			<i class="glyphicon glyphicon-ok"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-primary" type="submit" value="approved"></i>
-	        		 </a>
-
-		  			  <a class="btn btn-default reject-record" >
-	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-default" type="submit" value="rejected"></i>
-		  			</a>
+		  			 	<button type="button" class="btn btn-primary" id="approve-record">
+						      <i class="glyphicon glyphicon-ok"></i> Approve
+						   </button>
+						   <button type="button" class="btn btn-primary" id="reject-record">
+						      <i class="glyphicon glyphicon-remove"></i> Reject
+						   </button>
 		  			</div>
 		  			</td>
 
 				{% elif verify %}
 					  <td colspan="25">
 					  <div class="buttons" style="float:right">
-					  <input name="read_only" id="read_only" type="hidden" value="1"/>
-					  <button type="button" class="btn btn-primary" id="add-row">
-					      <i class="glyphicon glyphicon-ok"></i> New Row
-					   </button>
-		  			  <a class="btn btn-primary verify-record" >
-	        			<i class="glyphicon glyphicon-ok"> </i>
-	        		 </a>
-		  			  <a class="btn btn-default reject-record" >
-	        			<i class="glyphicon glyphicon-remove"> <input id="approve_timesheet" name="approve_timesheet" class="btn btn-default" type="submit" value="rejected"></i>
-	        		 </a>
+						  <button type="button" class="btn btn-primary" id="verify-record">
+						      <i class="glyphicon glyphicon-ok"></i> Verify
+						   </button>
+						   <button type="button" class="btn btn-primary" id="reject-record">
+						      <i class="glyphicon glyphicon-remove"></i> Reject
+						   </button>
 	        		 </div>
 		  			</td>
 		  			

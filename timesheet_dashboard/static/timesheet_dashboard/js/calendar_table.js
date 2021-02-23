@@ -64,7 +64,7 @@ function tableRows(value){
 		markup += "<td> "+
 				 "<input id='dailyentry_set-"+value+"-day' type='hidden' value="+day+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-day'/>" +
 				 "<input id='dailyentry_set-"+value+"-entry_type' type='hidden' value='reg_hours' class='form-control form-control-sm' name='dailyentry_set-"+value+"-entry_type'/>" +
-				"<input id='dailyentry_set-"+value+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration'/>"+
+				"<input id='dailyentry_set-"+value+"-duration' type='time' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration max='24'/>"+
 				"<input id='dailyentry_set-"+value+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-row'/></td>";
 
 		header_markup += "<td style='text-align:center;''> "+ day +"</td>";
@@ -114,6 +114,27 @@ $(document).on('click', '.remove', function() {
 			    "<input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/>"+
 			    "<input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/>"+
 				"<input name='save_submit' type='hidden' value='1'/></td>"+
+				"</tr>";
+	$("table tbody").append(extras);
+	$('#timesheet_form').submit();
+});
+
+ $(document).on('click', '#approve-record', function() {
+	var extras ="<tr> <input name='timesheet_review' type='hidden' value='approved'/></td>"+
+				"</tr>";
+	$("table tbody").append(extras);
+	$('#timesheet_form').submit();
+});
+
+ $(document).on('click', '#reject-record', function() {
+	var extras ="<tr> <input name='timesheet_review' type='hidden' value='rejected'/></td>"+
+				"</tr>";
+	$("table tbody").append(extras);
+	$('#timesheet_form').submit();
+});
+
+ $(document).on('click', '#verify-record', function() {
+	var extras ="<tr> <input name='timesheet_review' type='hidden' value='verified'/></td>"+
 				"</tr>";
 	$("table tbody").append(extras);
 	$('#timesheet_form').submit();
