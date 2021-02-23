@@ -1,5 +1,5 @@
 {% extends 'edc_base/base.html' %}
-{% load procurement_dashboard_extras %}
+{% load timesheet_dashboard_extras %}
 {% load static %}
 {% load edc_base_extras edc_admin_modify %}
 {% load i18n admin_urls %}
@@ -43,7 +43,6 @@
 		  <tbody style="background-color:#fff;">
 		  		{% for key, values in daily_entries_dict.items %}
 		  		 <tr>
-		  		 <td></td>
 		  		  <!--   <td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' readonly /></td> -->
 		  		   {% if forloop.first %}
 		  		     {% for b in blank_days_range %}

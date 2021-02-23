@@ -56,7 +56,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             if controller:
                 year, month = self.navigate_table(controller, year, month)
             elif request.POST.get('read_only') == '1':
-                self.add_daily_entries(request, status=request.POST.get('approve_timesheet'))
+                self.add_daily_entries(request, kwargs)
                 return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_listboard_url', 
                                             kwargs={'employee_id': kwargs.get('employee_id')})
                                             +'?p_role='+request.GET.get('p_role'))
@@ -100,7 +100,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                 data.pop(index + '-row')
                 data.pop(index + '-day')
 
-    def add_daily_entries(self, request, status, *args, **kwargs):
+    def add_daily_entries(self, request, *args, **kwargs):
         monthly_entry_cls = django_apps.get_model(self.model)
         data = request.POST.dict()
         year = self.kwargs.get('year', '')
@@ -108,7 +108,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         daily_entries = None
         
         
-        if status:
+        if request.POST.get('approve_timesheet'):
             try:
                monthly_entry = monthly_entry_cls.objects.get(employee=self.get_employee,
                                               supervisor=self.get_employee.supervisor,
@@ -116,7 +116,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             except monthly_entry_cls.DoesNotExist:
                 pass #raise exception
             else:
-                monthly_entry.status = status
+                monthly_entry.status = request.POST.get('approve_timesheet')
                 monthly_entry.save()
         else:
             try:
@@ -172,16 +172,16 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         employee_id = kwargs.get('employee_id', None)
         year = kwargs.get('year', '')
         month = kwargs.get('month', '')
-
+        
+        monthly_obj = self.get_monthly_obj(datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
         extra_context = {}
         if (self.request.GET.get('p_role') == 'Supervisor'):
             extra_context = {'review': True,
                              'p_role': 'Supervisor'}
-        if (self.request.GET.get('p_role')=='HR'):
+        elif (self.request.GET.get('p_role')=='HR'):
             extra_context = {'verify': True,
                              'p_role': 'HR'}
-        monthly_obj = self.get_monthly_obj(datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
-        if (monthly_obj and monthly_obj.status in ['approved', 'verified']):
+        elif (monthly_obj and monthly_obj.status in ['approved', 'verified']):
             extra_context = {'read_only': True,
                              'timesheet_status': monthly_obj.get_status_display()}
 

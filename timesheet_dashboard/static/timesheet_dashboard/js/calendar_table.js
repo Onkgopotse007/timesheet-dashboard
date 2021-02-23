@@ -71,7 +71,7 @@ function tableRows(value){
 		total_forms ++;
 	}
 	else{
-		markup += "<td> </td>";
+		markup += "";
 		header_markup += "<td style='text-align:center;''> </td>";
 	}
 
