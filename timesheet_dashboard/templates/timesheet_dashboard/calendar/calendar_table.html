@@ -14,8 +14,8 @@
 {% block main %}
 
 		{% if not review and not verify and not read_only %}
-		<div class="row controls" style="display:inline">
-			<div class="buttons" style="float:left">
+		<div class="row controls" style="display:inline;">
+			<div class="buttons" style="float:left;  margin-left:17px;">
 				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id year curr_month %}?p_role={{p_role}}" name="timesheet">
 					{% csrf_token %}
 					<input id='controller' type='hidden' name='controller'/>
@@ -27,7 +27,7 @@
 
 		</div>
 		{% endif %}
-		<div class="col-md-9" style="padding-right:0;">
+		<div class="col-md-9" style="padding-right:0; margin-top:10px;">
 		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id   year curr_month %}?p_role={{p_role}}" name="timesheet">
 		  		{% csrf_token %}
 		<table class="table table-striped" id="calendarTable" ><thead>
@@ -54,8 +54,20 @@
 		  		   {% endif %}
 		  		   {% for entry in values %}
 		  				<td> <h5 style='text-align:center;'> {{entry.day |date:'j'}} </h5>
+		  				<div class="input-group">
+        
 		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}" max='24'
-		  				{% if review or verify or read_only %} readonly {% endif %} />
+		  				{% if review or verify or read_only %} readonly {% endif %} style="width:48px; padding:4px 8px; border-right:0;"/>
+						  <button title="entry_type" type="button" class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" data-toggle="dropdown" {% if review or verify or read_only %} disabled {% endif %} style="width:44px; ">
+						  		{{entry.entry_type | default:'RH' }}
+						      <span class="caret"></span></button>
+						      <ul class="dropdown-menu leave" role="menu">
+						        <li class="dropdown-header">Leave Type </li>
+						        {% for e in et %}
+						          <li>{{ e}}</li>
+						        {% endfor %}
+						      </ul>
+						</div>
 		  				<input id='{{entry.day |date:"j"}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='{{entry.day |date:"j"}}-day'/>
 		  				 <input id='{{entry.day |date:"j"}}-entry_type' type='hidden' value={{entry.entry_type}} name='{{entry.day |date:"j"}}-entry_type'/>
 		  				 <input id='{{entry.day |date:"j"}}-row' type='hidden' value={{entry.row}} name='{{entry.day |date:"j"}}-row'/> </td>
@@ -72,24 +84,26 @@
 		  			
 		  			<td colspan="25">
 		  			 <div class="buttons" style="float:right">
-		  			 	<button type="button" class="btn btn-primary" id="approve-record">
-						      <i class="glyphicon glyphicon-ok"></i> Approve
-						   </button>
-						   <button type="button" class="btn btn-primary" id="reject-record">
-						      <i class="glyphicon glyphicon-remove"></i> Reject
-						   </button>
+		  			   <button type="button" class="btn btn-primary" id="reject-record">
+					      <i class="glyphicon glyphicon-remove"></i> Reject
+					   </button>
+	  			 	  <button type="button" class="btn btn-primary" id="approve-record">
+					      <i class="glyphicon glyphicon-ok"></i> Approve
+					   </button>
+						   
 		  			</div>
 		  			</td>
 
 				{% elif verify %}
 					  <td colspan="25">
 					  <div class="buttons" style="float:right">
+					      <button type="button" class="btn btn-primary" id="reject-record">
+						      <i class="glyphicon glyphicon-remove"></i> Reject
+						  </button>
 						  <button type="button" class="btn btn-primary" id="verify-record">
 						      <i class="glyphicon glyphicon-ok"></i> Verify
 						   </button>
-						   <button type="button" class="btn btn-primary" id="reject-record">
-						      <i class="glyphicon glyphicon-remove"></i> Reject
-						   </button>
+						   
 	        		 </div>
 		  			</td>
 		  			
@@ -176,6 +190,19 @@
 	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?employee_id={{employee_id}}" > My Timesheets </a>
 	          </h6>
 	      </div>
+	   </div>
+	   
+	   <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	               Comments
+	          </h6>
+	      </div>
+	      
+	      <textarea name="comment" form="timesheet_form" id="comment" type="text "rows="4" 
+	      onkeyup="Allow()" placeholder="write a comment......" style="width:100%; border:0;"
+	      {% if not review and not verify %} disabled {% endif %}> </textarea>
+	      
 	   </div>
 	 </div>
 </div>

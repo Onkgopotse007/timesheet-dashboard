@@ -56,8 +56,6 @@ $(document).ready(function(){
     });
 
 
-
-
 function tableRows(value){
 	var day = value+1;
 	if(prefilled_rows != 0){
@@ -65,21 +63,15 @@ function tableRows(value){
 	}
 	if(day <= last_day){
 		markup += "<td> "+
-				 "<input id='dailyentry_set-"+value+"-day' type='hidden' value="+day+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-day'/>" +
-				 "<input id='dailyentry_set-"+value+"-entry_type' type='hidden' value='reg_hours' class='form-control form-control-sm' name='dailyentry_set-"+value+"-entry_type'/>" +
-				"<input id='dailyentry_set-"+value+"-duration' type='time' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration max='24'/>"+
+				 "<div class='input-group'> <input id='dailyentry_set-"+value+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration max='24' style='width:48px; padding:4px 8px; border-right:0;'/>"+
+				 '<button title="entry_type" type="button" class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" data-toggle="dropdown" style="width:44px; ">'+
+				 'RH <span class="caret"></span></button> <ul class="dropdown-menu" role="menu" > <li class="dropdown-header">Leave Type </li>' +
+				 '{% for e in et %} <li>{{ e}}</li> {% endfor %} </ul> </div>'+
+				 "<input id='dailyentry_set-"+value+"-entry_type' type='hidden' value='RH' class='form-control form-control-sm' name='dailyentry_set-"+value+"-entry_type'/>" +
+				"<input id='dailyentry_set-"+value+"-day' type='hidden' value="+day+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-day'/>" +
 				"<input id='dailyentry_set-"+value+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-row'/></td>";
 
-		header_markup += "<td style='text-align:center;''>"+day+" <select name='dailyentry_set-"+value+"-entry_type+' id='dailyentry_set-"+value+"-entry_type' >";
-						for (var i = 0; i < entry_types.length; i++){
-							var scnd = '';
-							entry_lbl = entry_types[i][1].split(' ');
-							if (entry_lbl[1] !== undefined) {
-								scnd = entry_lbl[1];
-							}
-							header_markup += "<option value='"+entry_types[i][0]+"'>"+entry_lbl[0].charAt(0)+""+scnd.charAt(0).toUpperCase()+"</option>";
-						}
-		header_markup += "</select>";
+		header_markup += "<td style='text-align:center;''>"+day;
 		header_markup += "</td>";
 
 		total_forms ++;
@@ -164,8 +156,7 @@ $(document).on('click', '#auto_fill', function() {
 	var cols = (((row_count-1) * 7) + (7-blank_days));
 
 	tableIndex = Array(cols).fill().map((x,i)=>i);
-	
-	
+
 	tableIndex.forEach(function(entry){
 
 		element_id = 'dailyentry_set-'+entry+'-duration';

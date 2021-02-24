@@ -1,6 +1,6 @@
 import calendar
 import math
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -119,12 +119,19 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             except monthly_entry_cls.DoesNotExist:
                 pass  # raise exception
             else:
+                if request.POST.get('comment'):
+                    monthly_entry.comment = request.POST.get('comment')
                 monthly_entry.status = request.POST.get('timesheet_review')
                 monthly_entry.save()
+                
                 if request.POST.get('timesheet_review') in ['rejected', 'verified']:
+                    
                     subject = f'Timesheet for {monthly_entry.month}'
                     message = (f'Dear {monthly_entry.employee.first_name}, Your timesheet '
-                               f'for {monthly_entry.month} has been {monthly_entry.status}')
+                               f'for {monthly_entry.month} has been {monthly_entry.status}.')
+                    if request.POST.get('comment'):
+                        comment_msg = ' Comment: '+request.POST.get('comment')
+                        message += comment_msg
                     from_email = settings.EMAIL_HOST_USER
                     user = monthly_entry.employee.email
                     try:
@@ -219,6 +226,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        no_of_weeks=no_of_weeks,
                        groups=groups,
                        entry_types=self.entry_types(),
+                       et=['RH', 'RL', 'SL', 'H', 'ML', 'CL', 'RL'],
                        **extra_context)
         return context
 
