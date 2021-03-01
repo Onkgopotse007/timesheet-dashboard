@@ -64,11 +64,12 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
     def post(self, request, *args, **kwargs):
         if request.method == 'POST':
-            month_string = self.request.GET.get('month')
+            month = self.request.GET.get('month')
+            year = self.request.GET.get('year')
             try:
                 monthly_entry_obj = self.model_cls.objects.get(
-                                                employee__identifier=self.kwargs['employee_id'],
-                                                month=datetime.strptime(month_string, '%b. %d, %Y').date())
+                    employee__identifier=self.kwargs['employee_id'],
+                    month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
             except self.model_cls.DoesNotExist:
                 pass
             else:
@@ -76,7 +77,6 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
                 monthly_entry_obj.save()
 
         return HttpResponseRedirect(self.request.path)
-
 
     @property
     def get_employee(self):
@@ -101,7 +101,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         options = super().get_queryset_filter_options(request, *args, **kwargs)
         usr_groups = [g.name for g in self.request.user.groups.all()]
 
-        if  self.kwargs.get('employee_id') or self.request.GET.get('employee_id'):
+        if self.kwargs.get('employee_id') or self.request.GET.get('employee_id'):
             options.update({'employee__identifier': self.kwargs.get('employee_id') or self.request.GET.get('employee_id')})
 
         elif ('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
