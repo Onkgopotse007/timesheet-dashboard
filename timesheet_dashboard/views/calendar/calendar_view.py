@@ -225,6 +225,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        last_day=calendar.monthrange(int(year), int(month))[1],
                        no_of_weeks=no_of_weeks,
                        groups=groups,
+                       user=self.user,
                        entry_types=self.entry_types(),
                        et=['RH', 'RL', 'SL', 'H', 'ML', 'CL', 'RL'],
                        **extra_context)
@@ -288,6 +289,17 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         except employee_cls.DoesNotExist:
             return None
         return employee_obj
+
+    @property
+    def user(self):
+        employee_cls = django_apps.get_model('bhp_personnel.employee')
+
+        try:
+            employee_obj = employee_cls.objects.get(email=self.request.user.email)
+        except employee_cls.DoesNotExist:
+            return None
+        return employee_obj
+
 
     def entry_types(self):
         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')

@@ -126,7 +126,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             qs = qs.filter(status__in=['approved', 'verified', 'submitted'])
         elif 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
             qs = qs.filter(status__in=['approved', 'verified'])
-        return qs.order_by('-modified')
+        return qs.order_by('-month')
 
     def extra_search_options(self, search_term):
         q = Q()
