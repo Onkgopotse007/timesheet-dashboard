@@ -80,14 +80,15 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         return year, month
 
-    def clean_data(self, data, daily_entries_count):
+    def clean_data(self, data, daily_entries_count, monthly_entry):
 
         for i in range(daily_entries_count):
             index = str(i+1)
             day = data.get(index+'-day')
             day_date = datetime.strptime(day, '%Y-%m-%d')
             try:
-                daily_entry_obj = self.daily_entry_cls.objects.get(day=day_date)
+                daily_entry_obj = self.daily_entry_cls.objects.get(day=day_date,
+                                                                   monthly_entry=monthly_entry)
             except self.daily_entry_cls.DoesNotExist:
                 pass
             else:
@@ -147,7 +148,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                     employee=self.get_employee, supervisor=self.get_employee.supervisor,
                     month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
             except monthly_entry_cls.DoesNotExist:
-                monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
+                monthly_entry = monthly_entry_cls(employee=self.get_employee,
                                                   supervisor=self.get_employee.supervisor,
                                                   month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
             else:
@@ -160,7 +161,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                                                       can_delete=True)
 
             if daily_entries:
-                self.clean_data(data, daily_entries.count())
+                self.clean_data(data, daily_entries.count(), monthly_entry)
 
             total_forms = int(data.get('dailyentry_set-TOTAL_FORMS'))
             for i in range(total_forms):
