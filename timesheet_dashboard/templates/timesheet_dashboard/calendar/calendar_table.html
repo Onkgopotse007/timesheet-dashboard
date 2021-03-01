@@ -13,7 +13,7 @@
 
 {% block main %}
 
-		{% if not review and not verify %}
+		{% if not review and not verify and not verified %}
 		<div class="row controls" style="display:inline;">
 			<div class="buttons" style="float:left;  margin-left:17px;">
 				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id year curr_month %}?p_role={{p_role}}" name="timesheet">
@@ -75,7 +75,7 @@
 		  <tfoot>
 
 		  	<tr>
-		  		{% if verify %}
+		  		{% if review %}
 
 		  			<td colspan="25">
 		  			 <div class="buttons" style="float:right">
@@ -89,7 +89,7 @@
 		  			</div>
 		  			</td>
 
-				{% elif review %}
+				{% elif verify %}
 					  <td colspan="25">
 					  <div class="buttons" style="float:right">
 					      <button type="button" class="btn btn-danger" id="reject-record">
@@ -211,7 +211,7 @@
 	      
 	      <textarea name="comment" form="timesheet_form" id="comment" type="text "rows="4" 
 	      onkeyup="Allow()" placeholder="write a comment......" style="width:100%; border:0;"
-	      {% if not review and not verify %} disabled {% endif %}> {{comment}} </textarea>
+	      {% if not review and not verify %} disabled {% endif %}> {% if comment %} {{comment}} {% endif %}</textarea>
 	      
 	   </div>
 	 </div>

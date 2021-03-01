@@ -121,6 +121,8 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             else:
                 if request.POST.get('comment'):
                     monthly_entry.comment = request.POST.get('comment')
+                else:
+                    monthly_entry.comment = None
                 monthly_entry.status = request.POST.get('timesheet_review')
                 monthly_entry.save()
                 
@@ -161,10 +163,8 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                 self.clean_data(data, daily_entries.count())
 
             total_forms = int(data.get('dailyentry_set-TOTAL_FORMS'))
-
             for i in range(total_forms):
                 index = str(i)
-
                 day = data.get('dailyentry_set-' + index + '-day')
                 day = f'{year}-{month}-' + str(day)
                 day_date = datetime.strptime(day, '%Y-%m-%d')
@@ -200,6 +200,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         extra_context = {}
         if (self.request.GET.get('p_role') == 'Supervisor'):
             extra_context = {'p_role': 'Supervisor',
+                             'verified': True,
                              'read_only': True,
                              'timesheet_status': monthly_obj.get_status_display()}
             if ((monthly_obj  and monthly_obj.status != 'verified') or not monthly_obj):
@@ -231,7 +232,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        groups=groups,
                        user=self.user,
                        entry_types=self.entry_types(),
-                       comment = monthly_obj.comment or None,
+                       comment = monthly_obj.comment if monthly_obj else None,
                        et=['RH',  'RL', 'SL', 'H', 'ML', 'PL', 'CL', 'STL'],
                        **extra_context)
         return context
