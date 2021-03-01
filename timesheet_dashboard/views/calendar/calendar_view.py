@@ -231,7 +231,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        groups=groups,
                        user=self.user,
                        entry_types=self.entry_types(),
-                       comment = monthly_obj.comment or None,
+                       comment=monthly_obj.comment if monthly_obj else None,
                        et=['RH',  'RL', 'SL', 'H', 'ML', 'PL', 'CL', 'STL'],
                        **extra_context)
         return context
