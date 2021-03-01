@@ -10,7 +10,8 @@ def submit_timesheet_button(model_wrapper):
     return dict(
         employee_id=model_wrapper.object.employee.identifier,
         status=model_wrapper.object.status,
-        month=model_wrapper.object.month,
+        month=model_wrapper.object.month.month,
+        year=model_wrapper.object.month.year,
         title=' '.join(title))
 
 @register.inclusion_tag('timesheet_dashboard/buttons/view_timesheet_button.html')

@@ -58,16 +58,25 @@ $(document).ready(function(){
 
 function tableRows(value){
 	var day = value+1;
+	
+	entry_type_options = '';
+	for (var i = 0; i < entry_types.length; i++){
+		var scnd = '';
+		entry_lbl = entry_types[i][1].split(' ');
+		if (entry_lbl[1] !== undefined) {
+			scnd = entry_lbl[1];
+		}
+		entry_type_options += "<option value='"+entry_types[i][0]+"'>"+entry_lbl[0].charAt(0)+""+scnd.charAt(0).toUpperCase()+"</option>";
+	}
+		
 	if(prefilled_rows != 0){
 		day = (((prefilled_rows-1) * 7)+spaces) + (value+1);
 	}
 	if(day <= last_day){
 		markup += "<td> "+
-				 "<div class='input-group'> <input id='dailyentry_set-"+value+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration max='24' style='width:48px; padding:4px 8px; border-right:0;'/>"+
-				 '<button title="entry_type" type="button" class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" data-toggle="dropdown" style="width:44px; ">'+
-				 'RH <span class="caret"></span></button> <ul class="dropdown-menu" role="menu" > <li class="dropdown-header">Leave Type </li>' +
-				 '{% for e in et %} <li>{{ e}}</li> {% endfor %} </ul> </div>'+
-				 "<input id='dailyentry_set-"+value+"-entry_type' type='hidden' value='RH' class='form-control form-control-sm' name='dailyentry_set-"+value+"-entry_type'/>" +
+				 "<div class='input-group'> <input id='dailyentry_set-"+value+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration' max='24' style='width:48px; padding:4px 8px; border-right:0;'/>"+
+				 "<select id='dailyentry_set-"+value+"-entry_type' name='dailyentry_set-"+value+"-entry_type' class='btn btn-default btn-sm dropdown-toggle form-control form-control-sm' style='width:40px; padding:0px;'>"+
+				 entry_type_options+"</select> "+
 				"<input id='dailyentry_set-"+value+"-day' type='hidden' value="+day+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-day'/>" +
 				"<input id='dailyentry_set-"+value+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-row'/></td>";
 

@@ -58,18 +58,13 @@
         
 		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}" max='24'
 		  				{% if review or verify or read_only %} readonly {% endif %} style="width:48px; padding:4px 8px; border-right:0;"/>
-						  <button title="entry_type" type="button" class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" data-toggle="dropdown" {% if review or verify or read_only %} disabled {% endif %} style="width:44px; ">
-						  		{{entry.entry_type | default:'RH' }}
-						      <span class="caret"></span></button>
-						      <ul class="dropdown-menu leave" role="menu">
-						        <li class="dropdown-header">Leave Type </li>
-						        {% for e in et %}
-						          <li>{{ e}}</li>
-						        {% endfor %}
-						      </ul>
+							<select id='{{entry.day |date:"j"}}-entry_type' name='{{entry.day |date:"j"}}-entry_type' class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" style='width:40px; padding:0px;'>
+							  {% for e in et %}
+							    <option value={{e}} {% if e == entry.entry_type %} selected {% endif %}>{{e}}</option>
+					          {% endfor %}
+							</select> 
 						</div>
 		  				<input id='{{entry.day |date:"j"}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='{{entry.day |date:"j"}}-day'/>
-		  				 <input id='{{entry.day |date:"j"}}-entry_type' type='hidden' value={{entry.entry_type}} name='{{entry.day |date:"j"}}-entry_type'/>
 		  				 <input id='{{entry.day |date:"j"}}-row' type='hidden' value={{entry.row}} name='{{entry.day |date:"j"}}-row'/> </td>
 		  			{% endfor %}
 		  			<td colspan="17"></td>
