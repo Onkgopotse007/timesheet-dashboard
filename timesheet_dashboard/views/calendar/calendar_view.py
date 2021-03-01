@@ -80,14 +80,15 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
 
         return year, month
 
-    def clean_data(self, data, daily_entries_count):
+    def clean_data(self, data, daily_entries_count, monthly_entry):
 
         for i in range(daily_entries_count):
             index = str(i+1)
             day = data.get(index+'-day')
             day_date = datetime.strptime(day, '%Y-%m-%d')
             try:
-                daily_entry_obj = self.daily_entry_cls.objects.get(day=day_date)
+                daily_entry_obj = self.daily_entry_cls.objects.get(day=day_date,
+                                                                   monthly_entry=monthly_entry)
             except self.daily_entry_cls.DoesNotExist:
                 pass
             else:
@@ -121,11 +122,13 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
             else:
                 if request.POST.get('comment'):
                     monthly_entry.comment = request.POST.get('comment')
+                else:
+                    monthly_entry.comment = None
                 monthly_entry.status = request.POST.get('timesheet_review')
                 monthly_entry.save()
-                
+
                 if request.POST.get('timesheet_review') in ['rejected', 'verified']:
-                    
+
                     subject = f'Timesheet for {monthly_entry.month}'
                     message = (f'Dear {monthly_entry.employee.first_name}, Your timesheet '
                                f'for {monthly_entry.month} has been {monthly_entry.status}.')
@@ -145,7 +148,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                     employee=self.get_employee, supervisor=self.get_employee.supervisor,
                     month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
             except monthly_entry_cls.DoesNotExist:
-                monthly_entry = monthly_entry_cls(employee=self.get_employee or None,
+                monthly_entry = monthly_entry_cls(employee=self.get_employee,
                                                   supervisor=self.get_employee.supervisor,
                                                   month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
             else:
@@ -158,13 +161,11 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                                                       can_delete=True)
 
             if daily_entries:
-                self.clean_data(data, daily_entries.count())
+                self.clean_data(data, daily_entries.count(), monthly_entry)
 
             total_forms = int(data.get('dailyentry_set-TOTAL_FORMS'))
-
             for i in range(total_forms):
                 index = str(i)
-
                 day = data.get('dailyentry_set-' + index + '-day')
                 day = f'{year}-{month}-' + str(day)
                 day_date = datetime.strptime(day, '%Y-%m-%d')
@@ -200,6 +201,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         extra_context = {}
         if (self.request.GET.get('p_role') == 'Supervisor'):
             extra_context = {'p_role': 'Supervisor',
+                             'verified': True,
                              'read_only': True,
                              'timesheet_status': monthly_obj.get_status_display()}
             if ((monthly_obj  and monthly_obj.status != 'verified') or not monthly_obj):
@@ -304,7 +306,6 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         except employee_cls.DoesNotExist:
             return None
         return employee_obj
-
 
     def entry_types(self):
         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
