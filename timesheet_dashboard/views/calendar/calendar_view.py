@@ -183,7 +183,8 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         monthly_cls = django_apps.get_model('timesheet.monthlyentry')
 
         try:
-            monthly_obj = monthly_cls.objects.get(month=month)
+            monthly_obj = monthly_cls.objects.get(month=month,
+                                                  employee=self.get_employee,)
         except monthly_cls.DoesNotExist:
             monthly_obj = None
         return monthly_obj
