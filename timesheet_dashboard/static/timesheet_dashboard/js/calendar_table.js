@@ -44,6 +44,14 @@ $(document).ready(function(){
 
 			indexes.forEach(tableRows);
 
+			// Disable previous remove buttons
+		    var delBtns = document.getElementsByClassName('remove');
+
+		    for (var i = 0; i < delBtns.length; i++) {
+		    	delBtns[i].disabled = true;
+		    	delBtns[i].classList.add('disabled');
+		    }
+
 			header_markup += "<td colspan=\"17\"></td> </tr>";
 			markup += "<td>0</td>"+
 	        		"<td colspan=\"15\"></td>"+
@@ -124,6 +132,13 @@ $(document).on('click', '.remove', function() {
 
 	parent.remove();
 	previous.remove();
+
+	// Enable last remove button
+	var delBtns = document.getElementsByClassName('remove');
+	if (delBtns.length > 0) {
+		delBtns[delBtns.length - 1].disabled = false;
+		delBtns[delBtns.length - 1].classList.remove('disabled');
+	}
 });
 
  $(document).on('click', '#save-submit-record', function() {
