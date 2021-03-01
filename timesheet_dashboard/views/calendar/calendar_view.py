@@ -199,8 +199,11 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         monthly_obj = self.get_monthly_obj(datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
         extra_context = {}
         if (self.request.GET.get('p_role') == 'Supervisor'):
-            extra_context = {'review': True,
-                             'p_role': 'Supervisor'}
+            extra_context = {'p_role': 'Supervisor',
+                             'read_only': True,
+                             'timesheet_status': monthly_obj.get_status_display()}
+            if ((monthly_obj  and monthly_obj.status != 'verified') or not monthly_obj):
+                extra_context['review'] = True
         elif (self.request.GET.get('p_role') == 'HR'):
             extra_context = {'verify': True,
                              'p_role': 'HR'}
@@ -228,6 +231,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        groups=groups,
                        user=self.user,
                        entry_types=self.entry_types(),
+                       comment = monthly_obj.comment or None,
                        et=['RH',  'RL', 'SL', 'H', 'ML', 'PL', 'CL', 'STL'],
                        **extra_context)
         return context

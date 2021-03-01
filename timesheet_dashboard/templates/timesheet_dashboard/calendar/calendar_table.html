@@ -75,8 +75,8 @@
 		  <tfoot>
 
 		  	<tr>
-		  		{% if review %}
-		  			
+		  		{% if verify %}
+
 		  			<td colspan="25">
 		  			 <div class="buttons" style="float:right">
 		  			   <button type="button" class="btn btn-danger" id="reject-record">
@@ -85,11 +85,11 @@
 	  			 	  <button type="button" class="btn btn-success" id="approve-record">
 					      <i class="glyphicon glyphicon-ok"></i> Approve
 					   </button>
-						   
+
 		  			</div>
 		  			</td>
 
-				{% elif verify %}
+				{% elif review %}
 					  <td colspan="25">
 					  <div class="buttons" style="float:right">
 					      <button type="button" class="btn btn-danger" id="reject-record">
@@ -98,10 +98,10 @@
 						  <button type="button" class="btn btn-success" id="verify-record">
 						      <i class="glyphicon glyphicon-ok"></i> Verify
 						   </button>
-						   
+
 	        		 </div>
 		  			</td>
-		  			
+
 				  {% else %}
 
 	        	<td colspan="25">
@@ -111,7 +111,7 @@
 		            <input name="no_of_weeks" id="no_of_weeks" type="hidden" value="{{no_of_weeks}}"/>
 				  	<input name=prefilled_rows id="prefilled_rows" type="hidden" value="{{prefilled_rows}}"/>
 				  	<input name="blank_days" id="blank_days" type="hidden" value="{{blank_days}}"/>
-				  	
+
 				  	<div class="buttons" style="float:right">
 					{% if not read_only %}
 					   <button type="button" class="btn btn-info" id="add-row">
@@ -211,7 +211,7 @@
 	      
 	      <textarea name="comment" form="timesheet_form" id="comment" type="text "rows="4" 
 	      onkeyup="Allow()" placeholder="write a comment......" style="width:100%; border:0;"
-	      {% if not review and not verify %} disabled {% endif %}> </textarea>
+	      {% if not review and not verify %} disabled {% endif %}> {{comment}} </textarea>
 	      
 	   </div>
 	 </div>
