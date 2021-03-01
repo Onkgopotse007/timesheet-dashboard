@@ -227,7 +227,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        groups=groups,
                        user=self.user,
                        entry_types=self.entry_types(),
-                       et=['RH', 'RL', 'SL', 'H', 'ML', 'CL', 'RL'],
+                       et=['RH',  'RL', 'SL', 'H', 'ML', 'PL', 'CL', 'STL'],
                        **extra_context)
         return context
 
