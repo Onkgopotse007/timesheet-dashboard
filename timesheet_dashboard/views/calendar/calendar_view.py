@@ -126,9 +126,9 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                     monthly_entry.comment = None
                 monthly_entry.status = request.POST.get('timesheet_review')
                 monthly_entry.save()
-                
+
                 if request.POST.get('timesheet_review') in ['rejected', 'verified']:
-                    
+
                     subject = f'Timesheet for {monthly_entry.month}'
                     message = (f'Dear {monthly_entry.employee.first_name}, Your timesheet '
                                f'for {monthly_entry.month} has been {monthly_entry.status}.')
@@ -233,7 +233,7 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        groups=groups,
                        user=self.user,
                        entry_types=self.entry_types(),
-                       comment = monthly_obj.comment if monthly_obj else None,
+                       comment=monthly_obj.comment if monthly_obj else None,
                        et=['RH',  'RL', 'SL', 'H', 'ML', 'PL', 'CL', 'STL'],
                        **extra_context)
         return context
@@ -306,7 +306,6 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         except employee_cls.DoesNotExist:
             return None
         return employee_obj
-
 
     def entry_types(self):
         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')

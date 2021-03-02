@@ -30,14 +30,15 @@
 		<div class="col-md-9" style="padding-right:0; margin-top:10px;">
 		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id   year curr_month %}?p_role={{p_role}}" name="timesheet">
 		  		{% csrf_token %}
-		<table class="table table-striped" id="calendarTable" ><thead>
+		<table class="table table-striped" id="calendarTable" >
+		<thead>
 		   <tr>
 		  		{% for title in week_titles %}
-		  			<th style="text-align:center; color:#808080">
+		  			<th style="text-align:center; color:#808080" class="col-md-1">
 		  				{{title}} <br/>
 		  			</th>
 		  		{% endfor %}
-			 <th colspan="18">Total</th>
+			 <th colspan="18" class="col-md-1">Total</th>
 
 		    </tr>
 		  </thead>

@@ -85,6 +85,8 @@ function tableRows(value){
 				 "<div class='input-group'> <input id='dailyentry_set-"+value+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration' max='24' min='0' style='width:48px; padding:4px 8px; border-right:0;'/>"+
 				 "<select id='dailyentry_set-"+value+"-entry_type' name='dailyentry_set-"+value+"-entry_type' class='btn btn-default btn-sm dropdown-toggle form-control form-control-sm' style='width:40px; padding:0px;'>"+
 				 entry_type_options+"</select> "+
+				 "<a class='btn btn-sm cell-add'><i class='glyphicon glyphicon-plus'></i></a>"+
+				 "<a class='btn btn-sm cell-remove'><i class='glyphicon glyphicon-minus'></i></a>"+
 				"<input id='dailyentry_set-"+value+"-day' type='hidden' value="+day+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-day'/>" +
 				"<input id='dailyentry_set-"+value+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-row'/></td>";
 
@@ -138,6 +140,25 @@ $(document).on('click', '.remove', function() {
 	if (delBtns.length > 0) {
 		delBtns[delBtns.length - 1].disabled = false;
 		delBtns[delBtns.length - 1].classList.remove('disabled');
+	}
+});
+
+$(document).on('click', '.cell-add', function() {
+	var td = $(this).parent().parent();
+	td.append($(this).parent().clone());
+	
+	var addBtns = this.parentNode.parentNode.getElementsByClassName('cell-add');
+	var delBtns = this.parentNode.parentNode.getElementsByClassName('cell-remove');
+	for (var i = 1; i < addBtns.length; i++) {
+		addBtns[i].remove();
+		delBtns[i].remove();
+	}
+});
+
+$(document).on('click', '.cell-remove', function() {
+	var inputGroup = this.parentNode.parentNode.getElementsByClassName('input-group');
+	if (inputGroup.length > 1) {
+		inputGroup[inputGroup.length -1].remove();
 	}
 });
 
