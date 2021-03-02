@@ -66,10 +66,18 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                                                     'month': month}))
 
     def navigate_table(self, controller, year, month):
-        if controller == 'next' and month != '12':
-            month = int(month) + 1
-        elif controller == 'prev' and month != '1':
-            month = int(month) - 1
+        if controller == 'next':
+            if month == '12':
+                year = int(year) + 1
+                month = 1
+            else:
+                month = int(month) + 1
+        elif controller == 'prev':
+            if month == '1':
+                year = int(year) - 1
+                month = 12
+            else:
+                month = int(month) - 1
 
         return year, month
 

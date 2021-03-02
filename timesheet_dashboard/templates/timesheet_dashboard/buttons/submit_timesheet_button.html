@@ -5,23 +5,27 @@
 </form>
  		
 {% elif status == 'submitted' %}
- <div id="submit_timesheet_{{employee_id}}"  title="Timesheet Submitted"  data-toggle="tooltip"
-data-placement="right" class="btn btn-info btn-sm">
-Submitted
- </div>
+ <a id="submit_timesheet_{{employee_id}}"  title="Timesheet Submitted"  data-toggle="tooltip"
+	data-placement="right" class="btn btn-info btn-sm" role="button" 
+	href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">
+	Submitted
+ </a>
 {% elif status == 'rejected' %}
-   <div id="rejected_timesheet_{{employee_id}}"  title="Timesheet Rejected"  data-toggle="tooltip"
-  data-placement="right" class="btn btn-danger btn-sm">
+   <a id="rejected_timesheet_{{employee_id}}"  title="Timesheet Rejected"  data-toggle="tooltip"
+    data-placement="right" class="btn btn-danger btn-sm" role="button" 
+	href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">
   Rejected
-   </div>
+   </a>
  {% elif status == 'verified' %}
-  <div id="verified_timesheet_{{employee_id}}"  title="Timesheet Verified"  data-toggle="tooltip"
-	data-placement="right" class="btn btn-success btn-sm">
+  <a id="verified_timesheet_{{employee_id}}"  title="Timesheet Verified"  data-toggle="tooltip"
+	data-placement="right" class="btn btn-success btn-sm" role="button" 
+	href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">
 	Verified
-  </div>
+  </a>
 {% else %}
-   <div id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
-      data-placement="right" class="btn btn-success btn-sm">
+   <a id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
+      data-placement="right" class="btn btn-success btn-sm" role="button" 
+	  href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">
       Approved
-   </div>
+   </a>
 {% endif %}

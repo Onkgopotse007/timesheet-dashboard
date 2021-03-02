@@ -148,13 +148,16 @@
 	      <div class="panel-heading">
 	          <h6 class="panel-title">
 	              <a href="#" > {{ month_name }}  {{year}}</a>
-	              {% if p_role %}
-	              <span class="pull-right">
-		  	          <a href="{% url timesheet_listboard_url %}?p_role={{p_role}}"
+
+  	        	<span class="pull-right">
+		  	          <a {% if p_role %} 
+		  	          	   href="{% url timesheet_listboard_url %}?p_role={{p_role}}"
+		  	          	 {% else %} href="{% url timesheet_listboard_url employee_id %}"
+		  	          	 {% endif %}
 		  	            role="button" class="btn btn-sm btn-info" style='text-align:right;'>
 		  	                <i class="fa fa-reply fa-1x fa-fw" aria-hidden="true" ></i></a>
   	        	</span>
-  	        	{% endif %}
+
 	          </h6>
 	      </div>
 
