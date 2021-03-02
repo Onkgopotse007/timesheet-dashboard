@@ -43,13 +43,6 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-#     def get_success_url(self, **kwargs):
-#         return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_calendar_table_url', 
-#                                             kwargs={'employee_id': kwargs.get('employee_id'),
-#                                                     'year': kwargs.get('year'),
-#                                                     'month': kwargs.get('month'),
-#                                                     'day': kwargs.get('day')}))
-
     def post(self, request, *args, **kwargs):
         # if this is a POST request we need to process the form data
         year = kwargs.get('year')
@@ -219,6 +212,11 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
         no_of_weeks = self.get_number_of_weeks(int(year), int(month))
         groups = [g.name for g in self.request.user.groups.all()]
 
+        entry_types = self.entry_types()
+
+        if datetime.strptime(f'{year}-{month}-'+str(get_utcnow().day), '%Y-%m-%d').date() > get_utcnow().date():
+            entry_types = tuple(x for x in entry_types if x[0] not in ['RH', 'SL', 'CL', 'FH',])
+
         context.update(employee_id=employee_id,
                        week_titles=calendar.day_abbr,
                        month_name=month_name,
@@ -232,9 +230,8 @@ class CalendarView(NavbarViewMixin, EdcBaseViewMixin,
                        no_of_weeks=no_of_weeks,
                        groups=groups,
                        user=self.user,
-                       entry_types=self.entry_types(),
+                       entry_types=entry_types,
                        comment=monthly_obj.comment if monthly_obj else None,
-                       et=['RH',  'RL', 'SL', 'H', 'ML', 'PL', 'CL', 'STL'],
                        **extra_context)
         return context
 
