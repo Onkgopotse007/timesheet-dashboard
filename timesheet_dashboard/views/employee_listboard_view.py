@@ -42,6 +42,7 @@ class EmployeeListBoardView(
             departments=self.departments,
             groups=[g.name for g in self.request.user.groups.all()],
             employee_add_url=self.model_cls().get_absolute_url(),
+            querystring=f'?p_role={p_role}',
             user_id=self.get_employee.identifier)
         return context
 

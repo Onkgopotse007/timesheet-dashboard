@@ -50,16 +50,18 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         timesheet_add_url = None
         if not bool(self.request.GET) or self.request.GET.get('p_role') not in groups:
             timesheet_add_url = self.model_wrapper_cls(model_obj=model_obj).href
-
+            
+        p_role = self.request.GET.get('p_role')
         context.update(
-            p_role=self.request.GET.get('p_role'),
+            p_role=p_role,
             groups=groups,
             departments=self.departments,
             employee_id=self.request.GET.get('employee_id') or self.kwargs.get('employee_id'),
             employee=self.get_employee,
             timesheet_add_url=timesheet_add_url,
             curr_year=get_utcnow().year,
-            curr_month=get_utcnow().month,)
+            curr_month=get_utcnow().month,
+            querystring=f'?p_role={p_role}')
         return context
 
     def post(self, request, *args, **kwargs):
