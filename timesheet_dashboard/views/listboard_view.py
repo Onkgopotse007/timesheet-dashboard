@@ -10,7 +10,6 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_dashboard.views import ListboardView
 from edc_navbar import NavbarViewMixin
-from django.contrib.auth import models
 
 from django.http.response import HttpResponseRedirect
 
@@ -48,9 +47,10 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
         groups = [g.name for g in self.request.user.groups.all()]
         timesheet_add_url = None
+
         if not bool(self.request.GET) or self.request.GET.get('p_role') not in groups:
             timesheet_add_url = self.model_wrapper_cls(model_obj=model_obj).href
-            
+
         p_role = self.request.GET.get('p_role')
         context.update(
             p_role=p_role,
@@ -76,6 +76,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
                 pass
             else:
                 monthly_entry_obj.status = 'submitted'
+                monthly_entry_obj.submitted_datetime
                 monthly_entry_obj.save()
 
         return HttpResponseRedirect(self.request.path)
@@ -104,7 +105,8 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         usr_groups = [g.name for g in self.request.user.groups.all()]
 
         if self.kwargs.get('employee_id') or self.request.GET.get('employee_id'):
-            options.update({'employee__identifier': self.kwargs.get('employee_id') or self.request.GET.get('employee_id')})
+            options.update({'employee__identifier': self.kwargs.get('employee_id')
+                            or self.request.GET.get('employee_id')})
 
         elif ('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')

@@ -63,6 +63,9 @@
        <th>Year</th>
        <th>Duration</th>
        <th>Status</th>
+       <th>Submitted Datetime</th>
+       <th>Approved By</th>
+       <th>Verified By</th>
        <!-- end results header -->
 	  {% endblock listboard_table_header %}
 
@@ -112,9 +115,9 @@
 		 <td >{{ result.year }}</td>
 		 <td>{{ result.object.total_hours }}</td>
 		 <th>{{ result.timesheet_status }}</th>
-		 <th style="white-space: nowrap"></th>
-		 <th></th>
-		 <th></th>
+		 <th>{{ result.submitted_datetime |date:"SHORT_DATETIME_FORMAT" }}</th>
+		 <th>{{ result.approved_by }}</th>
+		 <th>{{ result.verified_by }}</th>
 			
 		{% endblock listboard_table_columns %}
 		</tr>

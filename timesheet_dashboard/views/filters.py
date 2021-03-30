@@ -32,7 +32,7 @@ class ListboardViewFilters(ListboardViewFilters):
     rejected = ListboardFilter(
         label='Rejected',
         position=5,
-        lookup={'status': 'rejecetd'})
+        lookup={'status': 'rejected'})
 
 
 class EmployeeListboardViewFilters(ListboardViewFilters):
@@ -43,12 +43,11 @@ class EmployeeListboardViewFilters(ListboardViewFilters):
             count = 1
             for dept in self.departments:
                 ListboardFilter(
-                label=dept,
-                name=dept,
-                position=count,
-                lookup={'department__dept_name': dept})
+                    label=dept,
+                    name=dept,
+                    position=count,
+                    lookup={'department__dept_name': dept})
             count = count + 1
-
 
     all = ListboardFilter(
         name='all',
@@ -60,5 +59,4 @@ class EmployeeListboardViewFilters(ListboardViewFilters):
         department_cls = django_apps.get_model('bhp_personnel.department')
 
         return [dept.dept_name for dept in department_cls.objects.all()]
-
 
