@@ -38,6 +38,7 @@ class TimesheetMixin:
         for i in range(daily_entries_count):
             index = str(i + 1)
             day = data.get(index + '-day')
+
             day_date = datetime.strptime(day, '%Y-%m-%d')
             try:
                 daily_entry_obj = self.daily_entry_cls.objects.get(day=day_date,
@@ -80,10 +81,11 @@ class TimesheetMixin:
                     monthly_entry.comment = None
                 monthly_entry.status = request.POST.get('timesheet_review')
 
-                if request.POST.get('timesheet_review') in ['rejected', 'verified']:
+                if request.POST.get('timesheet_review') in ['rejected', 'verified', 'approved']:
                     field_prefix = request.POST.get('timesheet_review')
-                    setattr(monthly_entry, (field_prefix + '_datetime'), get_utcnow())
-                    setattr(monthly_entry, (field_prefix + '_by'), request.user.username)
+                    setattr(monthly_entry, (field_prefix + '_date'), get_utcnow().date())
+                    setattr(monthly_entry, (field_prefix + '_by'), (
+                        request.user.first_name[0] + ' ' + request.user.last_name))
 
                     subject = f'Timesheet for {monthly_entry.month}'
                     message = (f'Dear {monthly_entry.employee.first_name}, Your timesheet '
