@@ -170,11 +170,11 @@ class TimesheetMixin:
             return None
         else:
             daily_entries = monthly_entry_obj.dailyentry_set.all()
+            blank_days = self.get_blank_days(int(year), int(month))
 
             if daily_entries:
                 daily_entries = daily_entries.order_by('day')
-                rows = math.ceil(daily_entries.count() / 7)
-
+                rows = math.ceil((daily_entries.count() + blank_days) / 7)
                 entries_dict = {}
                 for i in range(rows):
                     entries_dict[i] = list(daily_entries.filter(row=i))
