@@ -84,8 +84,14 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
 
         entry_types = self.entry_types()
 
-        if datetime.strptime(f'{year}-{month}-' + str(get_utcnow().day), '%Y-%m-%d'
-                             ).date() > get_utcnow().date():
+        try:
+            calendar_day = datetime.strptime(f'{year}-{month}-' + str(
+                get_utcnow().day), '%Y-%m-%d').date()
+        except ValueError:
+            calendar_day = datetime.strptime(f'{year}-{month}-' + str(calendar.monthrange(
+                int(year), int(month))[-1]), '%Y-%m-%d').date()
+
+        if calendar_day > get_utcnow().date():
             entry_types = tuple(
                 x for x in entry_types if x[0] not in ['RH', 'SL', 'CL', 'FH', ])
 
