@@ -217,21 +217,12 @@ $(document).on('click', '#auto_fill', function() {
 	});
 });
 
-    let day = document.getElementById('day-'+ last_day+'-title').innerText;
+    var day = document.getElementById('day-'+ last_day+'-title').innerText;
+
     var x = document.getElementById('save-submit-record');
+
     if (day == last_day) {
         x.style.display = "inline";
     }
 });
-// $(document).hide(function (){
-// let day_num = document.getElementById('+day').innerText;
-// if(day_num == last_day ){
-// 	x.style.display = "inline";
-// }
-//     let days = document.getElementById('day-'+ last_day+'-title').innerText;
-// 	var last_day = parseInt($("#last_day").val());
-//     var button = document.getElementById('save-submit-record');
-//     if (days == last_day) {
-//         button.style.display = "inline";
-//     }
-// });
+
