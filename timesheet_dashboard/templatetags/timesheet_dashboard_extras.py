@@ -1,8 +1,15 @@
 from django import template
+import calendar
 from django.apps import apps as django_apps
 from django.conf import settings
 
 register = template.Library()
+
+
+@register.filter
+def month_name(month_number):
+    return calendar.month_name[month_number]
+
 
 @register.inclusion_tag('timesheet_dashboard/buttons/submit_timesheet_button.html')
 def submit_timesheet_button(model_wrapper):
@@ -14,6 +21,7 @@ def submit_timesheet_button(model_wrapper):
         year=model_wrapper.object.month.year,
         title=' '.join(title))
 
+
 @register.inclusion_tag('timesheet_dashboard/buttons/view_timesheet_button.html')
 def view_timesheet_button(model_wrapper):
     title = ['View Timesheet']
@@ -23,6 +31,7 @@ def view_timesheet_button(model_wrapper):
         month=model_wrapper.object.month,
         read_only=True,
         title=' '.join(title))
+
 
 @register.inclusion_tag('timesheet_dashboard/buttons/timesheets_button.html')
 def timesheets_button(model_wrapper, p_role, user):
@@ -34,6 +43,7 @@ def timesheets_button(model_wrapper, p_role, user):
         groups=[g.name for g in user.groups.all()],
         p_role=p_role,
         title=' '.join(title))
+
 
 @register.inclusion_tag('timesheet_dashboard/demographics.html')
 def demographics(employee_id):
