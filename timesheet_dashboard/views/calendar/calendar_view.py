@@ -67,16 +67,14 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
         if (self.request.GET.get('p_role') == 'Supervisor'):
             extra_context = {'p_role': 'Supervisor',
                              'verified': True,
-                             'read_only': True,
-                             'timesheet_status': monthly_obj.get_status_display()}
+                             'read_only': True,}
             if ((monthly_obj and monthly_obj.status != 'verified') or not monthly_obj):
                 extra_context['review'] = True
         elif (self.request.GET.get('p_role') == 'HR'):
             extra_context = {'verify': True,
                              'p_role': 'HR'}
         elif (monthly_obj and monthly_obj.status in ['approved', 'verified']):
-            extra_context = {'read_only': True,
-                             'timesheet_status': monthly_obj.get_status_display()}
+            extra_context = {'read_only': True,}
 
         month_name = calendar.month_name[int(month)]
         daily_entries_dict = self.get_dailyentries(int(year), int(month))
@@ -106,6 +104,12 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                        user=self.user,
                        entry_types=entry_types,
                        comment=monthly_obj.comment if monthly_obj else None,
+                       timesheet_status=monthly_obj.get_status_display(),
+                       verified_by=monthly_obj.verified_by,
+                       approved_by=monthly_obj.approved_by,
+                       submitted_datetime=monthly_obj.submitted_datetime,
+                       rejected_by=monthly_obj.rejected_by,
+
                        **extra_context)
         return context
 

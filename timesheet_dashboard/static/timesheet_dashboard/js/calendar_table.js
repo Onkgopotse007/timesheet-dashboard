@@ -66,6 +66,7 @@ $(document).ready(function(){
 
 function tableRows(value){
 	var day = value+1;
+	 var x = document.getElementById('save-submit-record');
 	
 	entry_type_options = '';
 	for (var i = 0; i < entry_types.length; i++){
@@ -90,8 +91,9 @@ function tableRows(value){
 				"<input id='dailyentry_set-"+value+"-day' type='hidden' value="+day+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-day'/>" +
 				"<input id='dailyentry_set-"+value+"-row' type='hidden' value="+row_count+" class='form-control form-control-sm' name='dailyentry_set-"+value+"-row'/></td>";
 
-		header_markup += "<td style='text-align:center;''>"+day;
+		header_markup += "<td id='+day style='text-align:center;''>"+day;
 		header_markup += "</td>";
+
 
 		total_forms ++;
 	}
@@ -99,8 +101,14 @@ function tableRows(value){
 		markup += "<td> </td>";
 		header_markup += "<td style='text-align:center;''> </td>";
 	}
+if(+day == last_day ){
+	x.style.display = "inline";
+}
 
 }
+
+
+
 
 $(document).on('click', '#save-record', function() {
 	var extras ="<tr>"+
@@ -209,4 +217,21 @@ $(document).on('click', '#auto_fill', function() {
 	});
 });
 
+    let day = document.getElementById('day-'+ last_day+'-title').innerText;
+    var x = document.getElementById('save-submit-record');
+    if (day == last_day) {
+        x.style.display = "inline";
+    }
 });
+// $(document).hide(function (){
+// let day_num = document.getElementById('+day').innerText;
+// if(day_num == last_day ){
+// 	x.style.display = "inline";
+// }
+//     let days = document.getElementById('day-'+ last_day+'-title').innerText;
+// 	var last_day = parseInt($("#last_day").val());
+//     var button = document.getElementById('save-submit-record');
+//     if (days == last_day) {
+//         button.style.display = "inline";
+//     }
+// });
