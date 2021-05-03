@@ -20,8 +20,11 @@
 					{% csrf_token %}
 					<input id='controller' type='hidden' name='controller'/>
 					<a id="prevMonth" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></a>
+     
 					<kbd>{{month_name}}  {{year}} </kbd>
 					<a id="nextMonth" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></a>
+     
+    
 				</form>
 			</div>
 
@@ -54,7 +57,7 @@
 
 		  		   {% endif %}
 		  		   {% for entry in values %}
-		  				<td> <h5 style='text-align:center;'> {{entry.day |date:'j'}} </h5>
+		  				<td> <h5 id='day-{{entry.day |date:"j"}}-title' style='text-align:center;'>{{entry.day |date:'j'}}  </h5>
 		  				<div class="input-group">
         
 		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}" max='24' min='0'
@@ -123,8 +126,9 @@
 					   </button>
 			          <button type="submit" class="btn btn-warning" id="save-record" onclick="document.getElementById('timesheet_form').submit();">
 			             <i class="glyphicon glyphicon-save"></i> Save
-			          </button>
-			          <button type="button" class="btn btn-success" id="save-submit-record" >
+                  
+			               </button>
+			           <button type="button" class="btn btn-success" id="save-submit-record" style="display:none;">
 			             <i class="glyphicon glyphicon-save"></i> Save and Submit
 			          </button>
 			       	{% else %}
@@ -205,7 +209,47 @@
 	          </h6>
 	      </div>
 	   </div>
-	   
+	   <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	               
+                  <a id="status-panel-title" data-toggle="collapse" data-parent="#accordion" href="#status-panel"> TimeSheet Status<span class="caret"></span></a>
+	          </h6>
+	      </div>
+           <div id="status-panel" class="panel-collapse collapse in">
+	      		<!-- {% include 'timesheet_dashboard/demographics.html' %} -->
+               <a class="list-group-item">
+                    <i  class="glyphicon glyphicon-ok circle-icon" style="color:white;"></i>
+                        <span data-toggle="tooltip" data-placement="right"  class="text text-default" id="is-{{timesheet_status }}" >Status: {{timesheet_status }} </span>
+                    
+               </a>
+               <a class="list-group-item" style="display: none;"id="rejected">
+                    <i class="glyphicon glyphicon-remove-sign circle-icon2"style="color:white;"></i>
+                    <span data-toggle="tooltip" data-placement="right"  class="text text-default" id="status-{{rejected_by}}">Rejected by : {{rejected_by}} </span>
+                    
+               </a>
+               <a class="list-group-item"style="display: none;"id="approved">
+                   <i class="glyphicon glyphicon-ok circle-icon3"style="color:white;"></i>
+                    <span data-toggle="tooltip" data-placement="right"  class="text text-default" id="status-{{approved_by}}">Approved by: {{approved_by}} </span>
+                    
+               </a>
+               
+                <a class="list-group-item">
+                    <i class="glyphicon glyphicon-ok circle-icon4" style="color:white;"></i>
+                    <span data-toggle="tooltip" data-placement="right"  class="text text-default">Verified by: {{verified_by}} </span>
+                    
+               </a>
+               <a class="list-group-item">
+                    <i  class="glyphicon glyphicon-calendar circle-icon5" style="color:white;"></i>
+                    <span data-toggle="tooltip" data-placement="right"  class="text text-default" id="{{submitted_datetime}}">Submitted on : {{submitted_datetime}} </span>
+                    
+               </a>
+
+	      </div>
+	      
+	   </div>
+
+       
 	   <div class="panel panel-default">
 	      <div class="panel-heading">
 	          <h6 class="panel-title">
@@ -220,6 +264,20 @@
 	   </div>
 	 </div>
 </div>
-
+<script>
+   
+    var append_rejected = document.getElementById('rejected');
+    let append_approved = document.getElementById('approved');
+    var status = document.getElementById('is-{{timesheet_status }}').innerHTML;
+    // var date = document.getElementById("{{submitted_datetime}}").innerHTML;
+    // alert(date)
+    var Rejected='Status: Rejected ';
+    if (status == Rejected) {
+        append_rejected.style.display = "block";
+        
+    }else{
+        append_approved.style.display = "block";
+    }
+</script>
 
 {% endblock main %}
