@@ -223,27 +223,36 @@
                         <span data-toggle="tooltip" data-placement="right"  class="text text-default" id="is-{{timesheet_status }}" >Status: {{timesheet_status }} </span>
                     
                </a>
+               {% if rejected_by %}
                <a class="list-group-item" style="display: none;"id="rejected">
                     <i class="glyphicon glyphicon-remove-sign circle-icon2"style="color:white;"></i>
                     <span data-toggle="tooltip" data-placement="right"  class="text text-default" id="status-{{rejected_by}}">Rejected by : {{rejected_by}} </span>
                     
                </a>
+               {% endif %}
+               {% if approved_by %}
                <a class="list-group-item"style="display: none;"id="approved">
                    <i class="glyphicon glyphicon-ok circle-icon3"style="color:white;"></i>
                     <span data-toggle="tooltip" data-placement="right"  class="text text-default" id="status-{{approved_by}}">Approved by: {{approved_by}} </span>
                     
                </a>
+               {% endif %}
                
+               {% if verified_by %}
                 <a class="list-group-item">
                     <i class="glyphicon glyphicon-ok circle-icon4" style="color:white;"></i>
                     <span data-toggle="tooltip" data-placement="right"  class="text text-default">Verified by: {{verified_by}} </span>
                     
                </a>
+               {% endif %}
+               
+               {% if submitted_datetime %}
                <a class="list-group-item">
                     <i  class="glyphicon glyphicon-calendar circle-icon5" style="color:white;"></i>
                     <span data-toggle="tooltip" data-placement="right"  class="text text-default" id="{{submitted_datetime}}">Submitted on : {{submitted_datetime}} </span>
                     
                </a>
+               {% endif %}
 
 	      </div>
 	      
