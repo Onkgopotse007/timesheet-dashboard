@@ -27,3 +27,28 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .leave{
 	width:2px;
 }
+ .circle-icon {
+    background: greenyellow;
+    padding:6px;
+    border-radius: 50%;}
+    .circle-icon2 {
+    background: red;
+    padding:6px;
+    border-radius: 50%;
+}
+    .circle-icon3 {
+    background: springgreen;
+    padding:6px;
+    border-radius: 50%;
+}
+     .circle-icon4 {
+    background: lightgreen;
+    padding:6px;
+    border-radius: 50%;
+}
+
+     .circle-icon5{
+    background: cornflowerblue;
+    padding:6px;
+    border-radius: 70%;
+}

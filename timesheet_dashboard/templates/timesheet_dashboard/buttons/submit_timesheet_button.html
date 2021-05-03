@@ -1,4 +1,16 @@
-{% if status == 'new' or status == 'rejected' %}
+
+<style>
+    .circle-icon {
+    background: greenyellow;
+    padding:2px;
+    border-radius: 50%;
+    .circle-icon2 {
+    background: red;
+    padding:4px;
+    border-radius: 50%;
+}
+</style>
+{% if status == 'new' %}
 <form method='POST' id="new_post" action="{% url 'timesheet_dashboard:timesheet_listboard_url'  employee_id %}?year={{year}}&month={{month}}" name="save-submit-record">
   	{% csrf_token %}
   	 <input class="btn btn-warning btn-sm" type="submit" value="Submit">
@@ -8,12 +20,15 @@
  <a id="submit_timesheet_{{employee_id}}"  title="Timesheet Submitted"  data-toggle="tooltip"
 	data-placement="right" class="btn btn-info btn-sm" role="button" 
 	href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">
+     
+     <span class="btn-label"><i class="fas fa-tasks"></i></i></span>
 	Submitted
  </a>
 {% elif status == 'rejected' %}
    <a id="rejected_timesheet_{{employee_id}}"  title="Timesheet Rejected"  data-toggle="tooltip"
     data-placement="right" class="btn btn-danger btn-sm" role="button" 
 	href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">
+       <span class="btn-label"><i class="glyphicon glyphicon-remove-sign circle-icon2"></i></span>
   Rejected
    </a>
  {% elif status == 'verified' %}
@@ -26,6 +41,8 @@
    <a id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
       data-placement="right" class="btn btn-success btn-sm" role="button" 
 	  href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">
+       <span class="btn-label"><i class="glyphicon glyphicon-ok circle-icon"></i></span>
       Approved
    </a>
 {% endif %}
+
