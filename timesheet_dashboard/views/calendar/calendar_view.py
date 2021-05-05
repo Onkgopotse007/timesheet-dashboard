@@ -11,6 +11,7 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import TemplateRequestContextMixin
 from edc_navbar import NavbarViewMixin
 from .timesheet_mixin import TimesheetMixin
+from edc_facility.models import Holiday
 
 
 class CalendarViewError(Exception):
@@ -109,6 +110,8 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                        groups=groups,
                        user=self.user,
                        entry_types=entry_types,
+                       leave_taken=monthly_obj.annual_leave_taken if monthly_obj else 0,
+                       overtime_worked=monthly_obj.monthly_overtime if monthly_obj else 0,
                        comment=monthly_obj.comment if monthly_obj else None,
                        timesheet_status=monthly_obj.get_status_display() if monthly_obj else 'New',
                        verified_by=monthly_obj.verified_by if monthly_obj else None,

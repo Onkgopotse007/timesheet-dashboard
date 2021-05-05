@@ -213,6 +213,30 @@
 	      <div class="panel-heading">
 	          <h6 class="panel-title">
 	               
+                  <a id="status-panel-title" data-toggle="collapse" data-parent="#accordion" href="#status-panel"> Monthly Leave Taken<span class="caret"></span></a>
+	          </h6>
+	      </div>
+           <div id="status-panel" class="panel-collapse collapse in">
+	      		<!-- {% include 'timesheet_dashboard/demographics.html' %} -->
+               <a class="list-group-item">
+                    <i  class="glyphicon glyphicon-ok circle-icon" style="color:white;"></i>
+                        <span data-toggle="tooltip" data-placement="right"  class="text text-default" > Annual Leave: {{ leave_taken }} </span>
+                    
+               </a>
+               
+               <a class="list-group-item">
+                    <i  class="glyphicon glyphicon-ok circle-icon" style="color:white;"></i>
+                        <span data-toggle="tooltip" data-placement="right"  class="text text-default" > Monthly Overtime: {{ overtime_worked }} </span>
+                    
+               </a>
+
+	      </div>
+	      
+	   </div>
+	   <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	               
                   <a id="status-panel-title" data-toggle="collapse" data-parent="#accordion" href="#status-panel"> TimeSheet Status<span class="caret"></span></a>
 	          </h6>
 	      </div>

@@ -5,6 +5,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
+from django.db.models import Sum
 from django.forms import inlineformset_factory
 from edc_base.utils import get_utcnow
 from timesheet.forms import DailyEntryForm
@@ -139,8 +140,47 @@ class TimesheetMixin:
             if formset.is_valid():
                 if request.POST.get('save_submit') == '1':
                     monthly_entry.status = 'submitted'
+
+                monthly_entry = self.sum_monthly_leave_days(formset.queryset, monthly_entry)
+                monthly_entry = self.calculate_monthly_overtime(
+                    formset.queryset, monthly_entry)
                 monthly_entry.save()
                 formset.save()
+
+    def sum_monthly_leave_days(self, dailyentries, monthly_entry):
+
+        leave_types = ['AL', 'STL', 'SL', 'CL', 'ML', 'PL']
+        leave_taken_types = ['annual_leave_taken', 'study_leave_taken', 'sick_leave_taken',
+                             'compassionate_leave_taken', 'maternity_leave_taken',
+                             'paternity_leave_taken']
+
+        for leave_type, leave_taken in zip(leave_types, leave_taken_types):
+            leave_entries = dailyentries.filter(entry_type=leave_type)
+            leave_sum_dict = leave_entries.aggregate(Sum('duration'))
+            if leave_sum_dict.get('duration__sum'):
+                setattr(monthly_entry, leave_taken, leave_sum_dict.get('duration__sum') / 8)
+
+        return monthly_entry
+
+    def calculate_monthly_overtime(self, dailyentries, monthly_entry):
+
+        weekday_entries = dailyentries.filter(entry_type__in=['RH', 'H'], day__week_day__lt=5)
+        weekday_entries_dict = weekday_entries.aggregate(Sum('duration'))
+
+        overtime = 0
+        import pdb; pdb.set_trace()
+        if weekday_entries_dict.get('duration__sum'):
+            overtime += weekday_entries_dict.get('duration__sum') - (
+                weekday_entries.count() * 8)
+
+        weekend_entries = dailyentries.filter(entry_type__in=['RH', 'H'], day__week_day__gte=5)
+        weekend_entries_dict = weekend_entries.aggregate(Sum('duration'))
+
+        if weekend_entries_dict.get('duration__sum'):
+            overtime += weekend_entries_dict.get('duration__sum')
+
+        monthly_entry.monthly_overtime = overtime
+        return monthly_entry
 
     def get_monthly_obj(self, month):
 
