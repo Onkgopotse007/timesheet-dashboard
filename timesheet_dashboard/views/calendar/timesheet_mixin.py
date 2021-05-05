@@ -168,7 +168,6 @@ class TimesheetMixin:
         weekday_entries_dict = weekday_entries.aggregate(Sum('duration'))
 
         overtime = 0
-        import pdb; pdb.set_trace()
         if weekday_entries_dict.get('duration__sum'):
             overtime += weekday_entries_dict.get('duration__sum') - (
                 weekday_entries.count() * 8)
