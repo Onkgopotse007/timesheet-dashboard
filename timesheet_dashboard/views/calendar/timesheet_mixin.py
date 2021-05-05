@@ -5,7 +5,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.forms import inlineformset_factory
 from edc_base.utils import get_utcnow
 from timesheet.forms import DailyEntryForm
@@ -164,15 +164,18 @@ class TimesheetMixin:
 
     def calculate_monthly_overtime(self, dailyentries, monthly_entry):
 
-        weekday_entries = dailyentries.filter(entry_type__in=['RH', 'H'], day__week_day__lt=5)
-        weekday_entries_dict = weekday_entries.aggregate(Sum('duration'))
+        weekday_entries = dailyentries.filter(entry_type='RH', day__week_day__lt=5)
 
-        overtime = 0
-        if weekday_entries_dict.get('duration__sum'):
-            overtime += weekday_entries_dict.get('duration__sum') - (
-                weekday_entries.count() * 8)
+        extra_hours = 0
 
-        weekend_entries = dailyentries.filter(entry_type__in=['RH', 'H'], day__week_day__gte=5)
+        for entry in weekday_entries:
+            if entry.duration > 8:
+                extra_hours += entry.duration - 8
+
+        overtime = extra_hours
+
+        weekend_entries = dailyentries.filter(Q(entry_type='RH', day__week_day__gte=5)
+                                              | Q(entry_type='H'))
         weekend_entries_dict = weekend_entries.aggregate(Sum('duration'))
 
         if weekend_entries_dict.get('duration__sum'):
