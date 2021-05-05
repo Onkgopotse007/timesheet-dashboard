@@ -182,7 +182,17 @@ class TimesheetMixin:
             overtime += weekend_entries_dict.get('duration__sum')
 
         monthly_entry.monthly_overtime = overtime
+
         return monthly_entry
+
+    def get_holidays(self):
+        facility_app_config = django_apps.get_app_config('edc_facility')
+
+        facility = facility_app_config.get_facility('5-day clinic')
+
+        holiday_list = facility.holidays.holidays.all().values_list('local_date', flat=True)
+
+        return holiday_list
 
     def get_monthly_obj(self, month):
 
