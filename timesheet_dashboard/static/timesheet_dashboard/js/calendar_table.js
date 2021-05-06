@@ -139,6 +139,9 @@ $(document).on('click', '.remove', function() {
 	total_forms -= 7;
 	var parent = $(this).parent().parent();  // parent <tr> of the anchor tag
 	var previous = parent.prev();        // <tr> before the parent <tr>
+	var save_submit = document.getElementById('save-submit-record');
+
+	save_submit.style.display = "none";
 
 	parent.remove();
 	previous.remove();
@@ -219,10 +222,10 @@ $(document).on('click', '#auto_fill', function() {
 
     var day = document.getElementById('day-'+ last_day+'-title').innerText;
 
-    var x = document.getElementById('save-submit-record');
+    var save_submit = document.getElementById('save-submit-record');
 
     if (day == last_day) {
-        x.style.display = "inline";
+        save_submit.style.display = "inline";
     }
 });
 
