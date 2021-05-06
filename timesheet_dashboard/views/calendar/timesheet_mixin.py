@@ -145,6 +145,10 @@ class TimesheetMixin:
                 monthly_entry = self.calculate_monthly_overtime(
                     formset.queryset, monthly_entry)
                 monthly_entry.save()
+                current_contract = self.get_current_contract(monthly_entry.employee_id)
+                if current_contract:
+                    current_contract.leave_balance = (current_contract.leave_balance -
+                                                      monthly_entry.annual_leave_taken)
                 formset.save()
 
     def sum_monthly_leave_days(self, dailyentries, monthly_entry):
@@ -161,6 +165,17 @@ class TimesheetMixin:
                 setattr(monthly_entry, leave_taken, leave_sum_dict.get('duration__sum') / 8)
 
         return monthly_entry
+
+    def get_current_contract(self, employee_id):
+
+        contract_cls = django_apps.get_model('bhp_personnel.contract')
+        try:
+            current_contract = contract_cls.objects.get(identifier=employee_id,
+                                                        status='Active')
+        except contract_cls.DoesNotExist:
+            pass
+        else:
+            return current_contract
 
     def calculate_monthly_overtime(self, dailyentries, monthly_entry):
 

@@ -136,7 +136,7 @@ $(document).on('click', '#save-record', function() {
 
 $(document).on('click', '.remove', function() {
 	row_count --;
-	total_forms -= 7;
+	total_forms = (((row_count-1) * 7) + (7-blank_days));
 	var parent = $(this).parent().parent();  // parent <tr> of the anchor tag
 	var previous = parent.prev();        // <tr> before the parent <tr>
 	var save_submit = document.getElementById('save-submit-record');
