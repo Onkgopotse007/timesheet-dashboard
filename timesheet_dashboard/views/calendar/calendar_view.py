@@ -76,6 +76,27 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                              'p_role': 'HR'}
         elif (monthly_obj and monthly_obj.status in ['approved', 'verified']):
             extra_context = {'read_only': True, }
+        if monthly_obj:
+            leave_balance = None
+            if self.get_current_contract(employee_id):
+
+                leave_balance = self.get_current_contract(employee_id).leave_balance
+
+            extra_context.update(
+                leave_taken=monthly_obj.annual_leave_taken,
+                leave_balance=leave_balance,
+                overtime_worked=monthly_obj.monthly_overtime,
+                comment=monthly_obj.comment,
+                timesheet_status=monthly_obj.get_status_display(),
+                verified_by=monthly_obj.verified_by,
+                approved_by=monthly_obj.approved_by,
+                submitted_datetime=monthly_obj.submitted_datetime,
+                rejected_by=monthly_obj.rejected_by,
+            )
+        else:
+            extra_context.update(
+                timesheet_status='New'
+            )
 
         month_name = calendar.month_name[int(month)]
         daily_entries_dict = self.get_dailyentries(int(year), int(month))
@@ -110,15 +131,6 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                        groups=groups,
                        user=self.user,
                        entry_types=entry_types,
-                       leave_taken=monthly_obj.annual_leave_taken if monthly_obj else 0,
-                       overtime_worked=monthly_obj.monthly_overtime if monthly_obj else 0,
-                       comment=monthly_obj.comment if monthly_obj else None,
-                       timesheet_status=monthly_obj.get_status_display() if monthly_obj else 'New',
-                       verified_by=monthly_obj.verified_by if monthly_obj else None,
-                       approved_by=monthly_obj.approved_by if monthly_obj else None,
-                       submitted_datetime=monthly_obj.submitted_datetime if monthly_obj else None,
-                       rejected_by=monthly_obj.rejected_by if monthly_obj else None,
-
                        **extra_context)
         return context
 

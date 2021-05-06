@@ -209,20 +209,25 @@
 	          </h6>
 	      </div>
 	   </div>
+	   
 	   <div class="panel panel-default">
 	      <div class="panel-heading">
 	          <h6 class="panel-title">
 	               
-                  <a id="status-panel-title" data-toggle="collapse" data-parent="#accordion" href="#status-panel"> Monthly Leave Taken<span class="caret"></span></a>
+                  <a id="status-panel-title" data-toggle="collapse" data-parent="#accordion" href="#status-panel"> Monthly Stats<span class="caret"></span></a>
+	          		
 	          </h6>
 	      </div>
            <div id="status-panel" class="panel-collapse collapse in">
 	      		<!-- {% include 'timesheet_dashboard/demographics.html' %} -->
+	      		{% if leave_balance %}
                <a class="list-group-item">
                    <i  class="far fa-calendar"></i>
-                        <span data-toggle="tooltip" data-placement="right"  class="text text-default" > Annual Leave: {{ leave_taken }} </span>
+                        <span data-toggle="tooltip" data-placement="right"  class="text text-default" > Annual Leave Taken: {{ leave_taken }} </span>
+                   <br/><i  class="far fa-calendar"></i> <span data-toggle="tooltip" data-placement="right"  class="text text-default" > Annual Leave Balance: {{ leave_balance }} </span>
                     
                </a>
+               {% endif %}
                
                <a class="list-group-item">
                     <i  class="fas fa-hourglass"></i>
@@ -233,6 +238,7 @@
 	      </div>
 	      
 	   </div>
+	  
 	   <div class="panel panel-default">
 	      <div class="panel-heading">
 	          <h6 class="panel-title">
