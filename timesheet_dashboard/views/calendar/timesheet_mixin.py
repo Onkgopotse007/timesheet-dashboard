@@ -179,7 +179,8 @@ class TimesheetMixin:
 
     def calculate_monthly_overtime(self, dailyentries, monthly_entry):
 
-        weekday_entries = dailyentries.filter(entry_type='RH', day__week_day__lt=5)
+        weekday_entries = dailyentries.filter(Q(day__week_day__lt=7) & Q(day__week_day__gt=1),
+                                              entry_type='RH')
 
         extra_hours = 0
 
@@ -189,8 +190,10 @@ class TimesheetMixin:
 
         overtime = extra_hours
 
-        weekend_entries = dailyentries.filter(Q(entry_type='RH', day__week_day__gte=5)
+        weekend_entries = dailyentries.filter(Q(entry_type='RH', day__week_day=1)
+                                              | Q(entry_type='RH', day__week_day=7)
                                               | Q(entry_type='H'))
+
         weekend_entries_dict = weekend_entries.aggregate(Sum('duration'))
 
         if weekend_entries_dict.get('duration__sum'):

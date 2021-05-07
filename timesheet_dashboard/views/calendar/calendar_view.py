@@ -76,6 +76,7 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                              'p_role': 'HR'}
         elif (monthly_obj and monthly_obj.status in ['approved', 'verified']):
             extra_context = {'read_only': True, }
+
         if monthly_obj:
             leave_balance = None
             if self.get_current_contract(employee_id):
