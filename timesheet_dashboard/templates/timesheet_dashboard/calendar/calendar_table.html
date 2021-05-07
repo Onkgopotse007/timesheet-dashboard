@@ -32,8 +32,10 @@
 		{% endif %}
 		<div class="col-md-9" style="padding-right:0; margin-top:10px;">
 		<div class="well well-sm" >
-			<div style="text-align:center; color: gray">
-				<h8><b>RH</b> = Regular Hours, <b>H</b> = Holiday, <b>SL</b> = Sick Leave, <b>AL</b> = Annual Leave, <b>(ML/PL)</b> = Maternity/Paternity Leave</h8>
+			<div id="entry_key"   style="text-align:center; color: gray">
+				<h9> <b>RH</b> = Regular Hours,  <b>H</b> = Holiday, <b>SL</b> = Sick Leave, <b>AL</b> = Annual Leave, <b>FH</b> = Feeding Hour</h9> <br>
+				 <b>(ML/PL)</b> = Maternity/Paternity Leave, <b>STL</b> = Study Leave, <b>CL</b> = Compassionate Leave
+				</h9>
 			</div>
 	   	</div>
 		<form method='POST' id="timesheet_form" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id   year curr_month %}?p_role={{p_role}}" name="timesheet">
