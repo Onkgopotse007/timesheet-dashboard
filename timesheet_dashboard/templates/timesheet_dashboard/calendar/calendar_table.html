@@ -321,14 +321,19 @@
 <script>
    
     var append_rejected = document.getElementById('rejected');
-    let append_approved = document.getElementById('approved');
+    
     var status = document.getElementById('is-{{timesheet_status }}').innerHTML;
     var Rejected='Status: Rejected ';
     if (status == Rejected) {
+    	
         append_rejected.style.display = "block";
         
     }else{
-        append_approved.style.display = "block";
+        if (document.getElementById('approved') !== null){
+        	let append_approved = document.getElementById('approved');
+        	append_approved.style.display = "block";
+        }
+        
     }
 </script>
 

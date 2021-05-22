@@ -247,16 +247,22 @@ $(document).on('click', '#auto_fill', function() {
 	tableIndex.forEach(function(entry){
 
 		element_id = 'dailyentry_set-'+entry+'-duration';
-		document.getElementById(element_id).value = 8;
+		element_type = 'dailyentry_set-'+entry+'-entry_type';
+		
+		//Autofill if entry is not a holiday or weekend entry
+		if(document.getElementById(element_type).value !== 'WE' && 
+			document.getElementById(element_type).value !== 'H')
+			document.getElementById(element_id).value = 8;
 	});
 });
+	if (document.getElementById('day-'+ last_day+'-title') !== null){
+    	var day = document.getElementById('day-'+ last_day+'-title').innerText;
 
-    var day = document.getElementById('day-'+ last_day+'-title').innerText;
-
-    var save_submit = document.getElementById('save-submit-record');
-
-    if (day == last_day) {
-        save_submit.style.display = "inline";
-    }
+	    var save_submit = document.getElementById('save-submit-record');
+	
+	    if (day && day == last_day) {
+	        save_submit.style.display = "inline";
+	    }
+	}
 });
 
