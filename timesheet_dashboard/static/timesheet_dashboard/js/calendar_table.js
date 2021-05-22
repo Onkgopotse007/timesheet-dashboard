@@ -250,8 +250,7 @@ $(document).on('click', '#auto_fill', function() {
 		element_type = 'dailyentry_set-'+entry+'-entry_type';
 		
 		//Autofill if entry is not a holiday or weekend entry
-		if(document.getElementById(element_type).value !== 'WE' && 
-			document.getElementById(element_type).value !== 'H')
+		if(document.getElementById(element_type).value == 'RH')
 			document.getElementById(element_id).value = 8;
 	});
 });
