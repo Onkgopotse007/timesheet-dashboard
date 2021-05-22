@@ -2,6 +2,12 @@ $(document).ready(function(){
 	var prefilled_rows = parseInt($("#prefilled_rows").val());
 	var row_count = prefilled_rows;
 	var last_day = parseInt($("#last_day").val());
+	var curr_month = parseInt($("#curr_month").val()) -1;
+	var curr_year = parseInt($("#year").val());
+	var holidays = $("#holidays").val();
+	holidays = holidays.split("|")
+	
+	
 	var indexes = 0;
 	var markup = '';
 	var total_forms = 0;
@@ -63,24 +69,49 @@ $(document).ready(function(){
 			row_count += 1;}
     });
 
+var is_weekend =  function(year, month, day){
+    var dt = new Date(year, month, day);
+    if(dt.getDay() == 6 || dt.getDay() == 0)
+       {
+        return true;
+        }
+}
+
+var is_holiday=  function(year, month, day){
+    var dt = new Date(year, month, day);
+	
+    for(i =0; i < holidays.length; i++){
+		
+		holiday = new Date(holidays[i])
+		if (dt >= holiday && dt <= holiday){
+			return true;
+		}
+	}
+	return false;
+}
+
 
 function tableRows(value){
 	var day = value+1;
 	 var x = document.getElementById('save-submit-record');
 	
 	entry_type_options = '';
-	for (var i = 0; i < entry_types.length; i++){
-		var scnd = '';
-		entry_lbl = entry_types[i][1].split(' ');
-		if (entry_lbl[1] !== undefined) {
-			scnd = entry_lbl[1];
-		}
-		entry_type_options += "<option value='"+entry_types[i][0]+"'>"+entry_lbl[0].charAt(0)+""+scnd.charAt(0).toUpperCase()+"</option>";
-	}
-		
+	
 	if(prefilled_rows != 0){
 		day = (((prefilled_rows-1) * 7)+spaces) + (value+1);
 	}
+	
+	if (is_holiday(curr_year, curr_month, day)){
+		entry_type_options += "<option value='H'>H</option>";
+	}
+	else if (is_weekend(curr_year, curr_month, day)){
+		entry_type_options += "<option value='WE'>WE</option>";} 
+	else{
+		for (var i = 0; i < entry_types.length; i++){
+			entry_type_options += "<option value='"+entry_types[i][0]+"'>"+entry_types[i][0]+"</option>";
+		}
+	}
+	
 	if(day <= last_day){
 		markup += "<td> "+
 				 "<div class='input-group'> <input id='dailyentry_set-"+value+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration' max='24' min='0' style='width:48px; padding:4px 8px; border-right:0;'/>"+

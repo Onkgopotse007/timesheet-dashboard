@@ -64,15 +64,22 @@
 
 		  		   {% endif %}
 		  		   {% for entry in values %}
-		  				<td> <h5 id='day-{{entry.day |date:"j"}}-title' style='text-align:center;'>{{entry.day |date:'j'}}  </h5>
+		  				<td> <h5 id='day-{{entry.day |date:"j"}}-title' style='text-align:center;'>{{entry.day |date:'j'}} </h5>
 		  				<div class="input-group">
         
 		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}" max='24' min='0'
 		  				{% if review or verify or read_only %} readonly {% endif %} style="width:48px; padding:4px 8px; border-right:0;"/>
 							<select id='{{entry.day |date:"j"}}-entry_type' name='{{entry.day |date:"j"}}-entry_type' class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" style='width:40px; padding:0px;'>
-							  {% for e in entry_types %}
-							    <option value={{e.0}} {% if e.0 == entry.entry_type %} selected {% endif %}>{{e.0}}</option>
-					          {% endfor %}
+							  
+							  {% if entry.day|is_holiday %}
+							     <option value='H' selected> H</option>
+							  {% elif entry.day|is_weekend %}
+							     <option value='WE' selected> WE</option>
+							  {% else %}
+							     {% for e in entry_types %}
+							       <option value={{e.0}} {% if e.0 == entry.entry_type %} selected {% endif %}>{{e.0}}</option>
+					             {% endfor %}
+					          {% endif %}
 							</select> 
 						</div>
 		  				<input id='{{entry.day |date:"j"}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='{{entry.day |date:"j"}}-day'/>
@@ -119,6 +126,7 @@
 	        		<input name="curr_month" id="curr_month" type="hidden" value="{{curr_month}}"/>
 		        	<input name="year" id="year" type="hidden" value="{{year}}"/>
 		        	<input name="last_day" id="last_day" type="hidden" value={{last_day}}/>
+		        	<input name="holidays" id="holidays" type="hidden" value={{holidays}}/>
 		            <input name="no_of_weeks" id="no_of_weeks" type="hidden" value="{{no_of_weeks}}"/>
 				  	<input name=prefilled_rows id="prefilled_rows" type="hidden" value="{{prefilled_rows}}"/>
 				  	<input name="blank_days" id="blank_days" type="hidden" value="{{blank_days}}"/>

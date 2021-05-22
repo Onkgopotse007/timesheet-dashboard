@@ -190,9 +190,7 @@ class TimesheetMixin:
 
         overtime = extra_hours
 
-        weekend_entries = dailyentries.filter(Q(entry_type='RH', day__week_day=1)
-                                              | Q(entry_type='RH', day__week_day=7)
-                                              | Q(entry_type='H'))
+        weekend_entries = dailyentries.filter(Q(entry_type='WE') | Q(entry_type='H'))
 
         weekend_entries_dict = weekend_entries.aggregate(Sum('duration'))
 
@@ -203,14 +201,15 @@ class TimesheetMixin:
 
         return monthly_entry
 
-    def get_holidays(self):
+    def get_holidays(self, year, month):
         facility_app_config = django_apps.get_app_config('edc_facility')
 
         facility = facility_app_config.get_facility('5-day clinic')
 
-        holiday_list = facility.holidays.holidays.all().values_list('local_date', flat=True)
-
-        return holiday_list
+        holiday_list = facility.holidays.holidays.filter(
+            local_date__year=year,
+            local_date__month=month).values_list('local_date', flat=True)
+        return '|'.join([f'{h.year}/{h.month}/{h.day}' for h in holiday_list])
 
     def get_monthly_obj(self, month):
 
@@ -284,4 +283,7 @@ class TimesheetMixin:
 
     def entry_types(self):
         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
-        return daily_entry_cls._meta.get_field('entry_type').choices
+        entry_types = daily_entry_cls._meta.get_field('entry_type').choices
+        entry_types = tuple(entry_type for entry_type in entry_types
+                            if entry_type[0] not in ['H', 'WE'])
+        return entry_types

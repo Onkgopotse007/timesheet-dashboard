@@ -131,6 +131,7 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                        no_of_weeks=no_of_weeks,
                        groups=groups,
                        user=self.user,
+                       holidays=self.get_holidays(int(year), int(month)),
                        entry_types=entry_types,
                        **extra_context)
         return context

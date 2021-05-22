@@ -1,4 +1,5 @@
 from django import template
+from datetime import datetime, date
 import calendar
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -9,6 +10,29 @@ register = template.Library()
 @register.filter
 def month_name(month_number):
     return calendar.month_name[month_number]
+
+
+@register.filter
+def is_weekend(dt):
+    if isinstance(dt, datetime):
+        return dt.date().weekday() in [5, 6]
+    elif isinstance(dt, date):
+        return dt.weekday() in [5, 6]
+
+
+@register.filter
+def is_holiday(dt):
+
+    facility_app_config = django_apps.get_app_config('edc_facility')
+
+    facility = facility_app_config.get_facility('5-day clinic')
+
+    holiday_list = facility.holidays.holidays.all().values_list('local_date', flat=True)
+
+    if isinstance(dt, datetime):
+        return dt.date() in holiday_list
+    elif isinstance(dt, date):
+        return dt in holiday_list
 
 
 @register.inclusion_tag('timesheet_dashboard/buttons/submit_timesheet_button.html')
