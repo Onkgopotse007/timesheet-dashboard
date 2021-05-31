@@ -5,7 +5,11 @@ $(document).ready(function(){
 	var curr_month = parseInt($("#curr_month").val()) -1;
 	var curr_year = parseInt($("#year").val());
 	var holidays = $("#holidays").val();
-	holidays = holidays.split("|")
+	if(holidays){
+		holidays = holidays.split("|")}
+	else{
+		holidays=[]
+	}
 	
 	
 	var indexes = 0;
@@ -250,8 +254,9 @@ $(document).on('click', '#auto_fill', function() {
 		element_type = 'dailyentry_set-'+entry+'-entry_type';
 		
 		//Autofill if entry is not a holiday or weekend entry
-		if(document.getElementById(element_type).value == 'RH')
+		if(document.getElementById(element_type) && document.getElementById(element_type).value == 'RH'){
 			document.getElementById(element_id).value = 8;
+			}
 	});
 });
 	if (document.getElementById('day-'+ last_day+'-title') !== null){
@@ -259,7 +264,7 @@ $(document).on('click', '#auto_fill', function() {
 
 	    var save_submit = document.getElementById('save-submit-record');
 	
-	    if (day && day == last_day) {
+	    if (day && save_submit && day == last_day) {
 	        save_submit.style.display = "inline";
 	    }
 	}

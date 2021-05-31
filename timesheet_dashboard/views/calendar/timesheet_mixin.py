@@ -3,6 +3,7 @@ import math
 from datetime import datetime, timedelta
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db.models import Sum, Q
@@ -88,13 +89,18 @@ class TimesheetMixin:
                     setattr(monthly_entry, (field_prefix + '_by'), (
                         request.user.first_name[0] + ' ' + request.user.last_name))
 
+                    current_site = get_current_site(request=None)
+
                     subject = f'Timesheet for {monthly_entry.month}'
-                    message = (f'Dear {monthly_entry.employee.first_name}, Your timesheet '
-                               f'for {monthly_entry.month} has been {monthly_entry.status} by'
-                               f' {request.user.first_name} {request.user.last_name}.')
+                    message = (f'Dear {monthly_entry.employee.first_name},\n\nPlease note '
+                               f'your timesheet for {monthly_entry.month} has been '
+                               f'{monthly_entry.status} by {request.user.first_name} '
+                               f'{request.user.last_name} on the BHP Utility system '
+                               f'http://{current_site.domain}. \n\n')
                     if request.POST.get('comment').strip() != '':
-                        comment_msg = ' Comment: ' + request.POST.get('comment')
+                        comment_msg = ' Comment: ' + request.POST.get('comment') + '\n\n'
                         message += comment_msg
+                    message += 'Good day :).'
                     from_email = settings.EMAIL_HOST_USER
                     user = monthly_entry.employee.email
                     try:
