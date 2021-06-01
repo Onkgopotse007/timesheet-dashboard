@@ -1,0 +1,17 @@
+{% load timesheet_dashboard_extras %}
+
+          {% if departments %}
+
+			<table class="table table-condensed">
+			    <thead></thead>
+			    <tbody>
+			    	{% for department in departments %}
+				        <tr>
+				        <td class="info">
+					        department.dept_name
+						</td>
+			      	{% endfor %}
+			    </tbody>
+			</table>
+			
+			{% endif %}

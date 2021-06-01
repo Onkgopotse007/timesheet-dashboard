@@ -1,0 +1,33 @@
+   <div class="panel panel-warning">
+      <div class="panel-heading"><a data-toggle="collapse" href="#collapseExample"  aria-expanded="false" aria-controls="collapseExample">
+			Departments  </a></div>
+
+	<div class="collapse" id="collapseExample">
+				  <div class="card card-body">
+        <div class="panel-body"> 
+        
+        <ul class="list-group">
+			  <li class="list-group-item">
+			  	
+			  </li>
+			  
+			  {% if 'HR' in groups %}
+			  <li class="list-group-item">
+			    <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
+			   
+			  </li>
+			  {% endif %}
+			  {% if 'Supervisor' in groups %}
+		<li class="list-group-item">
+			<a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Supervisees Timesheets </a>
+			   
+		</li>
+       
+       		{% endif %}
+			  
+	    </ul>
+        	
+        </div>
+       </div>
+     </div>
+  </div>

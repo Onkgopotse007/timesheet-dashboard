@@ -1,0 +1,54 @@
+.table {
+	 border-collapse: separate;
+}
+
+.table thead {
+	background-color: #ededed;
+	border-collapse: separate;
+}
+
+.table th:first-child{
+  border-radius:10px 0 0 0;
+}
+
+.table th:last-child{
+  border-radius:0 10px 0 0;
+}
+ 
+.table tfoot {
+	background-color: #ededed;
+	border-radius:10px 0 0 0;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    background: none;
+}
+
+.leave{
+	width:2px;
+}
+ .circle-icon {
+    background: greenyellow;
+    padding:6px;
+    border-radius: 50%;}
+    .circle-icon2 {
+    background: red;
+    padding:6px;
+    border-radius: 50%;
+}
+    .circle-icon3 {
+    background: springgreen;
+    padding:6px;
+    border-radius: 50%;
+}
+     .circle-icon4 {
+    background: lightgreen;
+    padding:6px;
+    border-radius: 50%;
+}
+
+     .circle-icon5{
+    background: cornflowerblue;
+    padding:6px;
+    border-radius: 70%;
+}

@@ -1,0 +1,49 @@
+{% extends 'edc_base/base.html' %}
+
+{% load static %}
+
+{% block extra-scripts %}
+{{ block.super }}
+<script>
+
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+    $("#success-alert").fadeTo(1000, 500).slideUp(500, function(){
+        $("#success-alert").slideUp(500);
+    });
+});
+
+</script>
+{% endblock extra-scripts %} 
+
+{% block extra-styles %}
+{{ block.super }}
+<style>
+  .panel-extended {
+    min-height: 200px;
+    overflow-y: scroll;
+  }
+  </style>
+{% endblock %}
+
+
+
+{% block topbar_navbar_extra_items %}
+
+    {{ block.super }}
+    {{ navbar.name }}
+
+{% endblock topbar_navbar_extra_items %}
+
+{% block main %}
+<a id="download_td_files" title="Generate all Export" class="btn btn-sm btn-default" role="button" 
+    href="{{ reports_dashboard_url }}?download=1">
+        <i class="fa fa-plus fa-sm"></i> Generate Monthly Timesheet Export
+</a>
+{% endblock main %}
+
+{% block modals %}
+
+{{ block.super }}
+    {% include 'timesheet_dashboard/help_modal.html' %}
+{% endblock modals %}

@@ -1,0 +1,162 @@
+{% extends listboard_base_template %}
+{% load admin_urls %}
+{% load edc_base_extras %}
+{% load timesheet_dashboard_extras %}
+{% load edc_dashboard_extras %}
+
+{% block main %}
+
+<div id="div-home-right" class="col-md-9">
+ <!-- start listboard main block-->
+ <div class="panel-group">
+  <div class="panel panel-{{ listboard_panel_style }}">
+   <div class="panel-heading">
+
+    <i class="{{ listboard_fa_icon }} fa-2x"></i>
+                    
+    <!-- begin search form -->
+    <span class="pull-right">
+      {% block listboard_search_form %}
+        {% include 'edc_dashboard/search_form.html' %}
+      {% endblock listboard_search_form %}
+    </span>
+    <!-- end search form -->
+
+    {% block listboard_panel %}
+     {% if timesheet_add_url %}
+      <a id="timesheet_add" title="add monthly timesheet" class="btn btn-sm btn-default" role="button" 
+        href="{{ timesheet_add_url }}?next={{ timesheet_listboard_url }}">
+            <i class="fa fa-plus fa-sm"></i> Add Timesheet
+      </a>
+     {% endif %}
+     
+    {% endblock listboard_panel %}
+
+   </div> <!--end panel heading -->
+
+   <!-- begin table -->
+   <div class="table table-responsive">
+    <table class="table table-condensed table-hover small">
+     <thead>
+       {% block listboard_table_header %}
+        <!-- begin results header -->
+         <th>#</th>
+         <th></th>
+         <th>Employee Code</th>
+         <th>Employee Name</th>
+         <th>Email</th>
+         <th>Job Title</th>
+		<!-- end results header -->
+	   {% endblock listboard_table_header %}
+
+      </thead><tbody>
+
+      {% block listboard_table_body %}
+
+      {% for result in results %}
+        <tr> 
+        
+         <td>{{ forloop.counter }}</td>
+
+{% block listboard_table_button_column %}
+    <td style="white-space: nowrap;">
+    <div class="btn-group">
+       {% timesheets_button result p_role request.user %}
+    </div>
+    </td>
+{% endblock listboard_table_button_column %}
+
+
+{% block listboard_table_columns %}
+
+    <td>{{ result.employee_code }} </td>
+    <td nowrap>{{ result.first_name }} {{ result.middle_name }} {{ result.last_name }}</td>
+    <td nowrap>{{ result.email }}</td>
+    <td nowrap>{{ result.job_title }}</td>
+
+{% endblock listboard_table_columns %}
+
+{% endfor %}
+
+    {% endblock listboard_table_body %}
+
+    </tbody></table>
+
+	<!-- begin spacer rows -->
+	<table>
+	<tr><td>&nbsp;</td></tr>
+	<tr><td>&nbsp;</td></tr>
+	<tr><td>&nbsp;</td></tr>
+	<tr><td>&nbsp;</td></tr>
+	<tr><td>&nbsp;</td></tr>
+	</table>
+	<!-- end spacer rows -->
+
+   </div><!-- end table -->
+
+{% paginator_row %}
+
+</div>  <!--end panel -->
+</div> <!--end panel-group -->
+<!-- end listboard main block -->
+
+</div>
+
+
+<div id="div-home-right" class="col-md-3">
+
+	<div class="panel-group" id="accordion">
+
+ 	  {% if 'HR' in groups %}
+ 		<div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?p_role=HR" > Employee Timesheets </a>
+	          </h6>
+	      </div>
+	               
+	    </div>
+	    {% endif %}
+	
+		{% if 'Supervisor' in groups %}
+		<div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url 'timesheet_dashboard:timesheet_listboard_url' %}?p_role=Supervisor" > Supervisees Timesheets </a>
+	          </h6>
+	      </div>
+	               
+	    </div>
+       
+       	{% endif %}
+       	
+       	{% if 'HR' in groups %}
+       	  <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a id="departments-panel-title" data-toggle="collapse" data-parent="#accordion" href="#departments-panel">Departments <span class="caret"></span></a>
+	          </h6>
+	      </div>
+	      <div id="departments-panel" class="panel-collapse collapse">
+	      		<ul>
+	      		{% for dept in departments %}
+	      		   <li> <a href="{% url 'timesheet_dashboard:timesheet_employee_listboard_url' %}?dept={{dept}}&p_role=HR" > {{dept}} </a> </li>
+	      		
+	      		{% endfor %}
+	      		</ul>
+	      </div> 
+	      </div>     
+	    {% endif %}
+	     <div class="panel panel-default">
+	      <div class="panel-heading">
+	          <h6 class="panel-title">
+	              <a href="{% url  'timesheet_dashboard:timesheet_listboard_url' %}?employee_id={{user_id}}" > My Timesheets </a>
+	          </h6>
+	      </div>
+	   </div>
+       
+</div>
+</div>
+
+{% endblock main %}
+
