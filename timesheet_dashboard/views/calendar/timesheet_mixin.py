@@ -98,7 +98,7 @@ class TimesheetMixin:
                                f'{request.user.last_name} on the BHP Utility system '
                                f'http://{current_site.domain}. \n\n')
                     if request.POST.get('comment').strip() != '':
-                        comment_msg = ' Comment: ' + request.POST.get('comment') + '\n\n'
+                        comment_msg = 'Comment: ' + request.POST.get('comment') + '\n\n'
                         message += comment_msg
                     message += 'Good day :).'
                     from_email = settings.EMAIL_HOST_USER
