@@ -171,7 +171,13 @@ $(document).on('click', '#save-record', function() {
 
 $(document).on('click', '.remove', function() {
 	row_count --;
-	total_forms = (((row_count-1) * 7) + (7-blank_days));
+	if(prefilled_rows !== 0){
+		total_forms = ((row_count-prefilled_rows) * 7)
+	}
+	else{
+		total_forms = (((row_count-1) * 7) + (7-blank_days));
+	}
+	
 	var parent = $(this).parent().parent();  // parent <tr> of the anchor tag
 	var previous = parent.prev();        // <tr> before the parent <tr>
 	var save_submit = document.getElementById('save-submit-record');
@@ -188,6 +194,7 @@ $(document).on('click', '.remove', function() {
 		delBtns[delBtns.length - 1].classList.remove('disabled');
 	}
 });
+
 
 $(document).on('click', '.cell-add', function() {
 	var td = $(this).parent().parent();
