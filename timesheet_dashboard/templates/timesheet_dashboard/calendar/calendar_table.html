@@ -147,9 +147,15 @@
 			             <i class="glyphicon glyphicon-save"></i> Save and Submit
 			          </button>
 			       	{% else %}
+			       	  {% if timesheet_status == 'Rejected' %}
+			       	  	<a type="button" class="btn btn-danger" disabled>
+			             {{timesheet_status}}
+			          </a>
+			       	  {% else %}
 			          <a type="button" class="btn btn-success" disabled>
 			             {{timesheet_status}}
 			          </a>
+			          {% endif %}
 			          {% endif %}
          			</div>
 	        	</td>
