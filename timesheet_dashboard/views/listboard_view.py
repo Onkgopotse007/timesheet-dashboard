@@ -76,7 +76,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
                 pass
             else:
                 monthly_entry_obj.status = 'submitted'
-                monthly_entry_obj.submitted_datetime
+                monthly_entry_obj.submitted_datetime = get_utcnow()
                 monthly_entry_obj.save()
 
         return HttpResponseRedirect(self.request.path)

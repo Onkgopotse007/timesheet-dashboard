@@ -146,6 +146,7 @@ class TimesheetMixin:
             if formset.is_valid():
                 if request.POST.get('save_submit') == '1':
                     monthly_entry.status = 'submitted'
+                    monthly_entry.submitted_datetime = get_utcnow()
 
                 monthly_entry = self.sum_monthly_leave_days(formset.queryset, monthly_entry)
                 monthly_entry = self.calculate_monthly_overtime(
