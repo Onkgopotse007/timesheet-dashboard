@@ -113,7 +113,7 @@
 		 <td >{{ result.month|month_name }}-{{ result.year }}</td>
 		 <td>{{ result.object.total_hours }}</td>
 		 <th>{{ result.timesheet_status }}</th>
-		 <th>{{ result.submitted_datetime |date:"SHORT_DATETIME_FORMAT" }}</th>
+		 <th>{{ result.object.submitted_datetime|date:"SHORT_DATETIME_FORMAT" }}</th>
 		 <th>{{ result.approved_by }}</th>
 		 <th>{{ result.verified_by }}</th>
 			
