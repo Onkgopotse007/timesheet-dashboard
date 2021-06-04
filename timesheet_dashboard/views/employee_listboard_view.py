@@ -11,8 +11,6 @@ from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMi
 from edc_dashboard.views import ListboardView
 from edc_navbar import NavbarViewMixin
 
-from bhp_personal.models import Employee
-
 from bhp_personnel_dashboard.model_wrappers import EmployeeModelWrapper
 from .filters import EmployeeListboardViewFilters
 
@@ -21,6 +19,7 @@ class EmployeeListBoardView(
         NavbarViewMixin, EdcBaseViewMixin, ListboardFilterViewMixin,
         SearchFormViewMixin, ListboardView):
 
+    supervisor_queryset_lookups = []
     listboard_template = 'timesheet_employee_listboard_template'
     listboard_url = 'timesheet_employee_listboard_url'
     listboard_panel_style = 'info'
@@ -67,8 +66,9 @@ class EmployeeListBoardView(
     def supervisors(self, supervisor=None):
         """Return a list of supervisors in the same highrachy.
         """
+        employee_cls = django_apps.get_model('bhp_personnel.employee')
         supervisors = [supervisor]
-        employees = Employee.objects.filter(supervisor=supervisor)
+        employees = employee_cls.objects.filter(supervisor=supervisor)
         for employee in employees:
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
             try:
@@ -101,7 +101,7 @@ class EmployeeListBoardView(
             else:
                 supervisors = self.supervisors(supervisor=supervisor_obj)
                 options.update(
-                {f'{self.supervisor_lookup_prefix}supervisor__in': supervisors})
+                    {f'{self.supervisor_lookup_prefix}supervisor__in': supervisors})
         return options
 
     def get_queryset(self):

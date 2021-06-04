@@ -15,8 +15,6 @@ from edc_navbar import NavbarViewMixin
 
 from django.http.response import HttpResponseRedirect
 
-from bhp_personal.models import Employee
-
 from ..model_wrappers import MonthlyEntryModelWrapper
 from .filters import ListboardViewFilters
 
@@ -109,8 +107,10 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
     def supervisors(self, supervisor=None):
         """Return a list of supervisors in the same highrachy.
         """
+        employee_cls = django_apps.get_model('bhp_personnel.employee')
         supervisors = [supervisor]
-        employees = Employee.objects.filter(supervisor=supervisor)
+
+        employees = employee_cls.objects.filter(supervisor=supervisor)
         for employee in employees:
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
             try:
@@ -125,7 +125,6 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
     def supervisor_lookup_prefix(self):
         supervisor_lookup_prefix = LOOKUP_SEP.join(self.supervisor_queryset_lookups)
         return f'{supervisor_lookup_prefix}__' if supervisor_lookup_prefix else ''
-
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
@@ -145,11 +144,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             else:
                 supervisors = self.supervisors(supervisor=supervisor_obj)
                 options.update(
-                {f'{self.supervisor_lookup_prefix}supervisor__in': supervisors})
-            return options
-#         elif not bool(self.request.GET) or request.GET.get('employee_id'):
-#             options.update(
-#             {'user_created': request.user.username})
+                    {f'{self.supervisor_lookup_prefix}supervisor__in': supervisors})
 
         return options
 

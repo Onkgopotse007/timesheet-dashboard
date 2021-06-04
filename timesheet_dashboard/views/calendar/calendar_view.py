@@ -11,7 +11,6 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import TemplateRequestContextMixin
 from edc_navbar import NavbarViewMixin
 from .timesheet_mixin import TimesheetMixin
-from edc_facility.models import Holiday
 
 
 class CalendarViewError(Exception):
@@ -80,7 +79,7 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                 extra_context['review'] = True
         elif (self.request.GET.get('p_role') == 'HR'):
             extra_context = {'p_role': 'HR'}
-            if (monthly_obj and monthly_obj.status in ['rejected', 'verified']):
+            if (monthly_obj and monthly_obj.status in ['rejected']):
                 extra_context.update({'read_only': True})
             else:
                 extra_context.update({'verify': True})
