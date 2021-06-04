@@ -11,7 +11,6 @@ from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import TemplateRequestContextMixin
 from edc_navbar import NavbarViewMixin
 from .timesheet_mixin import TimesheetMixin
-from edc_facility.models import Holiday
 
 
 class CalendarViewError(Exception):
@@ -50,6 +49,11 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                             +'?p_role=' + request.GET.get('p_role'))
             else:
                 self.add_daily_entries(request, kwargs)
+            if request.POST.get('save_submit'):
+                return HttpResponseRedirect(
+                    reverse('timesheet_dashboard:timesheet_listboard_url',
+                            kwargs={'employee_id': kwargs.get('employee_id')})
+                            +'?p_role=' + request.GET.get('p_role'))
 
         return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_calendar_table_url',
                                             kwargs={'employee_id': kwargs.get('employee_id'),
@@ -69,12 +73,17 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
             extra_context = {'p_role': 'Supervisor',
                              'verified': True,
                              'read_only': True, }
-            if ((monthly_obj and monthly_obj.status != 'verified') or not monthly_obj):
+            if (monthly_obj and monthly_obj.status in ['rejected', 'approved']):
+                extra_context.update({'read_only': True})
+            elif ((monthly_obj and monthly_obj.status != 'verified') or not monthly_obj):
                 extra_context['review'] = True
         elif (self.request.GET.get('p_role') == 'HR'):
-            extra_context = {'verify': True,
-                             'p_role': 'HR'}
-        elif (monthly_obj and monthly_obj.status in ['approved', 'verified']):
+            extra_context = {'p_role': 'HR'}
+            if (monthly_obj and monthly_obj.status in ['rejected']):
+                extra_context.update({'read_only': True})
+            else:
+                extra_context.update({'verify': True})
+        elif (monthly_obj and monthly_obj.status in ['approved', 'verified', 'submitted']):
             extra_context = {'read_only': True, }
 
         if monthly_obj:

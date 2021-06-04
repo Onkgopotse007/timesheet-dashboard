@@ -81,13 +81,21 @@ class TimesheetMixin:
                     monthly_entry.comment = request.POST.get('comment')
                 else:
                     monthly_entry.comment = None
+                prev_status = monthly_entry.status
                 monthly_entry.status = request.POST.get('timesheet_review')
 
-                if request.POST.get('timesheet_review') in ['rejected', 'verified', 'approved']:
+                if (prev_status != request.POST.get('timesheet_review')
+                        and request.POST.get('timesheet_review') in
+                        ['rejected', 'verified', 'approved']):
                     field_prefix = request.POST.get('timesheet_review')
                     setattr(monthly_entry, (field_prefix + '_date'), get_utcnow().date())
                     setattr(monthly_entry, (field_prefix + '_by'), (
                         request.user.first_name[0] + ' ' + request.user.last_name))
+                    if request.POST.get('timesheet_review') == 'rejected':
+                        setattr(monthly_entry, ('verified_date'), None)
+                        setattr(monthly_entry, ('verified_by'), None)
+                        setattr(monthly_entry, ('approved_date'), None)
+                        setattr(monthly_entry, ('approved_by'), None)
 
                     current_site = get_current_site(request=None)
 
@@ -98,7 +106,7 @@ class TimesheetMixin:
                                f'{request.user.last_name} on the BHP Utility system '
                                f'http://{current_site.domain}. \n\n')
                     if request.POST.get('comment').strip() != '':
-                        comment_msg = ' Comment: ' + request.POST.get('comment') + '\n\n'
+                        comment_msg = 'Comment: ' + request.POST.get('comment') + '\n\n'
                         message += comment_msg
                     message += 'Good day :).'
                     from_email = settings.EMAIL_HOST_USER
@@ -122,6 +130,7 @@ class TimesheetMixin:
             else:
                 daily_entries = self.daily_entry_cls.objects.filter(
                     monthly_entry=monthly_entry)
+                monthly_entry.comment = None
 
             DailyEntryFormSet = inlineformset_factory(monthly_entry_cls,
                                                       self.daily_entry_cls,
@@ -146,6 +155,7 @@ class TimesheetMixin:
             if formset.is_valid():
                 if request.POST.get('save_submit') == '1':
                     monthly_entry.status = 'submitted'
+                    monthly_entry.submitted_datetime = get_utcnow()
 
                 monthly_entry = self.sum_monthly_leave_days(formset.queryset, monthly_entry)
                 monthly_entry = self.calculate_monthly_overtime(
