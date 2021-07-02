@@ -288,7 +288,7 @@ class TimesheetMixin:
         return employee_obj
 
     @property
-    def user(self):
+    def user_employee(self):
         employee_cls = django_apps.get_model('bhp_personnel.employee')
 
         try:

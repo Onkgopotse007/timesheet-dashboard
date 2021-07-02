@@ -46,22 +46,40 @@ class EmployeeListBoardView(
             departments=self.departments,
             groups=[g.name for g in self.request.user.groups.all()],
             employee_add_url=self.model_cls().get_absolute_url(),
-            querystring=f'?p_role={p_role}',
-            user_id=self.get_employee.identifier)
+            querystring=self.user_id)
         return context
 
     @property
-    def get_employee(self):
+    def user_id(self):
+
         employee_cls = django_apps.get_model('bhp_personnel.employee')
+        pi_cls = django_apps.get_model('bhp_personnel.pi')
+        consultant_cls = django_apps.get_model('bhp_personnel.consultant')
+
+        employee = self.get_personnel_obj(employee_cls)
+
+        if employee:
+            return employee.identifier
+        else:
+            pi = self.get_personnel_obj(pi_cls)
+
+            if pi:
+                return pi.identifier
+            else:
+                consultant = self.get_personnel_obj(consultant_cls)
+
+                return consultant.identifier if consultant else None
+
+    def get_personnel_obj(self, personnel_cls):
 
         try:
-            employee_obj = employee_cls.objects.get(email=self.request.user.email)
-        except employee_cls.DoesNotExist:
+            personnel_obj = personnel_cls.objects.get(email=self.request.user.email)
+        except personnel_cls.DoesNotExist:
             return None
-        except employee_cls.MultipleObjectsReturned:
-            return None
+        except personnel_cls.MultipleObjectsReturned:
+            raise
         else:
-            return employee_obj
+            return personnel_obj
 
     def supervisors(self, supervisor=None):
         """Return a list of supervisors in the same highrachy.

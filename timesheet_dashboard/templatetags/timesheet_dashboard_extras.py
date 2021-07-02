@@ -77,16 +77,26 @@ def demographics(employee_id):
     try:
         employee_obj = employee_cls.objects.get(identifier=employee_id)
     except employee_cls.DoesNotExist:
-        return None
-    else:
+        consultant_cls = django_apps.get_model('bhp_personnel.consultant')
+        try:
+            employee_obj = consultant_cls.objects.get(identifier=employee_id)
+        except consultant_cls.DoesNotExist:
+            employee_obj = None
+
+    if employee_obj:
+        personnel_dict = {'job_title': 'Consultant'}
+        if employee_obj._meta.label_lower == 'bhp_personnel.employee':
+            personnel_dict['employee_code'] = employee_obj.employee_code
+            personnel_dict['job_title'] = employee_obj.job_title
+
         return dict(
-            employee_id=employee_obj.employee_code,
-            job_title=employee_obj.job_title,
-            supervisor=employee_obj.supervisor.first_name + " " + employee_obj.supervisor.last_name,
+            supervisor=(employee_obj.supervisor.first_name + " " +
+                        employee_obj.supervisor.last_name),
             first_name=employee_obj.first_name,
             last_name=employee_obj.last_name,
             initials=employee_obj.first_name[0] + employee_obj.last_name[0],
-            title=' '.join(title))
+            title=' '.join(title),
+            **personnel_dict)
 
 
 @register.simple_tag(takes_context=True)

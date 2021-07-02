@@ -56,6 +56,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             timesheet_add_url = self.model_wrapper_cls(model_obj=model_obj).href
 
         p_role = self.request.GET.get('p_role')
+
         context.update(
             p_role=p_role,
             groups=groups,
