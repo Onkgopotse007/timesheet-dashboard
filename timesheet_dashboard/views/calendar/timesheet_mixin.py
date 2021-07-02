@@ -71,7 +71,7 @@ class TimesheetMixin:
         if request.POST.get('timesheet_review'):
             try:
                 monthly_entry = monthly_entry_cls.objects.get(
-                    employee=self.employee, supervisor=self.employee.supervisor,
+                    employee=self.employee,
                     month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
             except monthly_entry_cls.DoesNotExist:
                 raise MonthlyEntryError(f"Missing timesheet being reviewed for {self.employee}",
@@ -120,11 +120,10 @@ class TimesheetMixin:
         else:
             try:
                 monthly_entry = monthly_entry_cls.objects.get(
-                    employee=self.employee, supervisor=self.employee.supervisor,
+                    employee=self.employee,
                     month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
             except monthly_entry_cls.DoesNotExist:
                 monthly_entry = monthly_entry_cls(employee=self.employee,
-                                                  supervisor=self.employee.supervisor,
                                                   month=datetime.strptime(
                                                       f'{year}-{month}-1', '%Y-%m-%d'))
             else:

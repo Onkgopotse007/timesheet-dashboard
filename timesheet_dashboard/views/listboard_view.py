@@ -44,8 +44,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         context = super().get_context_data(**kwargs)
 
         if self.get_employee:
-            model_obj = self.model_cls(employee=self.get_employee,
-                                       supervisor=self.get_employee.supervisor)
+            model_obj = self.model_cls(employee=self.get_employee)
         else:
             model_obj = self.model_cls()
 
@@ -145,7 +144,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             else:
                 supervisors = self.supervisors(supervisor=supervisor_obj)
                 options.update(
-                    {f'{self.supervisor_lookup_prefix}supervisor__in': supervisors})
+                    {f'{self.supervisor_lookup_prefix}employee__supervisor__in': supervisors})
 
         return options
 
