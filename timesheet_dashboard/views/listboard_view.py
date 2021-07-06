@@ -104,23 +104,23 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
         return [dept.dept_name for dept in department_cls.objects.all()]
 
-    def supervisors(self, supervisor=None):
-        """Return a list of supervisors in the same highrachy.
-        """
-        employee_cls = django_apps.get_model('bhp_personnel.employee')
-        supervisors = [supervisor]
-
-        employees = employee_cls.objects.filter(supervisor=supervisor)
-        for employee in employees:
-            supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
-            try:
-                supervisor_obj = supervisor_cls.objects.get(email=employee.email)
-            except supervisor_cls.DoesNotExist:
-                pass
-            else:
-                supervisors.append(supervisor_obj)
-        return supervisors
-
+    # def supervisors(self, supervisor=None):
+        # """Return a list of supervisors in the same highrachy.
+        # """
+        # employee_cls = django_apps.get_model('bhp_personnel.employee')
+        # supervisors = [supervisor]
+        #
+        # employees = employee_cls.objects.filter(supervisor=supervisor)
+        # for employee in employees:
+            # supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
+            # try:
+                # supervisor_obj = supervisor_cls.objects.get(email=employee.email)
+            # except supervisor_cls.DoesNotExist:
+                # pass
+            # else:
+                # supervisors.append(supervisor_obj)
+        # return supervisors
+        #
     @property
     def supervisor_lookup_prefix(self):
         supervisor_lookup_prefix = LOOKUP_SEP.join(self.supervisor_queryset_lookups)
@@ -142,9 +142,8 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
             except supervisor_cls.DoesNotExist:
                 options.update({'user_created': None})
             else:
-                supervisors = self.supervisors(supervisor=supervisor_obj)
                 options.update(
-                    {f'{self.supervisor_lookup_prefix}employee__supervisor__in': supervisors})
+                    {f'{self.supervisor_lookup_prefix}employee__supervisor': supervisor_obj})
 
         return options
 

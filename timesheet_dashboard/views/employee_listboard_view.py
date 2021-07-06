@@ -19,7 +19,7 @@ class EmployeeListBoardView(
         NavbarViewMixin, EdcBaseViewMixin, ListboardFilterViewMixin,
         SearchFormViewMixin, ListboardView):
 
-    supervisor_queryset_lookups = []
+    # supervisor_queryset_lookups = []
     listboard_template = 'timesheet_employee_listboard_template'
     listboard_url = 'timesheet_employee_listboard_url'
     listboard_panel_style = 'info'
@@ -81,26 +81,26 @@ class EmployeeListBoardView(
         else:
             return personnel_obj
 
-    def supervisors(self, supervisor=None):
-        """Return a list of supervisors in the same highrachy.
-        """
-        employee_cls = django_apps.get_model('bhp_personnel.employee')
-        supervisors = [supervisor]
-        employees = employee_cls.objects.filter(supervisor=supervisor)
-        for employee in employees:
-            supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
-            try:
-                supervisor_obj = supervisor_cls.objects.get(email=employee.email)
-            except supervisor_cls.DoesNotExist:
-                pass
-            else:
-                supervisors.append(supervisor_obj)
-        return supervisors
-
-    @property
-    def supervisor_lookup_prefix(self):
-        supervisor_lookup_prefix = LOOKUP_SEP.join(self.supervisor_queryset_lookups)
-        return f'{supervisor_lookup_prefix}__' if supervisor_lookup_prefix else ''
+    # def supervisors(self, supervisor=None):
+        # """Return a list of supervisors in the same highrachy.
+        # """
+        # employee_cls = django_apps.get_model('bhp_personnel.employee')
+        # supervisors = [supervisor]
+        # employees = employee_cls.objects.filter(supervisor=supervisor)
+        # for employee in employees:
+            # supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
+            # try:
+                # supervisor_obj = supervisor_cls.objects.get(email=employee.email)
+            # except supervisor_cls.DoesNotExist:
+                # pass
+            # else:
+                # supervisors.append(supervisor_obj)
+        # return supervisors
+        #
+    # @property
+    # def supervisor_lookup_prefix(self):
+        # supervisor_lookup_prefix = LOOKUP_SEP.join(self.supervisor_queryset_lookups)
+        # return f'{supervisor_lookup_prefix}__' if supervisor_lookup_prefix else ''
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
@@ -117,9 +117,7 @@ class EmployeeListBoardView(
             except supervisor_cls.DoesNotExist:
                 options.update({'user_created': None})
             else:
-                supervisors = self.supervisors(supervisor=supervisor_obj)
-                options.update(
-                    {f'{self.supervisor_lookup_prefix}supervisor__in': supervisors})
+                options.update({'supervisor': supervisor_obj})
         return options
 
     def get_queryset(self):
