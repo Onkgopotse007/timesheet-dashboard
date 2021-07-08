@@ -108,7 +108,10 @@ def departments(context):
 
 @register.filter(name='has_group') 
 def has_group(user, group_name):
-    group = Group.objects.filter(name=group_name)
+    """
+    Tag for checking permissions, it returns either False or True for a particular user
+    """
+    group = Group.objects.filter(name__iexact=group_name)
     if group:
         group = group.first()
         return group in user.groups.all()
