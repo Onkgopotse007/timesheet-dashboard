@@ -25,7 +25,15 @@
 						<div class="controls ">
 							<div class="input-group">
 								<input class="form-control input-sm textinput form-control" id="id_q" maxlength="150" name="q" placeholder="search" type="text" value="{{ q|default:'' }}" />
-								<input name="p_role" value="Supervisor" type="hidden"/>
+								{% if request.user|has_group:"HR" %}
+
+									<input name="p_role" value="HR" type="hidden"/>
+
+								{% elif request.user|has_group:"Supervisor" %}
+
+									<input name="p_role" value="Supervisor" type="hidden"/>
+									
+								{% endif %}
 								<span class="input-group-btn">
 									<button  type="submit" class="btn btn btn-default btn-sm">
 										<i class="fa fa-search fa-sm"></i>
