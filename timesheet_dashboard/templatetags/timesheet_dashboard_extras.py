@@ -3,6 +3,7 @@ from datetime import datetime, date
 import calendar
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib.auth.models import Group 
 
 register = template.Library()
 
@@ -105,3 +106,11 @@ def departments(context):
 
     return [dept.dept_name for dept in department_cls.objects.all()]
 
+@register.filter(name='has_group') 
+def has_group(user, group_name):
+    group = Group.objects.filter(name=group_name)
+    if group:
+        group = group.first()
+        return group in user.groups.all()
+    else:
+        return False
