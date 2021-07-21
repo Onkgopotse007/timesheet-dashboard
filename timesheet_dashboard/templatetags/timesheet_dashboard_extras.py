@@ -3,7 +3,7 @@ from datetime import datetime, date
 import calendar
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.contrib.auth.models import Group 
+from django.contrib.auth.models import Group
 
 register = template.Library()
 
@@ -106,7 +106,8 @@ def departments(context):
 
     return [dept.dept_name for dept in department_cls.objects.all()]
 
-@register.filter(name='has_group') 
+
+@register.filter(name='has_group')
 def has_group(user, group_name):
     """
     Tag for checking permissions, it returns either False or True for a particular user
