@@ -44,8 +44,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         context = super().get_context_data(**kwargs)
 
         if self.get_employee:
-            model_obj = self.model_cls(employee=self.get_employee,
-                                       supervisor=self.get_employee.supervisor)
+            model_obj = self.model_cls(employee=self.get_employee)
         else:
             model_obj = self.model_cls()
 

@@ -65,6 +65,5 @@ class MonthlyEntryModelWrapper(ModelWrapper):
         """
         options = dict(
             employee=self.object.employee,
-            supervisor=self.object.employee.supervisor,
             month=self.object.month)
         return options
