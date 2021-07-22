@@ -6,6 +6,23 @@
 
 {% block extra-styles %}
 	<link type="text/css" rel="stylesheet" href="{% static 'timesheet_dashboard/css/calendar_table.css' %}">
+<style>
+    input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none;
+}
+    
+    .without_ampm::-webkit-datetime-edit-ampm-field {
+   display: none;
+ }
+ input[type=time]::-webkit-clear-button {
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   -o-appearance: none;
+   -ms-appearance:none;
+   appearance: none;
+   margin: -10px;
+ }
+</style>
 {% endblock extra-styles %}
 {% block extra-scripts %}
 	<script type="text/javascript" charset="utf8" src="{% static 'timesheet_dashboard/js/calendar_table.js' %}"></script>
@@ -66,10 +83,9 @@
 		  		   {% for entry in values %}
 		  				<td> <h5 id='day-{{entry.day |date:"j"}}-title' style='text-align:center;'>{{entry.day |date:'j'}} </h5>
 		  				<div class="input-group">
-        
-		  				<input id='{{entry.day |date:"j"}}-duration-' type='number' class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration}}" max='24' min='0'
-		  				{% if review or verify or read_only %} readonly {% endif %} style="width:48px; padding:4px 8px; border-right:0;"/>
-							<select id='{{entry.day |date:"j"}}-entry_type' name='{{entry.day |date:"j"}}-entry_type' class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" style='width:40px; padding:0px;'>
+		  				<input id='{{entry.day |date:"j"}}-duration' type='time'  class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration|time:'H:i'}}"
+		  				{% if review or verify or read_only %} readonly {% endif %} style="width:48px; padding:2px 2px; border-right:0;" max="23:59"/>
+							<select id='{{entry.day |date:"j"}}-entry_type' name='{{entry.day |date:"j"}}-entry_type' class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" style='width:43px; padding:0px;font-size: 9px;font-family: Roboto, sans-serif'>
 							  
 							  {% if entry.day|is_holiday %}
 							     <option value='H' selected> H</option>
