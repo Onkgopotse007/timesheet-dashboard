@@ -58,17 +58,20 @@ class EmployeeListBoardView(
 
         employee = self.get_personnel_obj(employee_cls)
 
+        p_role = self.request.GET.get('p_role')
+
+        qs = f'?p_role={p_role}'
         if employee:
-            return employee.identifier
+            return employee.identifier + qs
         else:
             pi = self.get_personnel_obj(pi_cls)
 
             if pi:
-                return pi.identifier
+                return pi.identifier + qs
             else:
                 consultant = self.get_personnel_obj(consultant_cls)
 
-                return consultant.identifier if consultant else None
+                return consultant.identifier if consultant else qs
 
     def get_personnel_obj(self, personnel_cls):
 
