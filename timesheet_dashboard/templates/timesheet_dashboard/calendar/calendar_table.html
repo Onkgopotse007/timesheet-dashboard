@@ -5,6 +5,11 @@
 {% load i18n admin_urls %}
 
 {% block extra-styles %}
+<link type="text/css" rel="stylesheet"
+      href="{% static 'timesheet_dashboard/css/calendar_table.css' %}">
+<link type="text/css" rel="stylesheet"
+      href="{% static 'timesheet_dashboard/css/monthly_calendar.css' %}">
+
 	<link type="text/css" rel="stylesheet" href="{% static 'timesheet_dashboard/css/calendar_table.css' %}">
 <style>
     input[type="time"]::-webkit-calendar-picker-indicator {
@@ -25,7 +30,11 @@
 </style>
 {% endblock extra-styles %}
 {% block extra-scripts %}
-	<script type="text/javascript" charset="utf8" src="{% static 'timesheet_dashboard/js/calendar_table.js' %}"></script>
+<script type="text/javascript" charset="utf8"
+        src="{% static 'timesheet_dashboard/js/calendar_table.js' %}"></script>
+<script type="text/javascript" charset="utf8"
+        src="{% static 'timesheet_dashboard/js/monthly_calendar.js' %}"></script>
+
 {% endblock %}
 
 {% block main %}
@@ -36,14 +45,52 @@
 				<form method='POST' id="controlForm" action="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id year curr_month %}?p_role={{p_role}}" name="timesheet">
 					{% csrf_token %}
 					<input id='controller' type='hidden' name='controller'/>
-					<a id="prevMonth" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></a>
-     
-					<kbd>{{month_name}}  {{year}} </kbd>
-					<a id="nextMonth" type="button" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></a>
-     
+                    <div class="button-container">
+                        <a id="prevMonth">
+                            <div class="button-left">
+                                &#9668;
+                            </div>
+                        </a>
+                        <div class="calendar_button">
+                            {{month_name}} {{year}}
+                        </div>
+                        <a id="nextMonth">
+                            <div class="button-right">
+                                &#9668;
+                            </div>
+                        </a>
+                    </div>
+                    <div class="year-container">
+                        <div class="arrow">
+                        </div>
+                        <div class="year">
+                            <div class="year-row">
+                                <input id='select_month' type='hidden'
+                                       name='select_month'/>
+                                {% for mn in month_names %}
+                                <div class="month positive" id="{{mn}}">
+                                    <div class="month-result">
+                                    </div>
+                                    <span>{{mn}}</span>
+                                    <span>{{year}}</span>
+                                </div>
+                                {% endfor %}
+                                <input id='calendar_year' type='hidden'
+                                       name='calendar_year'/>
     
-				</form>
-			</div>
+                                <a class="prev" onclick="prev()"><span
+                                        class="glyphicon glyphicon-chevron-left"></span></a>
+                                <span id="year1"
+                                      style=" font-size: 14px; align-items: center">
+                                        {{year}} </span>
+                                <a class="forw" onclick="forw()"><span
+                                        class="glyphicon glyphicon-chevron-right"></span></a>
+                                <span style="padding-left: 9px;font-size: 9px;">choose year</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
 		</div>
 		{% endif %}
@@ -84,7 +131,7 @@
 		  				<td> <h5 id='day-{{entry.day |date:"j"}}-title' style='text-align:center;'>{{entry.day |date:'j'}} </h5>
 		  				<div class="input-group">
 		  				<input id='{{entry.day |date:"j"}}-duration' type='time'  class='form-control form-control-sm' name='{{entry.day |date:"j"}}-duration' value="{{entry.duration|time:'H:i'}}"
-		  				{% if review or verify or read_only %} readonly {% endif %} style="width:48px; padding:2px 2px; border-right:0;" max="23:59"/>
+		  				{% if review or verify or read_only %} readonly {% endif %} style="width:45px; padding:2px 2px; border-right:0;" max="23:59"/>
 							<select id='{{entry.day |date:"j"}}-entry_type' name='{{entry.day |date:"j"}}-entry_type' class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm" style='width:43px; padding:0px;font-size: 9px;font-family: Roboto, sans-serif'>
 							  
 							  {% if entry.day|is_holiday %}
@@ -96,7 +143,7 @@
 							       <option value={{e.0}} {% if e.0 == entry.entry_type %} selected {% endif %}>{{e.0}}</option>
 					             {% endfor %}
 					          {% endif %}
-							</select> 
+							</select>
 						</div>
 		  				<input id='{{entry.day |date:"j"}}-day' type='hidden' value='{{entry.day|date:"Y-m-d"}}' name='{{entry.day |date:"j"}}-day'/>
 		  				 <input id='{{entry.day |date:"j"}}-row' type='hidden' value={{entry.row}} name='{{entry.day |date:"j"}}-row'/> </td>
@@ -137,31 +184,43 @@
 		  			</td>
 
 				  {% else %}
-
-	        	<td colspan="25">
-	        		<input name="curr_month" id="curr_month" type="hidden" value="{{curr_month}}"/>
-		        	<input name="year" id="year" type="hidden" value="{{year}}"/>
-		        	<input name="last_day" id="last_day" type="hidden" value={{last_day}}/>
-		        	<input name="holidays" id="holidays" type="hidden" value={{holidays}}/>
-		            <input name="no_of_weeks" id="no_of_weeks" type="hidden" value="{{no_of_weeks}}"/>
-				  	<input name=prefilled_rows id="prefilled_rows" type="hidden" value="{{prefilled_rows}}"/>
-				  	<input name="blank_days" id="blank_days" type="hidden" value="{{blank_days}}"/>
+              
+                <td colspan="25">
+                    <input name="curr_month" id="curr_month" type="hidden"
+                           value="{{curr_month}}"/>
+                    <input name="year" id="year" type="hidden"
+                           value="{{year}}"/>
+                    <input name="last_day" id="last_day" type="hidden"
+                           value={{last_day}}/>
+                    <input name="holidays" id="holidays" type="hidden"
+                           value={{holidays}}/>
+                    <input name="no_of_weeks" id="no_of_weeks" type="hidden"
+                           value="{{no_of_weeks}}"/>
+                    <input name=prefilled_rows id="prefilled_rows"
+                           type="hidden" value="{{prefilled_rows}}"/>
+                    <input name="blank_days" id="blank_days" type="hidden" value="{{blank_days}}"/>
 
 				  	<div class="buttons" style="float:right">
 					{% if not read_only %}
-					   <button type="button" class="btn btn-info" id="add-row">
-					      <i class="glyphicon glyphicon-plus"></i> New Row
-					   </button>
-					   <button type="button" class="btn btn-info" id="auto_fill">
-					      <i class="glyphicon glyphicon-plus"></i> Autofill
-					   </button>
-			          <button type="submit" class="btn btn-warning" id="save-record" onclick="document.getElementById('timesheet_form').submit();">
-			             <i class="glyphicon glyphicon-save"></i> Save
-                  
-			               </button>
-			           <button type="button" class="btn btn-success" id="save-submit-record" style="display:none;">
-			             <i class="glyphicon glyphicon-save"></i> Save and Submit
-			          </button>
+                        <button type="button" class="btn btn-info"
+                                id="add-row">
+                            <i class="glyphicon glyphicon-plus"></i> New Row
+                        </button>
+                        <button type="button" class="btn btn-info"
+                                id="auto_fill">
+                            <i class="glyphicon glyphicon-plus"></i> Autofill
+                        </button>
+                        <button type="submit" class="btn btn-warning"
+                                id="save-record"
+                                onclick="document.getElementById('timesheet_form').submit();">
+                            <i class="glyphicon glyphicon-save"></i> Save
+                      
+                        </button>
+                        <button type="button" class="btn btn-success"
+                                id="save-submit-record" style="display:none;">
+                            <i class="glyphicon glyphicon-save"></i> Save and
+                                                                     Submit
+                        </button>
 			       	{% else %}
 			       	  {% if timesheet_status == 'Rejected' %}
 			       	  	<a type="button" class="btn btn-danger" disabled>
@@ -180,7 +239,7 @@
 		  </tfoot>
 
 		</table>
-	</form> 
+	</form>
    </div>
    <div class="col-md-3" style="float:right; " >
    <br/>
@@ -191,7 +250,7 @@
 	              <a href="#" > {{ month_name }}  {{year}}</a>
 
   	        	<span class="pull-right">
-		  	          <a {% if p_role %} 
+		  	          <a {% if p_role %}
 		  	          	   href="{% url timesheet_listboard_url %}?p_role={{p_role}}"
 		  	          	 {% else %} href="{% url timesheet_listboard_url employee_id %}"
 		  	          	 {% endif %}
@@ -213,7 +272,7 @@
 	      		<!-- {% include 'timesheet_dashboard/demographics.html' %} -->
 	      		{% demographics employee_id %}
 
-	      </div> 
+	      </div>
 	   
 	   </div>
 	 {% if 'HR' in groups %}
@@ -264,7 +323,7 @@
                    <i  class="far fa-calendar"></i>
                         <span data-toggle="tooltip" data-placement="right"  class="text text-default" > Annual Leave Taken: {{ leave_taken }} </span>
                    <br/><i  class="far fa-calendar"></i> <span data-toggle="tooltip" data-placement="right"  class="text text-default" > Annual Leave Balance: {{ leave_balance }} </span>
-                    
+                   
                </a>
                {% endif %}
                
@@ -327,7 +386,7 @@
 	      
 	   </div>
 
-       
+    
 	   <div class="panel panel-default">
 	      <div class="panel-heading">
 	          <h6 class="panel-title">
@@ -335,7 +394,7 @@
 	          </h6>
 	      </div>
 	      
-	      <textarea name="comment" form="timesheet_form" id="comment" type="text "rows="4" 
+	      <textarea name="comment" form="timesheet_form" id="comment" type="text "rows="4"
 	      onkeyup="Allow()" placeholder="write a comment......" style="width:100%; border:0;"
 	      {% if not review and not verify %} disabled {% endif %}> {% if comment %} {{comment}} {% endif %}</textarea>
 	      
@@ -343,22 +402,55 @@
 	 </div>
 </div>
 <script>
-   
+    
     var append_rejected = document.getElementById('rejected');
     
     var status = document.getElementById('is-{{timesheet_status }}').innerHTML;
-    var Rejected='Status: Rejected ';
+    var Rejected = 'Status: Rejected ';
     if (status == Rejected) {
-    	
+        
         append_rejected.style.display = "block";
         
-    }else{
-        if (document.getElementById('approved') !== null){
-        	let append_approved = document.getElementById('approved');
-        	append_approved.style.display = "block";
+    } else {
+        if (document.getElementById('approved') !== null) {
+            let append_approved = document.getElementById('approved');
+            append_approved.style.display = "block";
         }
         
     }
+    
+    $(".calendar_button").click(function () {
+        $(this).toggleClass("pressed");
+        $("div.year-container").toggle();
+    });
+    
+    $(".month").click(function () {
+        $(".month").removeClass("active");
+        $(this).addClass("active");
+        console.log($(this).attr("id"));
+        document.getElementById("select_month").value = $(this).attr("id");
+        document.getElementById("controller").value = "calendar_picker";
+        $('#controlForm').submit();
+    });
+    
+    $(document).on('click', '#nextyear', function () {
+        document.getElementById("controller").value = "nextyear";
+        $('#controlForm').submit();
+    });
+    
+    $(document).on('click', '#prevyear', function () {
+        document.getElementById("controller").value = "prevyear";
+        $('#controlForm').submit();
+    });
+    
+    function prev() {
+        document.getElementById("year1").innerHTML--;
+        document.getElementById("calendar_year").value = document.getElementById("year1").innerHTML;
+    }
+    
+    function forw() {
+        document.getElementById("year1").innerHTML++;
+        document.getElementById("calendar_year").value = document.getElementById("year1").innerHTML;
+    }
 </script>
-
 {% endblock main %}
