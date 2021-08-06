@@ -40,6 +40,7 @@ class EmployeeListBoardView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         p_role = self.request.GET.get('p_role')
         context.update(
             p_role=p_role,
@@ -107,30 +108,26 @@ class EmployeeListBoardView(
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-        usr_groups = [g.name for g in self.request.user.groups.all()]
-
         if kwargs.get('subject_id'):
             options.update(
                 {'identifier': kwargs.get('subject_id')})
+        return options
 
-        elif('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
+    def get_queryset(self):
+        usr_groups = [g.name for g in self.request.user.groups.all()]
+        qs = super().get_queryset()
+
+        if self.request.GET.get('dept'):
+            if 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
+                qs = qs.filter(department__dept_name=self.request.GET.get('dept'))
+        elif('Supervisor' in usr_groups and self.request.GET.get('p_role') == 'Supervisor'):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
             try:
                 supervisor_obj = supervisor_cls.objects.get(email=self.request.user.email)
             except supervisor_cls.DoesNotExist:
-                options.update({'user_created': None})
+                pass
             else:
-                options.update({'supervisor': supervisor_obj})
-        return options
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        if self.request.GET.get('dept'):
-            usr_groups = [g.name for g in self.request.user.groups.all()]
-
-            if 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
-                qs = qs.filter(department__dept_name=self.request.GET.get('dept'))
+                qs = qs.filter(Q(supervisor=supervisor_obj) | Q(supervisor_alt=supervisor_obj))
         return qs
 
     def extra_search_options(self, search_term):
