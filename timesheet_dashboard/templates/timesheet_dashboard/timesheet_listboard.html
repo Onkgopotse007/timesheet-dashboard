@@ -80,11 +80,7 @@
 		   <td style="white-space: nowrap">
 		   <div class="btn-group">
 		   {% if timesheet_add_url %}
-		      {% if result.status == 'new'%}
-				  <a title="Edit timesheet" role="button" class="btn btn-default btn-sm" href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  result.year result.month %}">
-				     <i class="fa fa-pencil-alt fa-sm"></i> 
-				  </a>
-			  {% endif %}
+
 			     {% submit_timesheet_button result %}
 			{% endif %}
 
