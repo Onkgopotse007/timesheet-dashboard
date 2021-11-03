@@ -1,6 +1,10 @@
 import calendar
-import math
 from datetime import datetime, timedelta
+from edc_base.utils import get_utcnow
+import math
+from smtplib import SMTPException
+from timesheet.forms import DailyEntryForm
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
@@ -8,9 +12,6 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db.models import Sum, Q
 from django.forms import inlineformset_factory
-from edc_base.utils import get_utcnow
-from timesheet.forms import DailyEntryForm
-from smtplib import SMTPException
 
 
 class MonthlyEntryError(Exception):
@@ -194,8 +195,7 @@ class TimesheetMixin:
 
     def calculate_monthly_overtime(self, dailyentries, monthly_entry):
 
-        weekday_entries = dailyentries.filter(Q(day__week_day__lt=7) & Q(day__week_day__gt=1),
-                                              entry_type='RH')
+        weekday_entries = dailyentries.filter(Q(day__week_day__lt=7) & Q(day__week_day__gt=1))
 
         extra_hours = 0
 
@@ -205,7 +205,7 @@ class TimesheetMixin:
 
         overtime = extra_hours
 
-        weekend_entries = dailyentries.filter(Q(entry_type='WE') | Q(entry_type='H'))
+        weekend_entries = dailyentries.filter(Q(entry_type='WE'))
 
         weekend_entries_dict = weekend_entries.aggregate(Sum('duration'))
 
