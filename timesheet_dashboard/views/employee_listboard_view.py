@@ -1,3 +1,7 @@
+from bhp_personnel_dashboard.model_wrappers import EmployeeModelWrapper
+from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_dashboard.views import ListboardView
 import re
 
 from django.apps import apps as django_apps
@@ -6,12 +10,8 @@ from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.utils.decorators import method_decorator
 
-from edc_base.view_mixins import EdcBaseViewMixin
-from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
-from edc_dashboard.views import ListboardView
 from edc_navbar import NavbarViewMixin
 
-from bhp_personnel_dashboard.model_wrappers import EmployeeModelWrapper
 from .filters import EmployeeListboardViewFilters
 
 
@@ -127,7 +127,7 @@ class EmployeeListBoardView(
             except supervisor_cls.DoesNotExist:
                 pass
             else:
-                qs = qs.filter(Q(supervisor=supervisor_obj) | Q(supervisor_alt=supervisor_obj))
+                qs = qs.filter(Q(supervisor=supervisor_obj))  # | Q(supervisor_alt=supervisor_obj))
         return qs
 
     def extra_search_options(self, search_term):
