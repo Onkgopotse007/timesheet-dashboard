@@ -143,16 +143,47 @@ if(+day == last_day ){
 }
 
 
+function submit_form() {
+	// logic for checking for holidays and submit form
+	let flag = true;
 
+	let durations = document.querySelectorAll('td [id$="-duration-"]');
+	let types = document.querySelectorAll('td [id$="-entry_type"]');
 
-$(document).on('click', '#save-record', function() {
-	var extras ="<tr>"+
+	for (let i = 0; i < durations.length; i++) {
+		
+		if((types[i].value === 'H') && durations[i].value < 8 ){
+			
+			durations[i].style.borderStyle = 'solid';
+			durations[i].style.borderWidth = '2px';
+			durations[i].style.borderColor = 'red';
+
+			flag = false
+		}
+
+	}
+
+	if(flag){
+		var extras ="<tr>"+
 				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='"+total_forms+"' name='dailyentry_set-TOTAL_FORMS'/>"+
 			    "<input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/>"+
 			    "<input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/>"+
 			    "<input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/></td>"+
 				"</tr>";
-	$("table tbody").append(extras);
+		$("table tbody").append(extras);
+
+		$('#timesheet_form').submit();
+
+	}
+	
+}
+
+
+$(document).on('click', '#save-record', function(event) {
+
+	
+	submit_form();
+
 });
 
 $(document).on('click', '#nextMonth', function() {
@@ -166,7 +197,7 @@ $(document).on('click', '#prevMonth', function() {
 });
 
 $(document).on('click', '#save-record', function() {
-	$('#timesheet_form').submit();
+	// $('#timesheet_form').submit();
 });
 
 $(document).on('click', '.remove', function() {
@@ -216,15 +247,7 @@ $(document).on('click', '.cell-remove', function() {
 });
 
  $(document).on('click', '#save-submit-record', function() {
-	var extras ="<tr>"+
-				"<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='"+total_forms+"' name='dailyentry_set-TOTAL_FORMS'/>"+
-			    "<input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/>"+
-			    "<input id='dailyentry_set-MIN_NUM_FORMS' type='hidden' value='0' name='dailyentry_set-MIN_NUM_FORMS'/>"+
-			    "<input id='dailyentry_set-MAX_NUM_FORMS' type='hidden' value='31' name='dailyentry_set-MAX_NUM_FORMS'/>"+
-				"<input name='save_submit' type='hidden' value='1'/></td>"+
-				"</tr>";
-	$("table tbody").append(extras);
-	$('#timesheet_form').submit();
+	submit_form();
 });
 
  $(document).on('click', '#approve-record', function() {
