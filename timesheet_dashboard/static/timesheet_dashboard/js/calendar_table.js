@@ -152,7 +152,7 @@ function submit_form() {
 
 	for (let i = 0; i < durations.length; i++) {
 		
-		if((types[i].value === 'H') && durations[i].value < 8 ){
+		if((types[i].value === 'H') && (durations[i].value < 8)){
 			
 			durations[i].style.borderStyle = 'solid';
 			durations[i].style.borderWidth = '2px';
