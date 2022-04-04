@@ -1,6 +1,10 @@
 import calendar
+from datetime import datetime, timedelta
+from edc_base.utils import get_utcnow
 import math
-from datetime import datetime, timedelta, time
+from smtplib import SMTPException
+from timesheet.forms import DailyEntryForm
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
@@ -8,9 +12,6 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db.models import Q
 from django.forms import inlineformset_factory
-from edc_base.utils import get_utcnow
-from timesheet.forms import DailyEntryForm
-from smtplib import SMTPException
 
 
 class MonthlyEntryError(Exception):
@@ -214,9 +215,14 @@ class TimesheetMixin:
             Q(day__week_day__lt=7) & Q(day__week_day__gt=1),
             entry_type='RH')
 
-        extra_hours = None
-        base_time_obj = time(hour=8, minute=0)
-        base_time_str = datetime.strptime('08:00', '%H:%M')
+#         extra_hours = None
+#         base_time_obj = time(hour=8, minute=0)
+#         base_time_str = datetime.strptime('08:00', '%H:%M')
+        weekday_entries = dailyentries.filter(Q(day__week_day__lt=7) & Q(day__week_day__gt=1))
+
+        extra_hours = 0
+
+
         for entry in weekday_entries:
             if entry.duration > base_time_obj:
                 duration_str = datetime.strptime(
@@ -233,7 +239,6 @@ class TimesheetMixin:
             if not extra_hours:
                 extra_hours = timedelta(hours=weekend_entry.duration.hour,
                                         minutes=weekend_entry.duration.minute)
-
             else:
                 extra_hours += timedelta(hours=weekend_entry.duration.hour,
                                          minutes=weekend_entry.duration.minute)

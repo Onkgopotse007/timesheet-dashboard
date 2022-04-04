@@ -19,11 +19,14 @@
 }
 </style>
 {% if status == 'new' %}
-<form method='POST' id="new_post" action="{% url 'timesheet_dashboard:timesheet_listboard_url'  employee_id %}?year={{year}}&month={{month}}" name="save-submit-record">
-  	{% csrf_token %}
-<!--  	 <input class="btn btn-warning btn-sm" type="submit" value="Submit">-->
-</form>
- 		
+	<a id="edit_timesheet_{{employee_id}}"  title="Timesheet New"  data-toggle="tooltip"
+		data-placement="right" class="btn btn-default btn-sm" role="button" 
+		href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">
+
+     <span class="btn-label"><i class="fa fa-pencil-alt fa-sm"></i></span>
+          Edit T/S
+ </a>
+
 {% elif status == 'submitted' %}
  <a id="submit_timesheet_{{employee_id}}"  title="Timesheet Submitted"  data-toggle="tooltip"
 	data-placement="right" class="btn btn-info btn-sm" role="button" 
@@ -46,7 +49,7 @@
         <span class="btn-label"><i class="glyphicon glyphicon-ok circle-icon1-"></i></span>
       Verified
   </a>
-{% else %}
+{% elif status == 'approved' %}
    <a id="approved_timesheet_{{employee_id}}"  title="Timesheet Approved"  data-toggle="tooltip"
       data-placement="right" class="btn btn-success btn-sm" role="button" 
 	  href="{% url 'timesheet_dashboard:timesheet_calendar_table_url' employee_id  year month %}">

@@ -1,15 +1,18 @@
 import calendar
 from datetime import datetime
-from django.apps import apps as django_apps
-from django.contrib.auth.decorators import login_required
-from django.http.response import HttpResponseRedirect
-from django.utils.decorators import method_decorator
-from django.views.generic.base import TemplateView
-from django.urls.base import reverse
 from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import TemplateRequestContextMixin
+
+from django.apps import apps as django_apps
+from django.contrib.auth.decorators import login_required
+from django.http.response import HttpResponseRedirect
+from django.urls.base import reverse
+from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
+
 from edc_navbar import NavbarViewMixin
+
 from .timesheet_mixin import TimesheetMixin
 
 
@@ -95,7 +98,7 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                 extra_context.update({'read_only': True})
             else:
                 extra_context.update({'verify': True})
-        elif (monthly_obj and monthly_obj.status in ['approved', 'verified', 'submitted']):
+        elif (monthly_obj and monthly_obj.status in ['approved', 'verified']):
             extra_context = {'read_only': True, }
 
         if monthly_obj:

@@ -1,3 +1,7 @@
+from bhp_personnel_dashboard.model_wrappers import EmployeeModelWrapper
+from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_dashboard.views import ListboardView
 import re
 
 from django.apps import apps as django_apps
@@ -6,12 +10,8 @@ from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.utils.decorators import method_decorator
 
-from edc_base.view_mixins import EdcBaseViewMixin
-from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
-from edc_dashboard.views import ListboardView
 from edc_navbar import NavbarViewMixin
 
-from bhp_personnel_dashboard.model_wrappers import EmployeeModelWrapper
 from .filters import EmployeeListboardViewFilters
 
 
@@ -40,6 +40,7 @@ class EmployeeListBoardView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         p_role = self.request.GET.get('p_role')
         context.update(
             p_role=p_role,
@@ -58,17 +59,20 @@ class EmployeeListBoardView(
 
         employee = self.get_personnel_obj(employee_cls)
 
+        p_role = self.request.GET.get('p_role')
+
+        qs = f'?p_role={p_role}'
         if employee:
-            return employee.identifier
+            return employee.identifier + qs
         else:
             pi = self.get_personnel_obj(pi_cls)
 
             if pi:
-                return pi.identifier
+                return pi.identifier + qs
             else:
                 consultant = self.get_personnel_obj(consultant_cls)
 
-                return consultant.identifier if consultant else None
+                return consultant.identifier if consultant else qs
 
     def get_personnel_obj(self, personnel_cls):
 
@@ -104,30 +108,26 @@ class EmployeeListBoardView(
 
     def get_queryset_filter_options(self, request, *args, **kwargs):
         options = super().get_queryset_filter_options(request, *args, **kwargs)
-        usr_groups = [g.name for g in self.request.user.groups.all()]
-
         if kwargs.get('subject_id'):
             options.update(
                 {'identifier': kwargs.get('subject_id')})
+        return options
 
-        elif('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
+    def get_queryset(self):
+        usr_groups = [g.name for g in self.request.user.groups.all()]
+        qs = super().get_queryset()
+
+        if self.request.GET.get('dept'):
+            if 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
+                qs = qs.filter(department__dept_name=self.request.GET.get('dept'))
+        elif('Supervisor' in usr_groups and self.request.GET.get('p_role') == 'Supervisor'):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
             try:
                 supervisor_obj = supervisor_cls.objects.get(email=self.request.user.email)
             except supervisor_cls.DoesNotExist:
-                options.update({'user_created': None})
+                pass
             else:
-                options.update({'supervisor': supervisor_obj})
-        return options
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        if self.request.GET.get('dept'):
-            usr_groups = [g.name for g in self.request.user.groups.all()]
-
-            if 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
-                qs = qs.filter(department__dept_name=self.request.GET.get('dept'))
+                qs = qs.filter(Q(supervisor=supervisor_obj))  # | Q(supervisor_alt=supervisor_obj))
         return qs
 
     def extra_search_options(self, search_term):
