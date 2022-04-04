@@ -118,7 +118,7 @@ function tableRows(value){
 	
 	if(day <= last_day){
 		markup += "<td> "+
-				 "<div class='input-group'> <input id='dailyentry_set-"+value+"-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration' max='24' min='0' style='width:48px; padding:4px 8px; border-right:0;'/>"+
+				 "<div class='input-group'> <input id='dailyentry_set-"+value+"-duration' value='00:00' type='time' class='form-control form-control-sm' name='dailyentry_set-"+value+"-duration'  style='width:48px; padding:2px 4px; border-right:0;'/>"+
 				 "<select id='dailyentry_set-"+value+"-entry_type' name='dailyentry_set-"+value+"-entry_type' class='btn btn-default btn-sm dropdown-toggle form-control form-control-sm' style='width:40px; padding:0px;'>"+
 				 entry_type_options+"</select> "+
 				 /*"<a class='btn btn-sm cell-add'><i class='glyphicon glyphicon-plus'></i></a>"+
@@ -284,9 +284,14 @@ $(document).on('click', '#auto_fill', function() {
 		element_type = 'dailyentry_set-'+entry+'-entry_type';
 		
 		//Autofill if entry is not a holiday or weekend entry
+		//if (document.getElementById(element_type) && document.getElementById(element_type).value !== 'WE') {
+			//document.getElementById(element_id).value = '08:00';
+		//}
+
 		if(document.getElementById(element_type) && document.getElementById(element_type).value !== 'WE'){
 			document.getElementById(element_id).value = 8;
 			}
+
 	});
 });
 	if (document.getElementById('day-'+ last_day+'-title') !== null){
