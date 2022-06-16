@@ -58,11 +58,16 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         employee_id = self.request.GET.get('employee_id') or self.kwargs.get('employee_id')
         querystring = f'?p_role={p_role}'
         dept = self.request.GET.get('dept')
+        q = self.request.GET.get('q')
 
         if employee_id:
-            querystring = f'?p_role={p_role}&&employee_id={employee_id}'
-        elif dept:
-            querystring = f'?p_role={p_role}&&dept={dept}'
+            querystring = querystring + f'&&employee_id={employee_id}'
+
+        if dept:
+            querystring = querystring + f'&&dept={dept}'
+
+        if q:
+            querystring = querystring + f'&&q={q}'
 
         context.update(
             p_role=p_role,
