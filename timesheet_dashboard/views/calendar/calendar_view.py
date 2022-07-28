@@ -161,6 +161,7 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                        holidays=self.get_holidays(int(year), int(month)),
                        entry_types=entry_types,
                        month_names=list(calendar.month_name)[1:13],
+                       is_security=self.is_security,
                        **extra_context)
         return context
 

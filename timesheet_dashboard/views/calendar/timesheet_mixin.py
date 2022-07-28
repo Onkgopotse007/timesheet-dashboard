@@ -1,5 +1,7 @@
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
+
+from django.contrib import messages
 from edc_base.utils import get_utcnow
 import math
 from smtplib import SMTPException
@@ -93,8 +95,7 @@ class TimesheetMixin:
                     setattr(monthly_entry, (field_prefix + '_date'),
                             get_utcnow().date())
                     setattr(monthly_entry, (field_prefix + '_by'), (
-                            request.user.first_name[
-                                0] + ' ' + request.user.last_name))
+                            request.user.first_name[0] + ' ' + request.user.last_name))
                     if request.POST.get('timesheet_review') == 'rejected':
                         setattr(monthly_entry, ('verified_date'), None)
                         setattr(monthly_entry, ('verified_by'), None)
@@ -164,7 +165,6 @@ class TimesheetMixin:
                 if request.POST.get('save_submit') == '1':
                     monthly_entry.status = 'submitted'
                     monthly_entry.submitted_datetime = get_utcnow()
-
                 # monthly_entry = self.sum_monthly_leave_days(formset.queryset, monthly_entry)
                 monthly_entry = self.calculate_monthly_overtime(
                     formset.queryset, monthly_entry)
@@ -214,14 +214,10 @@ class TimesheetMixin:
         weekday_entries = dailyentries.filter(
             Q(day__week_day__lt=7) & Q(day__week_day__gt=1),
             entry_type='RH')
-
-#         extra_hours = None
-#         base_time_obj = time(hour=8, minute=0)
-#         base_time_str = datetime.strptime('08:00', '%H:%M')
-        weekday_entries = dailyentries.filter(Q(day__week_day__lt=7) & Q(day__week_day__gt=1))
-
+        extra_hours = None
+        base_time_obj = time(hour=8, minute=0)
+        base_time_str = datetime.strptime('08:00', '%H:%M')
         extra_hours = 0
-
 
         for entry in weekday_entries:
             if entry.duration > base_time_obj:
@@ -262,7 +258,10 @@ class TimesheetMixin:
         holiday_list = facility.holidays.holidays.filter(
             local_date__year=year,
             local_date__month=month).values_list('local_date', flat=True)
-        return '|'.join([f'{h.year}/{h.month}/{h.day}' for h in holiday_list])
+        if not self.is_security:
+            return '|'.join([f'{h.year}/{h.month}/{h.day}' for h in holiday_list])
+        else:
+            return ''
 
     def get_monthly_obj(self, month):
 
@@ -283,14 +282,17 @@ class TimesheetMixin:
             0 - currDate.weekday(), 7 - currDate.weekday())]
         return dates
 
+    @property
+    def monthly_entry_cls(self):
+        return django_apps.get_model('timesheet.monthlyentry')
+
     def get_dailyentries(self, year, month):
-        monthly_entry_cls = django_apps.get_model('timesheet.monthlyentry')
         entries_dict = {}
         try:
-            monthly_entry_obj = monthly_entry_cls.objects.get(
+            monthly_entry_obj = self.monthly_entry_cls.objects.get(
                 employee=self.employee,
                 month=datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
-        except monthly_entry_cls.DoesNotExist:
+        except self.monthly_entry_cls.DoesNotExist:
             return None
         else:
             daily_entries = monthly_entry_obj.dailyentry_set.all()
@@ -339,6 +341,16 @@ class TimesheetMixin:
     def entry_types(self):
         daily_entry_cls = django_apps.get_model('timesheet.dailyentry')
         entry_types = daily_entry_cls._meta.get_field('entry_type').choices
-        entry_types = tuple(entry_type for entry_type in entry_types
-                            if entry_type[0] not in ['H', 'WE'])
-        return entry_types
+        if self.is_security:
+            return tuple(entry_type for entry_type in entry_types
+                         if entry_type[0] not in ['H', 'WE'])
+        else:
+            return tuple(entry_type for entry_type in entry_types
+                         if entry_type[0] not in ['H', 'WE', 'OD'])
+
+    @property
+    def is_security(self):
+        """
+        - returns : True if the employee is a security guard
+        """
+        return 'Watchman/Security' in self.user_employee.job_title
