@@ -353,4 +353,4 @@ class TimesheetMixin:
         """
         - returns : True if the employee is a security guard
         """
-        return 'Watchman/Security' in self.user_employee.job_title
+        return 'Night' in self.user_employee.job_title

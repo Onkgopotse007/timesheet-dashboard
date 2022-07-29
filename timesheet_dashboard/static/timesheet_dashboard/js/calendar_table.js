@@ -87,7 +87,6 @@ $(document).ready(function () {
         for (i = 0; i < holidays.length; i++) {
 
             holiday = new Date(holidays[i])
-            console.log(is_security)
             if (!is_security && dt >= holiday && dt <= holiday) {
                 return true;
             }
@@ -105,7 +104,6 @@ $(document).ready(function () {
         if (prefilled_rows != 0) {
             day = (((prefilled_rows - 1) * 7) + spaces) + (value + 1);
         }
-        console.log(is_security)
 
         if (!is_security && is_holiday(curr_year, curr_month, day)) {
             entry_type_options += "<option value='H'>H</option>";
@@ -146,22 +144,27 @@ $(document).ready(function () {
         const cols = (((row_count - 1) * 7) + (7 - blank_days));
 
         let tableIndex = Array(cols).fill().map((x, i) => i);
+        let is_valid = true
+        let valid_entry = 0
 
         tableIndex.forEach(function (entry) {
             let first_entry = 'dailyentry_set-' + entry + '-entry_type';
             let element_type;
             if (document.getElementById(first_entry) && document.getElementById(first_entry).value === 'OD') {
-                for (let i = 0; (entry < i < tableIndex.length); i++) {
+                valid_entry++
+                for (let i = entry + 1; (entry < i < tableIndex.length && (((tableIndex.length - i) - 6) > 0)); i++) {
                     element_type = 'dailyentry_set-' + i + '-entry_type';
                     if (document.getElementById(element_type) && document.getElementById(element_type).value === 'OD') {
-                        if ((i - entry) === 7) {
-                            return true
+                        let dif = (i - entry)
+                        if (Math.abs(dif) !== 7) {
+                            is_valid = false
                         }
+                        break
                     }
                 }
             }
         })
-        return false
+        return (is_valid && (valid_entry > 0))
     }
 
 
@@ -186,7 +189,14 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '#save-record', function () {
-        $('#timesheet_form').submit();
+        let form_is_valid = validate_off_days()
+        if (is_security){
+            form_is_valid ? $('#timesheet_form').submit() : alert(
+            'Please Ensure there are 6 days between two off days');
+        }else {
+            $('#timesheet_form').submit()
+        }
+
     });
 
     $(document).on('click', '.remove', function () {
@@ -236,7 +246,6 @@ $(document).ready(function () {
 
     $(document).on('click', '#save-submit-record', function () {
         let form_is_valid = validate_off_days()
-        console.log(form_is_valid)
         var extras = "<tr>" +
             "<td> <input id='dailyentry_set-TOTAL_FORMS' type='hidden' class='form-control form-control-sm' value='" + total_forms + "' name='dailyentry_set-TOTAL_FORMS'/>" +
             "<input id='dailyentry_set-INITIAL_FORMS' type='hidden' value='0' name='dailyentry_set-INITIAL_FORMS'/>" +
@@ -245,8 +254,12 @@ $(document).ready(function () {
             "<input name='save_submit' type='hidden' value='1'/></td>" +
             "</tr>";
         $("table tbody").append(extras);
-        form_is_valid ? $('#timesheet_form').submit() : alert(
+         if (is_security){
+            form_is_valid ? $('#timesheet_form').submit() : alert(
             'Please Ensure there are 6 days between two off days');
+        }else {
+            $('#timesheet_form').submit()
+        }
     });
 
     $(document).on('click', '#approve-record', function () {
