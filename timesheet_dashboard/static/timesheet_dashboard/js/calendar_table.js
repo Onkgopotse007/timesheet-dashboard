@@ -84,6 +84,7 @@ $(document).ready(function () {
     var is_holiday = function (year, month, day) {
         var dt = new Date(year, month, day);
 
+        let holiday;
         for (i = 0; i < holidays.length; i++) {
 
             holiday = new Date(holidays[i])
@@ -99,9 +100,9 @@ $(document).ready(function () {
         var day = value + 1;
         var x = document.getElementById('save-submit-record');
 
-        entry_type_options = '';
+        let entry_type_options = '';
 
-        if (prefilled_rows != 0) {
+        if (prefilled_rows !== 0) {
             day = (((prefilled_rows - 1) * 7) + spaces) + (value + 1);
         }
 
@@ -134,7 +135,7 @@ $(document).ready(function () {
             markup += "<td> </td>";
             header_markup += "<td style='text-align:center;''> </td>";
         }
-        if (+day == last_day) {
+        if (+day === last_day) {
             x.style.display = "inline";
         }
 
@@ -144,27 +145,15 @@ $(document).ready(function () {
         const cols = (((row_count - 1) * 7) + (7 - blank_days));
 
         let tableIndex = Array(cols).fill().map((x, i) => i);
-        let is_valid = true
         let valid_entry = 0
 
         tableIndex.forEach(function (entry) {
             let first_entry = 'dailyentry_set-' + entry + '-entry_type';
-            let element_type;
             if (document.getElementById(first_entry) && document.getElementById(first_entry).value === 'OD') {
                 valid_entry++
-                for (let i = entry + 1; (entry < i < tableIndex.length && (((tableIndex.length - i) - 6) > 0)); i++) {
-                    element_type = 'dailyentry_set-' + i + '-entry_type';
-                    if (document.getElementById(element_type) && document.getElementById(element_type).value === 'OD') {
-                        let dif = (i - entry)
-                        if (Math.abs(dif) !== 7) {
-                            is_valid = false
-                        }
-                        break
-                    }
-                }
             }
         })
-        return (is_valid && (valid_entry > 0))
+        return (valid_entry > 0)
     }
 
 
@@ -190,10 +179,10 @@ $(document).ready(function () {
 
     $(document).on('click', '#save-record', function () {
         let form_is_valid = validate_off_days()
-        if (is_security){
+        if (is_security) {
             form_is_valid ? $('#timesheet_form').submit() : alert(
-            'Please Ensure there are 6 days between two off days');
-        }else {
+                'Please insure that there are off days captured');
+        } else {
             $('#timesheet_form').submit()
         }
 
@@ -254,10 +243,10 @@ $(document).ready(function () {
             "<input name='save_submit' type='hidden' value='1'/></td>" +
             "</tr>";
         $("table tbody").append(extras);
-         if (is_security){
+        if (is_security) {
             form_is_valid ? $('#timesheet_form').submit() : alert(
-            'Please Ensure there are 6 days between two off days');
-        }else {
+                'Please insure that there are off days captured');
+        } else {
             $('#timesheet_form').submit()
         }
     });
@@ -298,9 +287,7 @@ $(document).ready(function () {
 
             //Autofill if entry is not a holiday or weekend entry
             if (is_security) {
-                if (document.getElementById(element_type) && document.getElementById(element_type).value !== 'OD') {
-                    document.getElementById(element_id).value = 12;
-                }
+                document.getElementById(element_id).value = 12;
             } else {
                 if (document.getElementById(element_type) && document.getElementById(element_type).value !== 'WE') {
                     document.getElementById(element_id).value = 8;
