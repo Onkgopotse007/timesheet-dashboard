@@ -343,7 +343,7 @@ class TimesheetMixin:
         entry_types = daily_entry_cls._meta.get_field('entry_type').choices
         if self.is_security:
             return tuple(entry_type for entry_type in entry_types
-                         if entry_type[0] not in ['H', 'WE'])
+                         if entry_type[0] not in ['WE'])
         else:
             return tuple(entry_type for entry_type in entry_types
                          if entry_type[0] not in ['H', 'WE', 'OD'])
