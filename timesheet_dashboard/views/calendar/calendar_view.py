@@ -44,7 +44,8 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                 if controller == 'calendar_picker':
                     select_month = request.POST.get('select_month', '')
                     select_year = request.POST.get('calendar_year', '')
-                    month = datetime.strptime(select_month, "%B").month if select_month else month
+                    month = datetime.strptime(select_month,
+                                              "%B").month if select_month else month
                     year = int(select_year) if select_year else year
                 else:
                     year, month = self.navigate_table(controller, year, month)
@@ -61,7 +62,7 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                 return HttpResponseRedirect(
                     reverse('timesheet_dashboard:timesheet_listboard_url',
                             kwargs={'employee_id': kwargs.get('employee_id')})
-                            +'?p_role=' + request.GET.get('p_role'))
+                    + '?p_role=' + request.GET.get('p_role'))
 
         return HttpResponseRedirect(
             reverse('timesheet_dashboard:timesheet_calendar_table_url',
@@ -79,26 +80,24 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
         monthly_obj = self.get_monthly_obj(
             datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
         extra_context = {}
-        if (self.request.GET.get('p_role') == 'Supervisor'):
+        if self.request.GET.get('p_role') == 'Supervisor':
             extra_context = {'p_role': 'Supervisor',
                              'verified': True,
                              'read_only': True, }
 
-            if ((
-                    monthly_obj and monthly_obj.status != 'verified') or not monthly_obj):
+            # if (monthly_obj and monthly_obj.status != 'verified') or not monthly_obj:
 
-             if (monthly_obj and monthly_obj.status in ['rejected', 'approved']):
+            if monthly_obj and monthly_obj.status in ['rejected', 'approved']:
                 extra_context.update({'read_only': True})
-            elif ((monthly_obj and monthly_obj.status != 'verified') or not monthly_obj):
-
+            elif (monthly_obj and monthly_obj.status != 'verified') or not monthly_obj:
                 extra_context['review'] = True
-        elif (self.request.GET.get('p_role') == 'HR'):
+        elif self.request.GET.get('p_role') == 'HR':
             extra_context = {'p_role': 'HR'}
-            if (monthly_obj and monthly_obj.status in ['rejected']):
+            if monthly_obj and monthly_obj.status in ['rejected']:
                 extra_context.update({'read_only': True})
             else:
                 extra_context.update({'verify': True})
-        elif (monthly_obj and monthly_obj.status in ['approved', 'verified']):
+        elif monthly_obj and monthly_obj.status in ['approved', 'verified']:
             extra_context = {'read_only': True, }
 
         if monthly_obj:

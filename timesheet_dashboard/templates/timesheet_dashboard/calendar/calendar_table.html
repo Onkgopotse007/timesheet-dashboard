@@ -67,7 +67,6 @@
                 <tbody style="background-color:#fff;">
                 {{ entry_types|json_script:"entry_types"}}
                 {{ is_security|json_script:"is_security"}}
-                {{ last_off_day|json_script:"last_off_day"}}
                 {% for key, values in daily_entries_dict.items %}
                     <tr>
                         <!--   <td> <input id='tasks' type='text' class='form-control form-control-sm' name='tasks' readonly /></td> -->
