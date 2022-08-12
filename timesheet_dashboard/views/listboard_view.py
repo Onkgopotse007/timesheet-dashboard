@@ -163,11 +163,10 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
     def get_queryset(self):
         qs = super().get_queryset()
         usr_groups = [g.name for g in self.request.user.groups.all()]
-        if 'Supervisor' in usr_groups and self.request.GET.get('p_role') == 'Supervisor':
+        if (('Supervisor' in usr_groups and self.request.GET.get('p_role')
+             == 'Supervisor') or ('HR' in usr_groups and self.request.GET.get('p_role')
+                                  == 'HR')):
             qs = qs.filter(status__in=['approved', 'verified', 'rejected', 'submitted'])
-        elif 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
-            qs = qs.filter(status__in=['approved', 'verified', 'rejected'],
-                           approved_by__isnull=False)
 
         if self.request.GET.get('dept'):
             usr_groups = [g.name for g in self.request.user.groups.all()]
