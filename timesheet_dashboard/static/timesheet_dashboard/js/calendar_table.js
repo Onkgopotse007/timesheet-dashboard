@@ -300,7 +300,7 @@ $(document).ready(function () {
 
         var save_submit = document.getElementById('save-submit-record');
 
-        if (day && save_submit && day === last_day) {
+        if (day && save_submit && parseInt(day) === last_day) {
             save_submit.style.display = "inline";
         }
     }
