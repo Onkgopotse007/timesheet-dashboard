@@ -59,9 +59,13 @@ class TimesheetMixin:
                     daily_entry_obj.duration = duration
                     daily_entry_obj.entry_type = entry_type
                     daily_entry_obj.save()
+
                 data.pop(index + '-duration')
                 data.pop(index + '-entry_type')
-                data.pop(index + '-row')
+                for key in data.keys():
+                    if (index + '-row') in key:
+                        data.pop(key)
+                        break
                 data.pop(index + '-day')
 
     def add_daily_entries(self, request, *args, **kwargs):
@@ -214,16 +218,16 @@ class TimesheetMixin:
         weekday_entries = dailyentries.filter(
             Q(day__week_day__lt=7) & Q(day__week_day__gt=1),
             entry_type='RH')
+
         extra_hours = None
-        base_time_obj = time(hour=8, minute=0)
-        base_time_str = datetime.strptime('08:00', '%H:%M')
-        extra_hours = 0
+        base_time_obj = 8
+
+        if self.is_security:
+            base_time_obj = 12
 
         for entry in weekday_entries:
             if entry.duration > base_time_obj:
-                duration_str = datetime.strptime(
-                    entry.duration.strftime("%H:%M"), '%H:%M')
-                difference = duration_str - base_time_str
+                difference = entry.duration - base_time_obj
                 if not extra_hours:
                     extra_hours = difference
                 else:
@@ -231,20 +235,13 @@ class TimesheetMixin:
 
         weekend_entries = dailyentries.filter(
             Q(entry_type='WE') | Q(entry_type='H'))
+        if self.is_security:
+            weekend_entries = dailyentries.filter(entry_type='H')
         for weekend_entry in weekend_entries:
             if not extra_hours:
-                extra_hours = timedelta(hours=weekend_entry.duration.hour,
-                                        minutes=weekend_entry.duration.minute)
+                extra_hours = weekend_entry.duration
             else:
-                extra_hours += timedelta(hours=weekend_entry.duration.hour,
-                                         minutes=weekend_entry.duration.minute)
-
-        if extra_hours:
-            if extra_hours.days > 0:
-                minutes, seconds = divmod(
-                    extra_hours.seconds + extra_hours.days * 86400, 60)
-                hours, minutes = divmod(minutes, 60)
-                extra_hours = f'{hours:d}:{minutes:02d}'
+                extra_hours += weekend_entry.duration
 
             monthly_entry.monthly_overtime = str(extra_hours)
 
