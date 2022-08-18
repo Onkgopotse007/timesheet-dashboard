@@ -178,14 +178,7 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '#save-record', function () {
-        let form_is_valid = validate_off_days()
-        if (is_security) {
-            form_is_valid ? $('#timesheet_form').submit() : alert(
-                'Please insure that there are off days captured');
-        } else {
-            $('#timesheet_form').submit()
-        }
-
+        $('#timesheet_form').submit()
     });
 
     $(document).on('click', '.remove', function () {
@@ -243,12 +236,8 @@ $(document).ready(function () {
             "<input name='save_submit' type='hidden' value='1'/></td>" +
             "</tr>";
         $("table tbody").append(extras);
-        if (is_security) {
-            form_is_valid ? $('#timesheet_form').submit() : alert(
-                'Please insure that there are off days captured');
-        } else {
-            $('#timesheet_form').submit()
-        }
+        
+        $('#timesheet_form').submit()
     });
 
     $(document).on('click', '#approve-record', function () {
