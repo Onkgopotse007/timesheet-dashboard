@@ -106,6 +106,8 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                 leave_balance = self.get_current_contract(
                     employee_id).leave_balance
 
+            monthly_obj_job_title = self.monthly_obj_job_title(monthly_obj)
+
             extra_context.update(
                 leave_taken=monthly_obj.annual_leave_taken,
                 leave_balance=leave_balance,
@@ -116,6 +118,7 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                 approved_by=monthly_obj.approved_by,
                 submitted_datetime=monthly_obj.submitted_datetime,
                 rejected_by=monthly_obj.rejected_by,
+                monthly_obj_job_title=monthly_obj_job_title
             )
         else:
             extra_context.update(
@@ -142,7 +145,6 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
             entry_types = tuple(
                 x for x in entry_types if
                 x[0] not in ['RH', 'SL', 'CL', 'FH', ])
-
         context.update(employee_id=employee_id,
                        week_titles=calendar.day_abbr,
                        month_name=month_name,
