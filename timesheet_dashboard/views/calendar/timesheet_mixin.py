@@ -351,3 +351,6 @@ class TimesheetMixin:
         - returns : True if the employee is a security guard
         """
         return 'Night' in self.user_employee.job_title
+
+    def monthly_obj_job_title(self, monthly_obj):
+        return monthly_obj.employee.job_title
