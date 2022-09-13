@@ -100,17 +100,13 @@
                                             {% for e in entry_types %}
                                                 <option value={{ e.0 }} {% if e.0 == entry.entry_type %} selected {% endif %}>{{ e.0 }}</option>
                                             {% endfor %}
-                                        {% elif review or verify%}
-                                            <option value={{ entry.entry_type }} selected>{{ entry.entry_type }}</option>
                                         {% else %}
-                                            {% if entry.day|is_holiday %}
+                                            {% if monthly_obj_job_title %}
+                                                <option value={{ entry.entry_type }} selected>{{ entry.entry_type }}</option>
+                                            {% elif entry.day|is_holiday %}
                                                 <option value='H' selected> H</option>
                                             {% elif entry.day|is_weekend %}
                                                 <option value='WE' selected> WE</option>
-                                            {% else %}
-                                                {% for e in entry_types %}
-                                                    <option value={{ e.0 }} {% if e.0 == entry.entry_type %} selected {% endif %}>{{ e.0 }}</option>
-                                                {% endfor %}
                                             {% endif %}
                                         {% endif %}
                                     </select>
