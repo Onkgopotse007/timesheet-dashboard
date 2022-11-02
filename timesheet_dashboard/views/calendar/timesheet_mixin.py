@@ -1,7 +1,5 @@
 import calendar
 from datetime import datetime, timedelta, time
-
-from django.contrib import messages
 from edc_base.utils import get_utcnow
 import math
 from smtplib import SMTPException
@@ -9,6 +7,7 @@ from timesheet.forms import DailyEntryForm
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
@@ -96,6 +95,7 @@ class TimesheetMixin:
                         and request.POST.get('timesheet_review') in
                         ['rejected', 'verified', 'approved']):
                     field_prefix = request.POST.get('timesheet_review')
+
                     setattr(monthly_entry, (field_prefix + '_date'),
                             get_utcnow().date())
                     setattr(monthly_entry, (field_prefix + '_by'), (
@@ -266,7 +266,7 @@ class TimesheetMixin:
 
         try:
             monthly_obj = monthly_cls.objects.get(month=month,
-                                                  employee=self.employee, )
+                                                  employee=self.employee,)
         except monthly_cls.DoesNotExist:
             monthly_obj = None
         return monthly_obj
@@ -350,7 +350,9 @@ class TimesheetMixin:
         """
         - returns : True if the employee is a security guard
         """
-        return 'Night' in self.user_employee.job_title
+        if self.user_employee:
+            return 'Night' in self.user_employee.job_title
+        return False
 
     def monthly_obj_job_title(self, monthly_obj):
         return monthly_obj.employee.job_title
