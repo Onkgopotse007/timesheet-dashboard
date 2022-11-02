@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 from edc_base.utils import get_utcnow
 import math
 from smtplib import SMTPException
@@ -7,7 +7,6 @@ from timesheet.forms import DailyEntryForm
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
