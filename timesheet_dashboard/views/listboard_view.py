@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -173,6 +173,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
             if 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
                 qs = qs.filter(employee__department__dept_name=self.request.GET.get('dept'))
+        qs = qs.filter(month__gt=date(2022, 7, 1))
         return qs.order_by('-month')
 
     def extra_search_options(self, search_term):
