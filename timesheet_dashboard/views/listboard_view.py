@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -21,7 +21,6 @@ from .filters import ListboardViewFilters
 class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
                     ListboardFilterViewMixin, SearchFormViewMixin,
                     ListboardView):
-
     supervisor_queryset_lookups = []
     listboard_template = 'timesheet_listboard_template'
     listboard_url = 'timesheet_listboard_url'
@@ -118,22 +117,22 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         return [dept.dept_name for dept in department_cls.objects.all()]
 
     # def supervisors(self, supervisor=None):
-        # """Return a list of supervisors in the same highrachy.
-        # """
-        # employee_cls = django_apps.get_model('bhp_personnel.employee')
-        # supervisors = [supervisor]
-        #
-        # employees = employee_cls.objects.filter(supervisor=supervisor)
-        # for employee in employees:
-            # supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
-            # try:
-                # supervisor_obj = supervisor_cls.objects.get(email=employee.email)
-            # except supervisor_cls.DoesNotExist:
-                # pass
-            # else:
-                # supervisors.append(supervisor_obj)
-        # return supervisors
-        #
+    # """Return a list of supervisors in the same highrachy.
+    # """
+    # employee_cls = django_apps.get_model('bhp_personnel.employee')
+    # supervisors = [supervisor]
+    #
+    # employees = employee_cls.objects.filter(supervisor=supervisor)
+    # for employee in employees:
+    # supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
+    # try:
+    # supervisor_obj = supervisor_cls.objects.get(email=employee.email)
+    # except supervisor_cls.DoesNotExist:
+    # pass
+    # else:
+    # supervisors.append(supervisor_obj)
+    # return supervisors
+    #
     @property
     def supervisor_lookup_prefix(self):
         supervisor_lookup_prefix = LOOKUP_SEP.join(self.supervisor_queryset_lookups)
@@ -145,7 +144,7 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
         if self.kwargs.get('employee_id') or self.request.GET.get('employee_id'):
             options.update({'employee__identifier': self.kwargs.get('employee_id')
-                            or self.request.GET.get('employee_id')})
+                                                    or self.request.GET.get('employee_id')})
 
         elif ('Supervisor' in usr_groups and request.GET.get('p_role') == 'Supervisor'):
             supervisor_cls = django_apps.get_model('bhp_personnel.supervisor')
@@ -166,7 +165,8 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         if (('Supervisor' in usr_groups and self.request.GET.get('p_role')
              == 'Supervisor') or ('HR' in usr_groups and self.request.GET.get('p_role')
                                   == 'HR')):
-            qs = qs.filter(status__in=['approved', 'verified', 'rejected', 'submitted'])
+            qs = qs.filter(status__in=['approved', 'verified', 'rejected', 'submitted'],
+                           month__gt=date(2022, 7, 1))
 
         if self.request.GET.get('dept'):
             usr_groups = [g.name for g in self.request.user.groups.all()]
