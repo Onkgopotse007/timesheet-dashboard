@@ -155,10 +155,9 @@
                                     <i class="glyphicon glyphicon-remove"></i> Reject
                                 </button>
                                 <button type="button" class="btn btn-success"
-                                        id="verify-record">
+                                        id="verify-record" {% if timesheet_status != 'Approved' %}disabled{% endif %}>
                                     <i class="glyphicon glyphicon-ok"></i> Verify
                                 </button>
-
                             </div>
                         </td>
 
