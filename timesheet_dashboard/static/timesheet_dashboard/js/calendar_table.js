@@ -118,8 +118,8 @@ $(document).ready(function () {
 
         if (day <= last_day) {
             markup += "<td> " +
-                "<div class='input-group'> <input id='dailyentry_set-" + value + "-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-" + value + "-duration' max='24' min='0' style='width:40px; padding:4px 8px; border-right:0;'/>" +
-                "<div class='input-group'> <input id='dailyentry_set-" + value + "-duration_minutes' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-" + value + "-duration_minutes' max='59' min='0' style='width:40px; padding:4px 8px; border-right:4px;'/>" +
+                "<div class='input-group'> <input id='dailyentry_set-" + value + "-duration' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-" + value + "-duration' max='24' min='0' style='width:40px; padding:4px 4px; border-right:0;'/>" +
+                "<div class='input-group'> <input id='dailyentry_set-" + value + "-duration_minutes' type='number' value='0' class='form-control form-control-sm' name='dailyentry_set-" + value + "-duration_minutes' max='59' min='0' style='width:40px; padding:4px 4px; border-right:4px;'/>" +
                 "<select id='dailyentry_set-" + value + "-entry_type' name='dailyentry_set-" + value + "-entry_type' class='btn btn-default btn-sm dropdown-toggle form-control form-control-sm' style='width:80px; padding:0px;'>" +
                 entry_type_options + "</select> " +
                 /*"<a class='btn btn-sm cell-add'><i class='glyphicon glyphicon-plus'></i></a>"+
