@@ -89,16 +89,16 @@
                                            value="{{ entry.duration }}" max='24' min='0'
                                             {% if review or verify or read_only %}
                                            readonly {% endif %}
-                                           style="width:40px; padding:4px 8px; border-right:0;"/>
+                                           style="width:40px; padding:4px 4px; border-right:0;"/>
 
                                     <input id='{{ entry.day |date:"j"}}-duration_minutes-'
                                            type='number'
                                            class='form-control'
                                            name='{{ entry.day |date:"j"}}-duration_minutes'
-                                           value="{{ entry.duration_minutes }}" max='24' min='0'
+                                           value="{{ entry.duration_minutes|stringformat:"02d" }}" max='59' min='0'
                                             {% if review or verify or read_only %}
                                            readonly {% endif %}
-                                           style="width:40px; padding:4px 8px; border-right:4px;"/>
+                                           style="width:40px; padding:4px 4px; border-right:4px;"/>
 
                                     <select id='{{ entry.day |date:"j"}}-entry_type'
                                             name='{{ entry.day |date:"j"}}-entry_type'
