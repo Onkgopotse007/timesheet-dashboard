@@ -112,7 +112,7 @@
          <td>{{result.object.employee.first_name}} {{result.object.employee.last_name}}</td>
          {% endif %}
 		 <td >{{ result.month|month_name }}-{{ result.year }}</td>
-		 <td>{{ result.object.total_hours }}</td>
+		 <td>{{ result.object.readable_total_hours }}</td>
 		 <th>{{ result.timesheet_status }}</th>
 		 <th>{{ result.object.submitted_datetime|date:"SHORT_DATETIME_FORMAT" }}</th>
 		 <th>{{ result.approved_by }}</th>
