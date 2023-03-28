@@ -61,7 +61,6 @@
                         </th>
                     {% endfor %}
                     <th colspan="18" class="col-md-1">Total</th>
-
                 </tr>
                 </thead>
                 <tbody style="background-color:#fff;">
@@ -81,25 +80,37 @@
                             <td><h5 id='day-{{ entry.day |date:"j"}}-title'
                                     style='text-align:center;'>
                                 {{ entry.day |date:'j'}} </h5>
-                                <div class="input-group">
+                                <div class="input-group" style="text-align:center;">
 
                                     <input id='{{ entry.day |date:"j"}}-duration-'
                                            type='number'
-                                           class='form-control form-control-sm'
+                                           class='form-control'
                                            name='{{ entry.day |date:"j"}}-duration'
                                            value="{{ entry.duration }}" max='24' min='0'
                                             {% if review or verify or read_only %}
                                            readonly {% endif %}
-                                           style="width:48px; padding:4px 8px; border-right:0;"/>
+                                           style="width:40px; padding:4px 4px; border-right:0;"/>
+
+                                    <input id='{{ entry.day |date:"j"}}-duration_minutes-'
+                                           type='number'
+                                           class='form-control'
+                                           name='{{ entry.day |date:"j"}}-duration_minutes'
+                                           value="{{ entry.duration_minutes|stringformat:"02d" }}" max='59' min='0'
+                                            {% if review or verify or read_only %}
+                                           readonly {% endif %}
+                                           style="width:40px; padding:4px 4px; border-right:4px;"/>
+
                                     <select id='{{ entry.day |date:"j"}}-entry_type'
                                             name='{{ entry.day |date:"j"}}-entry_type'
                                             class="btn btn-default btn-sm dropdown-toggle form-control form-control-sm"
-                                            style='width:40px; padding:0px;'>
+                                            style='width:80px; padding:0px;'>
 
                                         {% if is_security %}
                                             {% for e in entry_types %}
                                                 <option value={{ e.0 }} {% if e.0 == entry.entry_type %} selected {% endif %}>{{ e.0 }}</option>
                                             {% endfor %}
+                                        {% elif review %}
+                                            <option value={{ entry.entry_type }} selected>{{ entry.entry_type }}</option>
                                         {% else %}
                                             {% if entry.day|is_holiday %}
                                                 <option value='H' selected> H</option>
@@ -153,10 +164,9 @@
                                     <i class="glyphicon glyphicon-remove"></i> Reject
                                 </button>
                                 <button type="button" class="btn btn-success"
-                                        id="verify-record">
+                                        id="verify-record" {% if timesheet_status != 'Approved' %}disabled{% endif %}>
                                     <i class="glyphicon glyphicon-ok"></i> Verify
                                 </button>
-
                             </div>
                         </td>
 

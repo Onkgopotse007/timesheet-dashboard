@@ -1,7 +1,5 @@
 import calendar
-from datetime import datetime, timedelta, time
-
-from django.contrib import messages
+from datetime import datetime, timedelta
 from edc_base.utils import get_utcnow
 import math
 from smtplib import SMTPException
@@ -96,6 +94,7 @@ class TimesheetMixin:
                         and request.POST.get('timesheet_review') in
                         ['rejected', 'verified', 'approved']):
                     field_prefix = request.POST.get('timesheet_review')
+
                     setattr(monthly_entry, (field_prefix + '_date'),
                             get_utcnow().date())
                     setattr(monthly_entry, (field_prefix + '_by'), (
@@ -149,6 +148,7 @@ class TimesheetMixin:
                                                       form=DailyEntryForm,
                                                       fields=['day',
                                                               'duration',
+                                                              'duration_minutes',
                                                               'entry_type',
                                                               'row'],
                                                       can_delete=True)
@@ -226,8 +226,9 @@ class TimesheetMixin:
             base_time_obj = 12
 
         for entry in weekday_entries:
-            if entry.duration > base_time_obj:
-                difference = entry.duration - base_time_obj
+            total_duration = entry.duration + (entry.duration_minutes/60)
+            if total_duration > base_time_obj:
+                difference = total_duration - base_time_obj
                 if not extra_hours:
                     extra_hours = difference
                 else:
@@ -238,12 +239,13 @@ class TimesheetMixin:
         if self.is_security:
             weekend_entries = dailyentries.filter(entry_type='H')
         for weekend_entry in weekend_entries:
+            total_duration = weekend_entry.duration + (weekend_entry.duration_minutes // 60)
             if not extra_hours:
-                extra_hours = weekend_entry.duration
+                extra_hours = total_duration
             else:
-                extra_hours += weekend_entry.duration
+                extra_hours += total_duration
 
-            monthly_entry.monthly_overtime = str(extra_hours)
+            monthly_entry.monthly_overtime = extra_hours
 
         return monthly_entry
 
@@ -266,7 +268,7 @@ class TimesheetMixin:
 
         try:
             monthly_obj = monthly_cls.objects.get(month=month,
-                                                  employee=self.employee, )
+                                                  employee=self.employee,)
         except monthly_cls.DoesNotExist:
             monthly_obj = None
         return monthly_obj
@@ -350,7 +352,9 @@ class TimesheetMixin:
         """
         - returns : True if the employee is a security guard
         """
-        return 'Night' in self.user_employee.job_title
+        if self.user_employee:
+            return 'Night' in self.user_employee.job_title
+        return False
 
     def monthly_obj_job_title(self, monthly_obj):
         return monthly_obj.employee.job_title

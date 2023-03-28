@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from edc_base.utils import get_utcnow
 from edc_base.view_mixins import EdcBaseViewMixin
 from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -166,7 +166,8 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
         if (('Supervisor' in usr_groups and self.request.GET.get('p_role')
              == 'Supervisor') or ('HR' in usr_groups and self.request.GET.get('p_role')
                                   == 'HR')):
-            qs = qs.filter(status__in=['approved', 'verified', 'rejected', 'submitted'])
+            qs = qs.filter(status__in=['approved', 'verified', 'rejected', 'submitted'],
+                               month__gte=date(2022, 7, 1))
 
         if self.request.GET.get('dept'):
             usr_groups = [g.name for g in self.request.user.groups.all()]
