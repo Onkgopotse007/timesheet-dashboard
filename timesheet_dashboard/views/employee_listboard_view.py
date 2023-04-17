@@ -27,7 +27,7 @@ class EmployeeListBoardView(
 
     model = 'bhp_personnel.employee'
     model_wrapper_cls = EmployeeModelWrapper
-    listboard_view_filters = EmployeeListboardViewFilters()
+    # listboard_view_filters = EmployeeListboardViewFilters()
     navbar_name = 'timesheet'
     navbar_selected_item = 'timesheet_listboard'
     ordering = '-modified'

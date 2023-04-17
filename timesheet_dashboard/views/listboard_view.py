@@ -1,19 +1,18 @@
+from datetime import datetime, date
+from edc_base.utils import get_utcnow
+from edc_base.view_mixins import EdcBaseViewMixin
+from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
+from edc_dashboard.views import ListboardView
 import re
-from datetime import datetime
 
 from django.apps import apps as django_apps
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
+from django.http.response import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
-from edc_base.utils import get_utcnow
-from edc_base.view_mixins import EdcBaseViewMixin
-from edc_dashboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
-from edc_dashboard.views import ListboardView
 from edc_navbar import NavbarViewMixin
-
-from django.http.response import HttpResponseRedirect
 
 from ..model_wrappers import MonthlyEntryModelWrapper
 from .filters import ListboardViewFilters
@@ -56,16 +55,30 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
 
         p_role = self.request.GET.get('p_role')
 
+        employee_id = self.request.GET.get('employee_id') or self.kwargs.get('employee_id')
+        querystring = f'?p_role={p_role}'
+        dept = self.request.GET.get('dept')
+        q = self.request.GET.get('q')
+
+        if employee_id:
+            querystring = querystring + f'&&employee_id={employee_id}'
+
+        if dept:
+            querystring = querystring + f'&&dept={dept}'
+
+        if q:
+            querystring = querystring + f'&&q={q}'
+
         context.update(
             p_role=p_role,
             groups=groups,
             departments=self.departments,
-            employee_id=self.request.GET.get('employee_id') or self.kwargs.get('employee_id'),
+            employee_id=employee_id,
             employee=self.get_employee,
             timesheet_add_url=timesheet_add_url,
             curr_year=get_utcnow().year,
             curr_month=get_utcnow().month,
-            querystring=f'?p_role={p_role}')
+            querystring=querystring)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -150,11 +163,11 @@ class ListboardView(EdcBaseViewMixin, NavbarViewMixin,
     def get_queryset(self):
         qs = super().get_queryset()
         usr_groups = [g.name for g in self.request.user.groups.all()]
-        if 'Supervisor' in usr_groups and self.request.GET.get('p_role') == 'Supervisor':
-            qs = qs.filter(status__in=['approved', 'verified', 'rejected', 'submitted'])
-        elif 'HR' in usr_groups and self.request.GET.get('p_role') == 'HR':
-            qs = qs.filter(status__in=['approved', 'verified', 'rejected'],
-                           approved_by__isnull=False)
+        if (('Supervisor' in usr_groups and self.request.GET.get('p_role')
+             == 'Supervisor') or ('HR' in usr_groups and self.request.GET.get('p_role')
+                                  == 'HR')):
+            qs = qs.filter(status__in=['approved', 'verified', 'rejected', 'submitted'],
+                               month__gte=date(2022, 7, 1))
 
         if self.request.GET.get('dept'):
             usr_groups = [g.name for g in self.request.user.groups.all()]

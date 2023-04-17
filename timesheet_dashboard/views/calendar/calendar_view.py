@@ -22,7 +22,6 @@ class CalendarViewError(Exception):
 
 class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                    TemplateRequestContextMixin, TemplateView):
-
     template_name = 'timesheet_dashboard/calendar/calendar_table.html'
     model = 'timesheet.monthlyentry'
     navbar_name = 'timesheet'
@@ -39,29 +38,37 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
         # if this is a POST request we need to process the form data
         year = kwargs.get('year')
         month = kwargs.get('month')
-
         if request.method == 'POST':
             controller = request.POST.get('controller', '')
             if controller:
-                year, month = self.navigate_table(controller, year, month)
-            elif request.POST.get('read_only') == '1' or request.POST.get('timesheet_review'):
+                if controller == 'calendar_picker':
+                    select_month = request.POST.get('select_month', '')
+                    select_year = request.POST.get('calendar_year', '')
+                    month = datetime.strptime(select_month,
+                                              "%B").month if select_month else month
+                    year = int(select_year) if select_year else year
+                else:
+                    year, month = self.navigate_table(controller, year, month)
+            elif request.POST.get('read_only') == '1' or request.POST.get(
+                    'timesheet_review'):
                 self.add_daily_entries(request, kwargs)
                 return HttpResponseRedirect(
                     reverse('timesheet_dashboard:timesheet_listboard_url',
                             kwargs={'employee_id': kwargs.get('employee_id')})
-                            +'?p_role=' + request.GET.get('p_role'))
+                    + '?p_role=' + request.GET.get('p_role'))
             else:
                 self.add_daily_entries(request, kwargs)
             if request.POST.get('save_submit'):
                 return HttpResponseRedirect(
                     reverse('timesheet_dashboard:timesheet_listboard_url',
                             kwargs={'employee_id': kwargs.get('employee_id')})
-                            +'?p_role=' + request.GET.get('p_role'))
+                    + '?p_role=' + request.GET.get('p_role'))
 
-        return HttpResponseRedirect(reverse('timesheet_dashboard:timesheet_calendar_table_url',
-                                            kwargs={'employee_id': kwargs.get('employee_id'),
-                                                    'year': year,
-                                                    'month': month}))
+        return HttpResponseRedirect(
+            reverse('timesheet_dashboard:timesheet_calendar_table_url',
+                    kwargs={'employee_id': kwargs.get('employee_id'),
+                            'year': year,
+                            'month': month}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -70,30 +77,36 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
         year = kwargs.get('year', '')
         month = kwargs.get('month', '')
 
-        monthly_obj = self.get_monthly_obj(datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
+        monthly_obj = self.get_monthly_obj(
+            datetime.strptime(f'{year}-{month}-1', '%Y-%m-%d'))
         extra_context = {}
-        if (self.request.GET.get('p_role') == 'Supervisor'):
+        if self.request.GET.get('p_role') == 'Supervisor':
             extra_context = {'p_role': 'Supervisor',
                              'verified': True,
                              'read_only': True, }
-            if (monthly_obj and monthly_obj.status in ['rejected', 'approved']):
+
+            # if (monthly_obj and monthly_obj.status != 'verified') or not monthly_obj:
+
+            if monthly_obj and monthly_obj.status in ['rejected', 'approved']:
                 extra_context.update({'read_only': True})
-            elif ((monthly_obj and monthly_obj.status != 'verified') or not monthly_obj):
+            elif (monthly_obj and monthly_obj.status != 'verified') or not monthly_obj:
                 extra_context['review'] = True
-        elif (self.request.GET.get('p_role') == 'HR'):
+        elif self.request.GET.get('p_role') == 'HR':
             extra_context = {'p_role': 'HR'}
-            if (monthly_obj and monthly_obj.status in ['rejected']):
+            if monthly_obj and monthly_obj.status in ['rejected']:
                 extra_context.update({'read_only': True})
             else:
                 extra_context.update({'verify': True})
-        elif (monthly_obj and monthly_obj.status in ['approved', 'verified']):
+        elif monthly_obj and monthly_obj.status in ['approved', 'verified']:
             extra_context = {'read_only': True, }
 
         if monthly_obj:
             leave_balance = None
             if self.get_current_contract(employee_id):
+                leave_balance = self.get_current_contract(
+                    employee_id).leave_balance
 
-                leave_balance = self.get_current_contract(employee_id).leave_balance
+            monthly_obj_job_title = self.monthly_obj_job_title(monthly_obj)
 
             extra_context.update(
                 leave_taken=monthly_obj.annual_leave_taken,
@@ -105,6 +118,7 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                 approved_by=monthly_obj.approved_by,
                 submitted_datetime=monthly_obj.submitted_datetime,
                 rejected_by=monthly_obj.rejected_by,
+                monthly_obj_job_title=monthly_obj_job_title
             )
         else:
             extra_context.update(
@@ -123,20 +137,22 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
             calendar_day = datetime.strptime(f'{year}-{month}-' + str(
                 get_utcnow().day), '%Y-%m-%d').date()
         except ValueError:
-            calendar_day = datetime.strptime(f'{year}-{month}-' + str(calendar.monthrange(
-                int(year), int(month))[-1]), '%Y-%m-%d').date()
+            calendar_day = datetime.strptime(
+                f'{year}-{month}-' + str(calendar.monthrange(
+                    int(year), int(month))[-1]), '%Y-%m-%d').date()
 
         if calendar_day > get_utcnow().date():
             entry_types = tuple(
-                x for x in entry_types if x[0] not in ['RH', 'SL', 'CL', 'FH', ])
-
+                x for x in entry_types if
+                x[0] not in ['RH', 'SL', 'CL', 'FH', ])
         context.update(employee_id=employee_id,
                        week_titles=calendar.day_abbr,
                        month_name=month_name,
                        curr_month=month,
                        year=year,
                        daily_entries_dict=daily_entries_dict,
-                       prefilled_rows=len(daily_entries_dict.keys()) if daily_entries_dict else 0,
+                       prefilled_rows=len(
+                           daily_entries_dict.keys()) if daily_entries_dict else 0,
                        blank_days_range=range(blank_days),
                        blank_days=str(blank_days),
                        last_day=calendar.monthrange(int(year), int(month))[1],
@@ -145,6 +161,8 @@ class CalendarView(TimesheetMixin, NavbarViewMixin, EdcBaseViewMixin,
                        user_employee=self.user_employee,
                        holidays=self.get_holidays(int(year), int(month)),
                        entry_types=entry_types,
+                       month_names=list(calendar.month_name)[1:13],
+                       is_security=self.is_security,
                        **extra_context)
         return context
 
