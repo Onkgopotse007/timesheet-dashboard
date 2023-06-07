@@ -103,8 +103,10 @@
                                         {% elif review %}
                                             <option value={{ entry.entry_type }} selected>{{ entry.entry_type }}</option>
                                         {% else %}
-                                            {% if entry.day|is_holiday %}
+                                            {% if entry.day|is_holiday and is_security %}
                                                 <option value='H' selected> H</option>
+                                            {% elif entry.day|is_holiday and not is_security %}
+                                                <option value='WE' selected> WE</option>
                                             {% elif entry.day|is_weekend %}
                                                 <option value='WE' selected> WE</option>
                                             {% else %}
