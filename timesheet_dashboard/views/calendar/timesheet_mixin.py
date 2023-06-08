@@ -148,7 +148,6 @@ class TimesheetMixin:
                                                       form=DailyEntryForm,
                                                       fields=['day',
                                                               'duration',
-                                                              'duration_minutes',
                                                               'entry_type',
                                                               'row'],
                                                       can_delete=True)
@@ -226,9 +225,8 @@ class TimesheetMixin:
             base_time_obj = 12
 
         for entry in weekday_entries:
-            total_duration = entry.duration + (entry.duration_minutes/60)
-            if total_duration > base_time_obj:
-                difference = total_duration - base_time_obj
+            if entry.duration > base_time_obj:
+                difference = entry.duration - base_time_obj
                 if not extra_hours:
                     extra_hours = difference
                 else:
@@ -239,13 +237,12 @@ class TimesheetMixin:
         if self.is_security:
             weekend_entries = dailyentries.filter(entry_type='H')
         for weekend_entry in weekend_entries:
-            total_duration = weekend_entry.duration + (weekend_entry.duration_minutes // 60)
             if not extra_hours:
-                extra_hours = total_duration
+                extra_hours = weekend_entry.duration
             else:
-                extra_hours += total_duration
+                extra_hours += weekend_entry.duration
 
-            monthly_entry.monthly_overtime = extra_hours
+            monthly_entry.monthly_overtime = str(extra_hours)
 
         return monthly_entry
 
