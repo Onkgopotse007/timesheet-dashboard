@@ -168,7 +168,8 @@ class TimesheetMixin:
                 if request.POST.get('save_submit') == '1':
                     monthly_entry.status = 'submitted'
                     monthly_entry.submitted_datetime = get_utcnow()
-                # monthly_entry = self.sum_monthly_leave_days(formset.queryset, monthly_entry)
+                # monthly_entry = self.sum_monthly_leave_days(formset.queryset,
+                # monthly_entry)
                 monthly_entry = self.calculate_monthly_overtime(
                     formset.queryset, monthly_entry)
                 monthly_entry.save()
@@ -183,7 +184,8 @@ class TimesheetMixin:
     # def sum_monthly_leave_days(self, dailyentries, monthly_entry):
     #
     #     leave_types = ['AL', 'STL', 'SL', 'CL', 'ML', 'PL']
-    #     leave_taken_types = ['annual_leave_taken', 'study_leave_taken', 'sick_leave_taken',
+    #     leave_taken_types = ['annual_leave_taken', 'study_leave_taken',
+    #     'sick_leave_taken',
     #                          'compassionate_leave_taken', 'maternity_leave_taken',
     #                          'paternity_leave_taken']
     #
@@ -198,7 +200,8 @@ class TimesheetMixin:
     #
     #         leave_sum_dict = leave_entries.aggregate(Sum('duration'))
     #         if leave_sum_dict.get('duration__sum'):
-    #             setattr(monthly_entry, leave_taken, leave_sum_dict.get('duration__sum') / 8)
+    #             setattr(monthly_entry, leave_taken, leave_sum_dict.get(
+    #             'duration__sum') / 8)
     #
     #     return monthly_entry
 
@@ -214,35 +217,51 @@ class TimesheetMixin:
             return current_contract
 
     def calculate_monthly_overtime(self, dailyentries, monthly_entry):
-        weekday_entries = dailyentries.filter(
-            Q(day__week_day__lt=7) & Q(day__week_day__gt=1),
-            entry_type='RH')
-
-        extra_hours = None
         base_time_obj = 8
+        holiday_entry_duration = 8
+        weekend_entry_duration = None
+
+        weekday_entries = dailyentries.filter(
+            Q(day__week_day__lt=7) & Q(day__week_day__gt=1) & Q(entry_type='RH'))
 
         if self.is_security:
             base_time_obj = 12
 
+        extra_hours = 0
+
         for entry in weekday_entries:
             if entry.duration > base_time_obj:
                 difference = entry.duration - base_time_obj
-                if not extra_hours:
-                    extra_hours = difference
-                else:
-                    extra_hours += difference
+                extra_hours += difference
 
         weekend_entries = dailyentries.filter(
-            Q(entry_type='WE') | Q(entry_type='H'))
-        if self.is_security:
-            weekend_entries = dailyentries.filter(entry_type='H')
-        for weekend_entry in weekend_entries:
-            if not extra_hours:
-                extra_hours = weekend_entry.duration
-            else:
-                extra_hours += weekend_entry.duration
+            Q(day__week_day__gte=6) & Q(day__week_day__lte=7) & Q(
+                entry_type='WE'))
 
-            monthly_entry.monthly_overtime = str(extra_hours)
+        holiday_entries = dailyentries.filter(
+            Q(entry_type='H'))
+
+        if self.is_security:
+            weekend_entries = dailyentries.filter(
+                Q(day__week_day__gte=6) & Q(day__week_day__lte=7)
+                | Q(entry_type='H'))
+
+        for weekend_entry in weekend_entries:
+            if self.is_security:
+                difference = weekend_entry.duration - base_time_obj
+                if difference > 0:
+                    extra_hours += difference
+            else:
+                difference = weekend_entry.duration - weekend_entry_duration
+                if difference > 0:
+                    extra_hours += difference
+
+        for holiday_entry in holiday_entries:
+            difference = holiday_entry.duration - holiday_entry_duration
+            if difference > 0:
+                extra_hours += difference
+
+        monthly_entry.monthly_overtime = str(extra_hours)
 
         return monthly_entry
 
@@ -265,7 +284,7 @@ class TimesheetMixin:
 
         try:
             monthly_obj = monthly_cls.objects.get(month=month,
-                                                  employee=self.employee,)
+                                                  employee=self.employee, )
         except monthly_cls.DoesNotExist:
             monthly_obj = None
         return monthly_obj
