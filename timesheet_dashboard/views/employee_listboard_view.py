@@ -33,11 +33,27 @@ class EmployeeListBoardView(
     ordering = '-modified'
     paginate_by = 10
     search_form_url = 'timesheet_employee_listboard_url'
+    employee_model = 'bhp_personnel.employee'
+    
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+    
+    @property
+    def employee_cls(self):
+        return django_apps.get_model(self.employee_model)
 
+
+    @property
+    def employee(self):
+        try:
+            employee_obj = self.employee_cls.objects.get(email=self.request.user.email)
+        except self.employee_cls.DoesNotExist:
+            return None
+        else:
+            return employee_obj
+        
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -47,7 +63,8 @@ class EmployeeListBoardView(
             departments=self.departments,
             groups=[g.name for g in self.request.user.groups.all()],
             employee_add_url=self.model_cls().get_absolute_url(),
-            querystring=self.user_id)
+            querystring=self.user_id,
+            employee = self.employee)
         return context
 
     @property
